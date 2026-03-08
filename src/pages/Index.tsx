@@ -25,7 +25,7 @@ const Index = () => {
   });
   const [showSettings, setShowSettings] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
-  const [view, setView] = useState<"preview" | "code">("preview");
+  const [view, setView] = useState<"chat" | "preview" | "code">("chat");
   const [loading, setLoading] = useState(false);
 
   const active = projects.find((p) => p.id === activeId) || projects[0];
