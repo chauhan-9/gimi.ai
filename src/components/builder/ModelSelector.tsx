@@ -33,6 +33,7 @@ const BUILDER_MODELS: ModelOption[] = [
 const IMAGE_MODELS: ModelOption[] = [
   { id: "google/gemini-2.5-flash-image", label: "Gemini Flash Image", description: "Fast image generation", icon: <Image size={14} />, speed: "fast" },
   { id: "google/gemini-3-pro-image-preview", label: "Gemini 3 Pro Image", description: "Highest quality images", icon: <Image size={14} />, speed: "powerful" },
+  { id: "google/gemini-2.5-flash-image-3d", label: "3D Image Creator", description: "Generate 3D-style images", icon: <Cpu size={14} />, speed: "balanced" },
 ];
 
 const VIDEO_MODELS: ModelOption[] = [
