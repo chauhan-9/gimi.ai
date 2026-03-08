@@ -3,6 +3,7 @@ import { Sidebar } from "@/components/builder/Sidebar";
 import { SettingsModal } from "@/components/builder/SettingsModal";
 import { Header } from "@/components/builder/Header";
 import { ChatInput } from "@/components/builder/ChatInput";
+import { ChatPane } from "@/components/builder/ChatPane";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { sendMessage } from "@/lib/ai";
 import {
@@ -24,7 +25,7 @@ const Index = () => {
   });
   const [showSettings, setShowSettings] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
-  const [view, setView] = useState<"preview" | "code">("preview");
+  const [view, setView] = useState<"chat" | "preview" | "code">("chat");
   const [loading, setLoading] = useState(false);
 
   const active = projects.find((p) => p.id === activeId) || projects[0];
@@ -124,7 +125,11 @@ const Index = () => {
           onDownload={handleDownload}
           onToggleSidebar={() => setShowSidebar(!showSidebar)}
         />
-        <PreviewPane html={active?.html || ""} view={view} />
+        {view === "chat" ? (
+          <ChatPane messages={active?.messages || []} loading={loading} />
+        ) : (
+          <PreviewPane html={active?.html || ""} view={view} />
+        )}
         <ChatInput onSend={handleSend} loading={loading} />
       </div>
 

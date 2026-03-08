@@ -1,8 +1,10 @@
 import { Download, Menu } from "lucide-react";
 
+type View = "chat" | "preview" | "code";
+
 interface HeaderProps {
-  view: "preview" | "code";
-  onViewChange: (v: "preview" | "code") => void;
+  view: View;
+  onViewChange: (v: View) => void;
   onDownload: () => void;
   onToggleSidebar: () => void;
 }
@@ -20,26 +22,19 @@ export function Header({ view, onViewChange, onDownload, onToggleSidebar }: Head
       </div>
 
       <div className="flex items-center bg-secondary rounded-lg p-0.5">
-        <button
-          onClick={() => onViewChange("preview")}
-          className={`px-4 py-1.5 text-sm rounded-md font-medium transition-colors ${
-            view === "preview"
-              ? "bg-card text-card-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Preview
-        </button>
-        <button
-          onClick={() => onViewChange("code")}
-          className={`px-4 py-1.5 text-sm rounded-md font-medium transition-colors ${
-            view === "code"
-              ? "bg-card text-card-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Code
-        </button>
+        {(["chat", "preview", "code"] as const).map((v) => (
+          <button
+            key={v}
+            onClick={() => onViewChange(v)}
+            className={`px-4 py-1.5 text-sm rounded-md font-medium transition-colors capitalize ${
+              view === v
+                ? "bg-card text-card-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {v}
+          </button>
+        ))}
       </div>
 
       <button
