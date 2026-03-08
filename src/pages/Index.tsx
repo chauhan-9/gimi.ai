@@ -160,8 +160,10 @@ const Index = () => {
 
     let fullContent = "";
     try {
+      const toolParam = appMode === "chat" ? "chat" : undefined;
       await streamChat({
         messages: newMessages,
+        tool: toolParam,
         model: selectedModel,
         onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
         onDone: async () => {
