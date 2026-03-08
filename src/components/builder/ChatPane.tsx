@@ -199,13 +199,28 @@ export function ChatPane({ messages, loading, onSuggestionClick, onEdit, onDelet
                       urlTransform={(url) => url}
                       components={{
                         img: ({ src, alt, ...props }) => (
-                          <img
-                            src={src}
-                            alt={alt || "Generated image"}
-                            className="rounded-xl max-w-full shadow-lg my-3 border border-border"
-                            loading="lazy"
-                            {...props}
-                          />
+                          <div className="relative inline-block group/img">
+                            <img
+                              src={src}
+                              alt={alt || "Generated image"}
+                              className="rounded-xl max-w-full shadow-lg my-3 border border-border"
+                              loading="lazy"
+                              {...props}
+                            />
+                            <button
+                              onClick={() => {
+                                const link = document.createElement("a");
+                                link.href = src || "";
+                                link.download = `hexa-image-${Date.now()}.png`;
+                                link.click();
+                                toast.success("Download started!");
+                              }}
+                              className="absolute top-5 right-2 p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground opacity-0 group-hover/img:opacity-100 transition-opacity"
+                              title="Download image"
+                            >
+                              <Download size={14} />
+                            </button>
+                          </div>
                         ),
                       }}
                     >{summarizeHtml(msg.content)}</ReactMarkdown>
