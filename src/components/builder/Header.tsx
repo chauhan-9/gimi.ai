@@ -1,7 +1,7 @@
-import { Download, Menu, Sparkles } from "lucide-react";
+import { Download, Menu, Wrench } from "lucide-react";
 import hexaIcon from "@/assets/hexa-icon.png";
 
-type View = "chat" | "preview" | "code";
+export type View = "chat" | "tools" | "preview" | "code";
 
 interface HeaderProps {
   view: View;
@@ -10,9 +10,16 @@ interface HeaderProps {
   onToggleSidebar: () => void;
 }
 
+const TABS: { key: View; label: string }[] = [
+  { key: "chat", label: "Chat" },
+  { key: "tools", label: "Tools" },
+  { key: "preview", label: "Preview" },
+  { key: "code", label: "Code" },
+];
+
 export function Header({ view, onViewChange, onDownload, onToggleSidebar }: HeaderProps) {
   return (
-    <div className="flex items-center justify-between px-4 py-2.5 glass-strong flex-shrink-0">
+    <div className="flex items-center justify-between px-4 py-2.5 bg-card border-b border-border flex-shrink-0">
       <div className="flex items-center gap-3">
         <button onClick={onToggleSidebar} className="lg:hidden text-muted-foreground hover:text-foreground transition-colors">
           <Menu size={20} />
@@ -23,18 +30,18 @@ export function Header({ view, onViewChange, onDownload, onToggleSidebar }: Head
         </div>
       </div>
 
-      <div className="flex items-center glass rounded-xl p-1">
-        {(["chat", "preview", "code"] as const).map((v) => (
+      <div className="flex items-center bg-muted rounded-xl p-1">
+        {TABS.map((tab) => (
           <button
-            key={v}
-            onClick={() => onViewChange(v)}
-            className={`px-4 py-1.5 text-sm rounded-lg font-medium transition-all capitalize ${
-              view === v
-                ? "bg-primary/20 text-primary glow-primary shadow-sm"
+            key={tab.key}
+            onClick={() => onViewChange(tab.key)}
+            className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg font-medium transition-all ${
+              view === tab.key
+                ? "bg-card text-primary shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            {v}
+            {tab.label}
           </button>
         ))}
       </div>
