@@ -27,6 +27,7 @@ const Index = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeId, setActiveId] = useState<string>("");
   const [showSidebar, setShowSidebar] = useState(false);
+  const [appMode, setAppMode] = useState<AppMode | null>(null);
   const [view, setView] = useState<View>("chat");
   const [activeTool, setActiveTool] = useState<AiTool | null>(null);
   const [toolMessages, setToolMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
