@@ -272,6 +272,12 @@ const Index = () => {
           onDownload={handleDownload}
           onToggleSidebar={() => setShowSidebar(!showSidebar)}
         />
+        {/* Tool chat header */}
+        {view === "tools" && activeTool && (
+          <ToolChatHeader tool={activeTool} onBack={() => setActiveTool(null)} />
+        )}
+
+        {/* Content area */}
         {view === "chat" ? (
           <ChatPane
             messages={allMessages}
@@ -281,10 +287,36 @@ const Index = () => {
             onDelete={handleDeleteMessage}
             onRegenerate={handleRegenerate}
           />
+        ) : view === "tools" ? (
+          activeTool ? (
+            <ChatPane
+              messages={toolStreamingContent
+                ? [...toolMessages, { role: "assistant" as const, content: toolStreamingContent }]
+                : toolMessages}
+              loading={loading && !toolStreamingContent}
+              onSuggestionClick={handleToolSend}
+              onDelete={(i) => setToolMessages((prev) => prev.filter((_, idx) => idx !== i))}
+              onRegenerate={(i) => {
+                const msgs = toolMessages.slice(0, i);
+                setToolMessages(msgs);
+                handleToolSendWithMessages(msgs);
+              }}
+            />
+          ) : (
+            <ToolsDashboard onSelectTool={(tool) => { setActiveTool(tool); setToolMessages([]); }} />
+          )
         ) : (
-          <PreviewPane html={active?.html || ""} view={view} />
+          <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
         )}
-        <ChatInput onSend={handleSend} loading={loading} />
+
+        {/* Input */}
+        {(view === "chat" || (view === "tools" && activeTool)) && (
+          <ChatInput
+            onSend={view === "tools" && activeTool ? handleToolSend : handleSend}
+            loading={loading}
+            placeholder={activeTool && view === "tools" ? activeTool.placeholder : undefined}
+          />
+        )}
       </div>
     </div>
   );
