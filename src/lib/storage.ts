@@ -107,11 +107,11 @@ export async function deleteProjectFromCloud(id: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function createProjectInCloud(name?: string): Promise<Project> {
+export async function createProjectInCloud(name?: string, mode: AppMode = "builder"): Promise<Project> {
   const userId = await getUserId();
   const { data, error } = await supabase
     .from("projects")
-    .insert({ name: name || `Project ${Date.now()}`, user_id: userId })
+    .insert({ name: name || `Project ${Date.now()}`, user_id: userId, mode } as any)
     .select()
     .single();
 
@@ -120,6 +120,7 @@ export async function createProjectInCloud(name?: string): Promise<Project> {
     id: data.id,
     name: data.name,
     html: data.html || "",
+    mode: (data as any).mode || mode,
     messages: [],
     createdAt: new Date(data.created_at).getTime(),
   };
