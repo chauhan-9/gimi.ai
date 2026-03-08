@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import ReactDOM from "react-dom";
 import { ChevronDown, Zap, Brain, Sparkles, Cpu, Image, Video } from "lucide-react";
 import type { AppMode } from "@/lib/storage";
 
@@ -100,16 +101,26 @@ interface ModelSelectorProps {
 export function ModelSelector({ mode, selectedModel, onModelChange }: ModelSelectorProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const models = MODE_MODELS[mode];
   const current = models.find((m) => m.id === selectedModel) || models[0];
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node) && dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  const handleOpen = useCallback(() => {
+    if (!open && ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      setPos({ top: rect.top, left: rect.left });
+    }
+    setOpen(!open);
+  }, [open]);
 
   const handleSelect = (model: ModelOption) => {
     onModelChange(model.id);
@@ -120,7 +131,7 @@ export function ModelSelector({ mode, selectedModel, onModelChange }: ModelSelec
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen(!open)}
+        onClick={handleOpen}
         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs bg-muted hover:bg-secondary border border-border transition-colors"
       >
         <Cpu size={12} className="text-primary" />
@@ -128,8 +139,12 @@ export function ModelSelector({ mode, selectedModel, onModelChange }: ModelSelec
         <ChevronDown size={12} className={`text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
-      {open && (
-        <div className="absolute bottom-full left-0 mb-1.5 w-64 bg-card border border-border rounded-xl shadow-lg z-50 py-1.5 max-h-80 overflow-y-auto animate-in fade-in-0 zoom-in-95 duration-150">
+      {open && ReactDOM.createPortal(
+        <div
+          ref={dropdownRef}
+          style={{ position: "fixed", bottom: `${window.innerHeight - pos.top + 8}px`, left: `${pos.left}px` }}
+          className="w-64 bg-card border border-border rounded-xl shadow-lg z-[200] py-1.5 max-h-[60vh] overflow-y-auto animate-in fade-in-0 zoom-in-95 duration-150"
+        >
           <div className="px-3 py-1.5 border-b border-border mb-1">
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Select Model</p>
           </div>
@@ -162,7 +177,8 @@ export function ModelSelector({ mode, selectedModel, onModelChange }: ModelSelec
               )}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
