@@ -236,6 +236,8 @@ export function ChatPane({ messages, loading, onSuggestionClick, onEdit, onDelet
 }
 
 function summarizeHtml(content: string): string {
+  // Don't summarize if content contains image markdown
+  if (content.includes("![")) return content;
   if (content.length < 300) return content;
   const title = content.match(/<title>(.*?)<\/title>/i)?.[1];
   if (content.trim().match(/^(<(!DOCTYPE|html))/i) || content.includes("```html")) {
