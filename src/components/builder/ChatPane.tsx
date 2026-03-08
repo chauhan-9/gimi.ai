@@ -196,6 +196,7 @@ export function ChatPane({ messages, loading, onSuggestionClick, onEdit, onDelet
                 <div className="text-[15px] break-words text-foreground leading-relaxed">
                   <div className="prose prose-base max-w-none prose-p:my-1.5 prose-headings:my-2.5 prose-ul:my-1.5 prose-li:my-0.5 prose-headings:font-display prose-p:leading-relaxed prose-img:rounded-xl prose-img:max-w-full prose-img:shadow-lg">
                     <ReactMarkdown
+                      urlTransform={(url) => url}
                       components={{
                         img: ({ src, alt, ...props }) => (
                           <img
