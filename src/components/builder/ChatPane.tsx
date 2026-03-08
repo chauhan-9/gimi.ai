@@ -295,27 +295,20 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
   return (
     <React.Fragment>
     <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto bg-background">
-      <div className="max-w-3xl mx-auto py-6 px-4 space-y-4">
+      <div className="max-w-3xl mx-auto py-6 px-4 space-y-5">
         {messages.map((msg, i) => (
           <div key={i} className={`group flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
-            {msg.role === "assistant" ? (
-              <div className="flex items-center gap-2 mb-1">
+            {msg.role === "assistant" && (
+              <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-6 h-6 rounded-lg overflow-hidden">
                   <img src={hexaIcon} alt="Hexa" className="w-full h-full object-cover" />
                 </div>
                 <span className="text-xs font-medium text-muted-foreground">Hexa</span>
               </div>
-            ) : (
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center border border-border">
-                  <User size={12} className="text-muted-foreground" />
-                </div>
-                <span className="text-xs font-medium text-muted-foreground">You</span>
-              </div>
             )}
-            <div className="max-w-[90%]">
+            <div className={`max-w-[85%] ${msg.role === "user" ? "" : ""}`}>
               {msg.role === "user" ? (
-                <div className="text-[15px] break-words text-foreground leading-relaxed">
+                <div className="bg-muted/60 rounded-2xl rounded-tr-sm px-4 py-2.5 text-[15px] break-words text-foreground leading-relaxed">
                   <span className="whitespace-pre-wrap">{msg.content}</span>
                 </div>
               ) : (
