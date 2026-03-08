@@ -384,7 +384,19 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce [animation-delay:0ms]" />
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-bounce [animation-delay:150ms]" />
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce [animation-delay:300ms]" />
-              </div>
+    </div>
+
+      {/* Scroll to bottom button */}
+      {showScrollBtn && (
+        <div className="relative">
+          <button
+            onClick={scrollToBottom}
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 w-9 h-9 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity animate-in fade-in-0 zoom-in-95"
+          >
+            <ArrowDown size={18} />
+          </button>
+        </div>
+      )}
             </div>
           </div>
         )}
