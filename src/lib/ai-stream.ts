@@ -1,4 +1,5 @@
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/website-builder-chat`;
+const IMAGE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-image`;
 
 type Msg = { role: "user" | "assistant"; content: string };
 
