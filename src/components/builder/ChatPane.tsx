@@ -238,23 +238,40 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
                             <img
                               src={src}
                               alt={alt || "Generated image"}
-                              className="rounded-xl max-w-full shadow-lg my-3 border border-border"
+                              className="rounded-xl max-w-full shadow-lg my-3 border border-border cursor-pointer hover:shadow-xl transition-shadow"
                               loading="lazy"
+                              onClick={() => setLightboxSrc(src || "")}
                               {...props}
                             />
-                            <button
-                              onClick={() => {
-                                const link = document.createElement("a");
-                                link.href = src || "";
-                                link.download = `hexa-image-${Date.now()}.png`;
-                                link.click();
-                                toast.success("Download started!");
-                              }}
-                              className="absolute top-5 right-2 p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground opacity-0 group-hover/img:opacity-100 transition-opacity"
-                              title="Download image"
-                            >
-                              <Download size={14} />
-                            </button>
+                            <div className="absolute top-5 right-2 flex items-center gap-1 opacity-0 group-hover/img:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => setLightboxSrc(src || "")}
+                                className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
+                                title="Zoom"
+                              >
+                                <ZoomIn size={14} />
+                              </button>
+                              <button
+                                onClick={() => setViewer3DSrc(src || "")}
+                                className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-primary transition-colors"
+                                title="View in 3D"
+                              >
+                                <Box size={14} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const link = document.createElement("a");
+                                  link.href = src || "";
+                                  link.download = `hexa-image-${Date.now()}.png`;
+                                  link.click();
+                                  toast.success("Download started!");
+                                }}
+                                className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
+                                title="Download"
+                              >
+                                <Download size={14} />
+                              </button>
+                            </div>
                           </div>
                         ),
                       }}
