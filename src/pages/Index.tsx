@@ -9,7 +9,7 @@ import { PreviewPane } from "@/components/builder/PreviewPane";
 import { ToolsDashboard, ToolChatHeader, type AiTool } from "@/components/builder/ToolsDashboard";
 import { HomeScreen } from "@/components/builder/HomeScreen";
 import type { AppMode } from "@/lib/storage";
-import { streamChat, extractHtml } from "@/lib/ai-stream";
+import { streamChat, extractHtml, generateImage } from "@/lib/ai-stream";
 import {
   loadProjectsFromCloud,
   saveProjectToCloud,
