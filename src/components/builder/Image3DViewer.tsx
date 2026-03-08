@@ -155,6 +155,3 @@ export function Image3DViewer({ src, onClose }: Image3DViewerProps) {
     </div>
   );
 }
-
-// Need useState import
-import { useState } from "react";
