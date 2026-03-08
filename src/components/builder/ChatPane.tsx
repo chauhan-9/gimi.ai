@@ -401,12 +401,7 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
         <ImageLightbox
           src={lightboxSrc}
           onClose={() => setLightboxSrc(null)}
-          onOpen3D={() => { setLightboxSrc(null); setViewer3DSrc(lightboxSrc); }}
         />
-      )}
-
-      {viewer3DSrc && (
-        <Image3DViewer src={viewer3DSrc} onClose={() => setViewer3DSrc(null)} />
       )}
     </React.Fragment>
   );
