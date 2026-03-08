@@ -210,6 +210,8 @@ function MessageActions({ msg, index, onEdit, onDelete, onRegenerate }: {
 
 export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef(true);
   const MODE_CATEGORIES: Record<string, typeof CHAT_CATEGORIES> = {
     chat: CHAT_CATEGORIES,
     builder: BUILDER_CATEGORIES,
@@ -228,8 +230,16 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [viewer3DSrc, setViewer3DSrc] = useState<string | null>(null);
 
+  const handleScroll = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 150;
+  };
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (isNearBottomRef.current) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages, loading]);
 
   if (messages.length === 0 && !loading) {
@@ -270,7 +280,7 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
 
   return (
     <React.Fragment>
-    <div className="flex-1 overflow-y-auto bg-background">
+    <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto bg-background">
       <div className="max-w-3xl mx-auto py-6 px-4 space-y-4">
         {messages.map((msg, i) => (
           <div key={i} className={`group flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
