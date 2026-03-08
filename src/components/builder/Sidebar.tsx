@@ -12,7 +12,7 @@ interface SidebarProps {
 
 export function Sidebar({ projects, activeId, onSelect, onNew, onDelete }: SidebarProps) {
   return (
-    <div className="flex flex-col h-full w-64 glass-strong text-foreground flex-shrink-0">
+    <div className="flex flex-col h-full w-64 bg-card border-r border-border flex-shrink-0">
       {/* Brand */}
       <div className="p-4 flex items-center gap-3">
         <img src={hexaIcon} alt="Hexa.AI" className="w-9 h-9 rounded-xl" />
