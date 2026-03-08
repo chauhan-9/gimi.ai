@@ -137,11 +137,12 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, tool } = await req.json();
+    const { messages, tool, model } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const systemPrompt = SYSTEM_PROMPTS[tool || "general"] || SYSTEM_PROMPTS.general;
+    const selectedModel = model || "google/gemini-3-flash-preview";
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -152,7 +153,7 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          model: selectedModel,
           messages: [
             { role: "system", content: systemPrompt },
             ...messages,
