@@ -12,6 +12,7 @@ interface Message {
 interface ChatPaneProps {
   messages: Message[];
   loading: boolean;
+  appMode?: string;
   onSuggestionClick?: (text: string) => void;
   onCopy?: (index: number) => void;
   onEdit?: (index: number, newContent: string) => void;
