@@ -314,7 +314,7 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
       {viewer3DSrc && (
         <Image3DViewer src={viewer3DSrc} onClose={() => setViewer3DSrc(null)} />
       )}
-    </>
+    </React.Fragment>
   );
 }
 
