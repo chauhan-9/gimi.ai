@@ -1,51 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 220 25% 10%;
+    --background: 260 25% 8%;
+    --foreground: 0 0% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 10%;
+    --card: 260 20% 12%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 10%;
+    --popover: 260 25% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 217 91% 60%;
+    --primary: 270 80% 65%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 220 25% 10%;
+    --secondary: 260 20% 16%;
+    --secondary-foreground: 0 0% 85%;
 
-    --muted: 220 14% 94%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 260 15% 18%;
+    --muted-foreground: 260 10% 55%;
 
-    --accent: 220 14% 92%;
-    --accent-foreground: 220 25% 10%;
+    --accent: 280 60% 55%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 89%;
-    --input: 220 13% 89%;
-    --ring: 217 91% 60%;
+    --border: 260 15% 20%;
+    --input: 260 15% 18%;
+    --ring: 270 80% 65%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-bg: 220 25% 12%;
-    --sidebar-fg: 220 14% 80%;
-    --sidebar-active: 217 91% 60%;
-    --sidebar-hover: 220 20% 18%;
-    --sidebar-border: 220 20% 20%;
+    --sidebar-bg: 260 30% 6%;
+    --sidebar-fg: 260 10% 70%;
+    --sidebar-active: 270 80% 65%;
+    --sidebar-hover: 260 20% 14%;
+    --sidebar-border: 260 15% 15%;
 
-    --builder-header: 220 20% 97%;
-    --builder-canvas: 0 0% 100%;
-    --builder-footer: 0 0% 100%;
+    --builder-header: 260 25% 10%;
+    --builder-canvas: 260 25% 8%;
+    --builder-footer: 260 25% 10%;
 
-    --code-bg: 220 25% 8%;
+    --code-bg: 260 30% 6%;
     --code-fg: 160 60% 70%;
+
+    --glow-primary: 270 80% 65%;
+    --glow-accent: 310 70% 60%;
+    --glow-cyan: 190 80% 60%;
   }
 }
 
@@ -56,10 +62,15 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
   }
 
   #root {
@@ -67,5 +78,73 @@
     flex-direction: column;
     min-height: 100dvh;
     overflow: hidden;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: hsla(260, 20%, 12%, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsla(260, 15%, 30%, 0.3);
+  }
+
+  .glass-strong {
+    background: hsla(260, 20%, 10%, 0.8);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid hsla(260, 15%, 30%, 0.4);
+  }
+
+  .glass-card {
+    background: hsla(260, 20%, 14%, 0.5);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsla(260, 15%, 30%, 0.25);
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px hsla(270, 80%, 65%, 0.15), 0 0 60px hsla(270, 80%, 65%, 0.05);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px hsla(310, 70%, 60%, 0.15), 0 0 60px hsla(310, 70%, 60%, 0.05);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(270, 80%, 70%), hsl(310, 70%, 65%), hsl(190, 80%, 65%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-border {
+    border-image: linear-gradient(135deg, hsla(270, 80%, 65%, 0.5), hsla(310, 70%, 60%, 0.5)) 1;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .animate-glow {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 20px hsla(270, 80%, 65%, 0.1); }
+    50% { box-shadow: 0 0 40px hsla(270, 80%, 65%, 0.25), 0 0 80px hsla(310, 70%, 60%, 0.1); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
   }
 }

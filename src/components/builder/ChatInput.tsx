@@ -1,4 +1,4 @@
-import { Send, Plus, MoreHorizontal, Mic, MicOff, Image, FileVideo, Camera, X } from "lucide-react";
+import { Send, Plus, MoreHorizontal, Mic, MicOff, Image, FileVideo, Camera, X, Sparkles } from "lucide-react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
   DropdownMenu,
@@ -26,7 +26,6 @@ export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps)
   const [isRecording, setIsRecording] = useState(false);
   const ref = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recognitionRef = useRef<any>(null);
 
   const handleSend = () => {
@@ -53,7 +52,6 @@ export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps)
     }
   };
 
-  // File upload handler
   const handleFileSelect = useCallback((accept: string) => {
     if (fileInputRef.current) {
       fileInputRef.current.accept = accept;
@@ -64,36 +62,21 @@ export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps)
   const handleFilesChosen = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
-
-    const maxSize = 20 * 1024 * 1024; // 20MB
+    const maxSize = 20 * 1024 * 1024;
     const totalAllowed = 10;
-
     if (attachments.length + files.length > totalAllowed) {
       toast.error(`Maximum ${totalAllowed} files allowed`);
       return;
     }
-
     const newAttachments: Attachment[] = [];
     for (const file of files) {
-      if (file.size > maxSize) {
-        toast.error(`${file.name} is too large (max 20MB)`);
-        continue;
-      }
+      if (file.size > maxSize) { toast.error(`${file.name} is too large (max 20MB)`); continue; }
       const isVideo = file.type.startsWith("video/");
       const isImage = file.type.startsWith("image/");
-      if (!isVideo && !isImage) {
-        toast.error(`${file.name} is not a supported file type`);
-        continue;
-      }
-      newAttachments.push({
-        file,
-        preview: URL.createObjectURL(file),
-        type: isVideo ? "video" : "image",
-      });
+      if (!isVideo && !isImage) { toast.error(`${file.name} is not supported`); continue; }
+      newAttachments.push({ file, preview: URL.createObjectURL(file), type: isVideo ? "video" : "image" });
     }
-
     setAttachments((prev) => [...prev, ...newAttachments]);
-    // Reset input so same file can be selected again
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -105,73 +88,44 @@ export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps)
     });
   };
 
-  // Voice recording (Speech-to-Text)
   const toggleRecording = useCallback(() => {
     if (isRecording) {
-      // Stop recording
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-        recognitionRef.current = null;
-      }
+      recognitionRef.current?.stop();
+      recognitionRef.current = null;
       setIsRecording(false);
       return;
     }
-
-    // Check browser support
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      toast.error("Speech recognition is not supported in this browser");
-      return;
-    }
-
+    if (!SpeechRecognition) { toast.error("Speech recognition not supported"); return; }
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = "hi-IN"; // Hindi + English mix
-
+    recognition.lang = "hi-IN";
     let finalTranscript = text;
-
     recognition.onresult = (event: any) => {
       let interim = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += (finalTranscript ? " " : "") + transcript;
-        } else {
-          interim = transcript;
-        }
+        if (event.results[i].isFinal) finalTranscript += (finalTranscript ? " " : "") + transcript;
+        else interim = transcript;
       }
       setText(finalTranscript + (interim ? " " + interim : ""));
     };
-
     recognition.onerror = (event: any) => {
-      console.error("Speech recognition error:", event.error);
-      if (event.error === "not-allowed") {
-        toast.error("Microphone access denied. Please allow microphone permission.");
-      } else {
-        toast.error("Speech recognition error: " + event.error);
-      }
+      toast.error("Mic error: " + event.error);
       setIsRecording(false);
       recognitionRef.current = null;
     };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-      recognitionRef.current = null;
-    };
-
+    recognition.onend = () => { setIsRecording(false); recognitionRef.current = null; };
     recognitionRef.current = recognition;
     recognition.start();
     setIsRecording(true);
-    toast.success("🎙️ Listening... Speak now!");
+    toast.success("🎙️ Listening...");
   }, [isRecording, text]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
+      recognitionRef.current?.stop();
       attachments.forEach((a) => URL.revokeObjectURL(a.preview));
     };
   }, []);
@@ -179,37 +133,14 @@ export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps)
   const canSend = text.trim() || attachments.length > 0;
 
   return (
-    <div className="flex-shrink-0 bg-builder-footer border-t border-border">
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        className="hidden"
-        onChange={handleFilesChosen}
-      />
-
-      {/* Suggestion chips */}
-      {suggestions.length > 0 && (
-        <div className="px-3 pt-3 pb-1 flex gap-2 overflow-x-auto scrollbar-hide">
-          {suggestions.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => onSend(s)}
-              disabled={loading}
-              className="flex-shrink-0 px-3 py-1.5 text-xs rounded-full border border-border bg-secondary text-secondary-foreground hover:bg-accent transition-colors disabled:opacity-50"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
+    <div className="flex-shrink-0 glass-strong border-t border-border/20">
+      <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFilesChosen} />
 
       {/* Attachment previews */}
       {attachments.length > 0 && (
         <div className="px-3 pt-3 flex gap-2 overflow-x-auto scrollbar-hide">
           {attachments.map((att, i) => (
-            <div key={i} className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-border bg-muted">
+            <div key={i} className="relative flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border border-border/30 glass-card">
               {att.type === "image" ? (
                 <img src={att.preview} alt="" className="w-full h-full object-cover" />
               ) : (
@@ -217,10 +148,7 @@ export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps)
                   <FileVideo size={20} className="text-muted-foreground" />
                 </div>
               )}
-              <button
-                onClick={() => removeAttachment(i)}
-                className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
-              >
+              <button onClick={() => removeAttachment(i)} className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
                 <X size={10} />
               </button>
             </div>
@@ -230,7 +158,7 @@ export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps)
 
       {/* Input area */}
       <div className="p-3">
-        <div className="rounded-2xl border border-border bg-background shadow-sm overflow-hidden">
+        <div className="rounded-2xl glass-card overflow-hidden glow-primary">
           <textarea
             ref={ref}
             value={text}
@@ -242,82 +170,60 @@ export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps)
             className="w-full resize-none px-4 pt-3 pb-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none bg-transparent"
             disabled={loading}
           />
-          {/* Bottom toolbar */}
           <div className="flex items-center justify-between px-3 pb-2.5">
             <div className="flex items-center gap-1">
-              {/* Plus button - file upload dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button
-                    className="p-2 rounded-full border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-colors disabled:opacity-50"
-                    disabled={loading}
-                  >
+                  <button className="p-2 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all disabled:opacity-50" disabled={loading}>
                     <Plus size={16} />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuContent align="start" className="w-48 glass-strong border-border/30">
                   <DropdownMenuItem onClick={() => handleFileSelect("image/*")}>
-                    <Image size={16} className="mr-2" />
-                    Photo / Screenshot
+                    <Image size={16} className="mr-2 text-purple-400" /> Photo / Screenshot
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleFileSelect("video/*")}>
-                    <FileVideo size={16} className="mr-2" />
-                    Video
+                    <FileVideo size={16} className="mr-2 text-blue-400" /> Video
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleFileSelect("image/*;capture=camera")}>
-                    <Camera size={16} className="mr-2" />
-                    Camera
+                    <Camera size={16} className="mr-2 text-pink-400" /> Camera
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* 3 dots - options menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button
-                    className="p-2 rounded-full border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-colors disabled:opacity-50"
-                    disabled={loading}
-                  >
+                  <button className="p-2 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all disabled:opacity-50" disabled={loading}>
                     <MoreHorizontal size={16} />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  <DropdownMenuItem onClick={() => {
-                    setText("");
-                    setAttachments([]);
-                  }}>
-                    Clear input
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleFileSelect("image/*,video/*,.pdf,.txt,.json,.html,.css,.js")}>
-                    Attach any file
-                  </DropdownMenuItem>
+                <DropdownMenuContent align="start" className="w-48 glass-strong border-border/30">
+                  <DropdownMenuItem onClick={() => { setText(""); setAttachments([]); }}>Clear input</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleFileSelect("*/*")}>Attach any file</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
             <div className="flex items-center gap-1">
-              {/* Mic button */}
               <button
                 onClick={toggleRecording}
-                className={`p-2 rounded-full border transition-colors ${
+                className={`p-2 rounded-xl transition-all ${
                   isRecording
-                    ? "border-destructive bg-destructive/10 text-destructive animate-pulse"
-                    : "border-border text-muted-foreground hover:text-foreground hover:bg-accent"
+                    ? "bg-destructive/20 text-destructive animate-pulse border border-destructive/30"
+                    : "text-muted-foreground hover:text-primary hover:bg-primary/10"
                 } disabled:opacity-50`}
                 disabled={loading}
-                title={isRecording ? "Stop recording" : "Voice input"}
               >
                 {isRecording ? <MicOff size={16} /> : <Mic size={16} />}
               </button>
 
-              {/* Send button - always visible */}
               <button
                 onClick={handleSend}
                 disabled={loading || !canSend}
-                className="p-2 rounded-full bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity"
+                className="p-2 rounded-xl bg-primary/20 text-primary hover:bg-primary/30 disabled:opacity-30 transition-all glow-primary border border-primary/20"
               >
                 {loading ? (
-                  <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <Send size={16} />
                 )}
