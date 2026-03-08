@@ -179,7 +179,7 @@ export function ChatPane({ messages, loading, onSuggestionClick, onEdit, onDelet
             )}
             <div className="max-w-[85%]">
               {msg.role === "user" ? (
-                <div className="rounded-2xl rounded-br-md px-4 py-3 text-[15px] break-words bg-primary text-primary-foreground">
+                <div className="rounded-2xl rounded-br-md px-4 py-3 text-[15px] break-words bg-muted text-foreground">
                   <span className="whitespace-pre-wrap">{msg.content}</span>
                 </div>
               ) : (
