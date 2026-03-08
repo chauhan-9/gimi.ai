@@ -171,19 +171,29 @@ export function ChatPane({ messages, loading, onSuggestionClick, onEdit, onDelet
     <div className="flex-1 overflow-y-auto bg-background">
       <div className="max-w-3xl mx-auto py-6 px-4 space-y-4">
         {messages.map((msg, i) => (
-          <div key={i} className={`group flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-            {msg.role === "assistant" && (
-              <div className="flex-shrink-0 w-7 h-7 rounded-lg overflow-hidden mt-1">
-                <img src={hexaIcon} alt="Hexa" className="w-full h-full object-cover" />
+          <div key={i} className={`group flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
+            {msg.role === "assistant" ? (
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-6 h-6 rounded-lg overflow-hidden">
+                  <img src={hexaIcon} alt="Hexa" className="w-full h-full object-cover" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">Hexa</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center border border-border">
+                  <User size={12} className="text-muted-foreground" />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">You</span>
               </div>
             )}
-            <div className="max-w-[85%]">
+            <div className="max-w-[90%]">
               {msg.role === "user" ? (
-                <div className="rounded-2xl rounded-br-md px-4 py-3 text-[15px] break-words bg-muted text-foreground">
+                <div className="text-[15px] break-words text-foreground leading-relaxed">
                   <span className="whitespace-pre-wrap">{msg.content}</span>
                 </div>
               ) : (
-                <div className="text-[15px] break-words text-foreground leading-relaxed px-1">
+                <div className="text-[15px] break-words text-foreground leading-relaxed">
                   <div className="prose prose-base max-w-none prose-p:my-1.5 prose-headings:my-2.5 prose-ul:my-1.5 prose-li:my-0.5 prose-headings:font-display prose-p:leading-relaxed">
                     <ReactMarkdown>{summarizeHtml(msg.content)}</ReactMarkdown>
                   </div>
@@ -191,11 +201,6 @@ export function ChatPane({ messages, loading, onSuggestionClick, onEdit, onDelet
               )}
               <MessageActions msg={msg} index={i} onEdit={onEdit} onDelete={onDelete} onRegenerate={onRegenerate} />
             </div>
-            {msg.role === "user" && (
-              <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-muted flex items-center justify-center border border-border mt-1">
-                <User size={13} className="text-muted-foreground" />
-              </div>
-            )}
           </div>
         ))}
         {loading && (
