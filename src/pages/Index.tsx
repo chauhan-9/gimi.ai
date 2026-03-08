@@ -274,6 +274,9 @@ const Index = () => {
             messages={allMessages}
             loading={loading && !streamingContent}
             onSuggestionClick={handleSend}
+            onEdit={handleEditMessage}
+            onDelete={handleDeleteMessage}
+            onRegenerate={handleRegenerate}
           />
         ) : (
           <PreviewPane html={active?.html || ""} view={view} />
