@@ -127,6 +127,11 @@ const Index = () => {
       return handleImageSend(text);
     }
 
+    // Video mode: use video-specific AI tool
+    if (appMode === "video") {
+      return handleVideoSend(text);
+    }
+
     const userMsg = { role: "user" as const, content: text };
     const newMessages = [...active.messages, userMsg];
     const newName = active.messages.length === 0 ? text.slice(0, 40) : active.name;
