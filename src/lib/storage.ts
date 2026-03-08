@@ -42,6 +42,7 @@ export async function loadProjectsFromCloud(mode?: AppMode): Promise<Project[]> 
       id: p.id,
       name: p.name,
       html: p.html || "",
+      mode: (p as any).mode || "builder",
       messages: (msgs || []).map((m: any) => ({ role: m.role, content: m.content })),
       createdAt: new Date(p.created_at).getTime(),
     });
