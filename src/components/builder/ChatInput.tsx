@@ -26,7 +26,7 @@ interface ChatInputProps {
   onModelChange?: (modelId: string) => void;
 }
 
-export function ChatInput({ onSend, loading, placeholder }: ChatInputProps) {
+export function ChatInput({ onSend, loading, placeholder, appMode, selectedModel, onModelChange }: ChatInputProps) {
   const [text, setText] = useState("");
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isRecording, setIsRecording] = useState(false);
