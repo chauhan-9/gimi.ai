@@ -101,14 +101,14 @@ export function extractHtml(content: string): string {
   return content;
 }
 
-export async function generateImage(prompt: string): Promise<{ text: string; images: string[] }> {
+export async function generateImage(prompt: string, model?: string): Promise<{ text: string; images: string[] }> {
   const resp = await fetch(IMAGE_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({ prompt, model }),
   });
 
   if (!resp.ok) {
