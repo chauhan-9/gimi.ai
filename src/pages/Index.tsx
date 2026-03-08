@@ -1,21 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Sidebar } from "@/components/builder/Sidebar";
-import { SettingsModal } from "@/components/builder/SettingsModal";
 import { Header } from "@/components/builder/Header";
 import { ChatInput } from "@/components/builder/ChatInput";
 import { ChatPane } from "@/components/builder/ChatPane";
 import { PreviewPane } from "@/components/builder/PreviewPane";
-import { sendMessage } from "@/lib/ai";
+import { streamChat, extractHtml } from "@/lib/ai-stream";
 import {
-  loadSettings, saveSettings,
   loadProjects, saveProjects,
   loadActiveId, saveActiveId,
   createProject,
-  type Project, type Settings,
+  type Project,
 } from "@/lib/storage";
 
 const Index = () => {
-  const [settings, setSettings] = useState<Settings>(loadSettings);
   const [projects, setProjects] = useState<Project[]>(() => {
     const p = loadProjects();
     return p.length ? p : [createProject("My First Project")];
@@ -23,17 +20,17 @@ const Index = () => {
   const [activeId, setActiveId] = useState<string>(() => {
     return loadActiveId() || projects[0]?.id || "";
   });
-  const [showSettings, setShowSettings] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [view, setView] = useState<"chat" | "preview" | "code">("chat");
   const [loading, setLoading] = useState(false);
+  const [streamingContent, setStreamingContent] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
 
   const active = projects.find((p) => p.id === activeId) || projects[0];
 
   // Persist
   useEffect(() => { saveProjects(projects); }, [projects]);
   useEffect(() => { saveActiveId(activeId); }, [activeId]);
-  useEffect(() => { saveSettings(settings); }, [settings]);
 
   const updateProject = useCallback((id: string, updates: Partial<Project>) => {
     setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
@@ -59,28 +56,46 @@ const Index = () => {
   };
 
   const handleSend = async (text: string) => {
-    if (!active || !settings.apiKey) {
-      setShowSettings(true);
-      return;
-    }
+    if (!active) return;
 
-    const newMessages = [...active.messages, { role: "user" as const, content: text }];
-    updateProject(active.id, { messages: newMessages });
+    const userMsg = { role: "user" as const, content: text };
+    const newMessages = [...active.messages, userMsg];
+    updateProject(active.id, { 
+      messages: newMessages,
+      name: active.messages.length === 0 ? text.slice(0, 40) : active.name,
+    });
     setLoading(true);
+    setStreamingContent("");
+
+    let fullContent = "";
 
     try {
-      const reply = await sendMessage(settings, newMessages);
-      const finalMessages = [...newMessages, { role: "assistant" as const, content: reply }];
-      updateProject(active.id, {
-        messages: finalMessages,
-        html: reply,
-        name: active.messages.length === 0 ? text.slice(0, 40) : active.name,
+      await streamChat({
+        messages: newMessages,
+        onDelta: (chunk) => {
+          fullContent += chunk;
+          setStreamingContent(fullContent);
+        },
+        onDone: () => {
+          const html = extractHtml(fullContent);
+          const finalMessages = [
+            ...newMessages,
+            { role: "assistant" as const, content: fullContent },
+          ];
+          updateProject(active.id, {
+            messages: finalMessages,
+            html,
+          });
+          setStreamingContent("");
+          setLoading(false);
+          // Auto-switch to preview when generation is done
+          setView("preview");
+        },
       });
     } catch (err: any) {
       alert(err.message || "Something went wrong");
-      // Revert the user message on error
       updateProject(active.id, { messages: active.messages });
-    } finally {
+      setStreamingContent("");
       setLoading(false);
     }
   };
@@ -95,6 +110,12 @@ const Index = () => {
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  // Build messages list including streaming message
+  const displayMessages = active?.messages || [];
+  const allMessages = streamingContent
+    ? [...displayMessages, { role: "assistant" as const, content: streamingContent }]
+    : displayMessages;
 
   return (
     <div className="flex h-[100dvh] overflow-hidden">
@@ -113,7 +134,6 @@ const Index = () => {
           onSelect={(id) => { setActiveId(id); setShowSidebar(false); }}
           onNew={handleNew}
           onDelete={handleDelete}
-          onOpenSettings={() => setShowSettings(true)}
         />
       </div>
 
@@ -126,21 +146,12 @@ const Index = () => {
           onToggleSidebar={() => setShowSidebar(!showSidebar)}
         />
         {view === "chat" ? (
-          <ChatPane messages={active?.messages || []} loading={loading} />
+          <ChatPane messages={allMessages} loading={loading && !streamingContent} />
         ) : (
           <PreviewPane html={active?.html || ""} view={view} />
         )}
         <ChatInput onSend={handleSend} loading={loading} />
       </div>
-
-      {/* Settings Modal */}
-      {showSettings && (
-        <SettingsModal
-          settings={settings}
-          onSave={setSettings}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
     </div>
   );
 };

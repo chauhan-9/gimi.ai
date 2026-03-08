@@ -1,4 +1,4 @@
-import { Plus, Settings, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import type { Project } from "@/lib/storage";
 
 interface SidebarProps {
@@ -7,10 +7,9 @@ interface SidebarProps {
   onSelect: (id: string) => void;
   onNew: () => void;
   onDelete: (id: string) => void;
-  onOpenSettings: () => void;
 }
 
-export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onOpenSettings }: SidebarProps) {
+export function Sidebar({ projects, activeId, onSelect, onNew, onDelete }: SidebarProps) {
   return (
     <div className="flex flex-col h-full w-60 bg-sidebar-bg text-sidebar-fg flex-shrink-0">
       <div className="p-3">
@@ -49,13 +48,10 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onOpenS
       </div>
 
       <div className="p-3 border-t border-sidebar-border">
-        <button
-          onClick={onOpenSettings}
-          className="flex items-center gap-2 text-sm hover:text-primary-foreground transition-colors w-full px-3 py-2 rounded-lg hover:bg-sidebar-hover"
-        >
-          <Settings size={16} />
-          Settings
-        </button>
+        <div className="flex items-center gap-2 text-xs text-sidebar-fg/60 px-3 py-2">
+          <span>⚡</span>
+          <span>Powered by Lovable AI</span>
+        </div>
       </div>
     </div>
   );
