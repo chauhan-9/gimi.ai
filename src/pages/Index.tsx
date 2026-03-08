@@ -406,7 +406,7 @@ const Index = () => {
         {appMode === "builder" ? (
           <>
             {view === "chat" ? (
-              <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+              <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
             ) : (
               <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
             )}
