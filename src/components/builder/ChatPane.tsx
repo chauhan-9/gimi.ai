@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
-import { Bot, User, Sparkles, Code, MessageCircle, Palette, Globe, Zap, Cpu } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Bot, User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Cpu } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import hexaIcon from "@/assets/hexa-icon.png";
+import { toast } from "sonner";
 
 interface Message {
   role: "user" | "assistant";
@@ -12,6 +13,10 @@ interface ChatPaneProps {
   messages: Message[];
   loading: boolean;
   onSuggestionClick?: (text: string) => void;
+  onCopy?: (index: number) => void;
+  onEdit?: (index: number, newContent: string) => void;
+  onDelete?: (index: number) => void;
+  onRegenerate?: (index: number) => void;
 }
 
 const ACTION_CATEGORIES = [
@@ -20,40 +25,40 @@ const ACTION_CATEGORIES = [
     label: "Chat with AI",
     description: "Kisi bhi topic par baat karo",
     prompt: "Hello! Mujhe kuch interesting batao",
-    gradient: "from-purple-500/20 to-pink-500/20",
-    iconColor: "text-purple-400",
+    gradient: "from-primary/15 to-accent/15",
+    iconColor: "text-primary",
   },
   {
     icon: <Code size={20} />,
     label: "Build an App",
     description: "Website ya app banwao AI se",
     prompt: "Create a beautiful landing page for a tech startup",
-    gradient: "from-blue-500/20 to-cyan-500/20",
-    iconColor: "text-blue-400",
+    gradient: "from-blue-500/15 to-cyan-500/15",
+    iconColor: "text-blue-500",
   },
   {
     icon: <Palette size={20} />,
     label: "Design Something",
     description: "Creative design ideas pao",
     prompt: "Design a modern portfolio website with dark theme",
-    gradient: "from-pink-500/20 to-rose-500/20",
-    iconColor: "text-pink-400",
+    gradient: "from-pink-500/15 to-rose-500/15",
+    iconColor: "text-pink-500",
   },
   {
     icon: <Globe size={20} />,
     label: "Explore Ideas",
     description: "Naye ideas discover karo",
     prompt: "Suggest me some innovative web app ideas for 2026",
-    gradient: "from-emerald-500/20 to-teal-500/20",
-    iconColor: "text-emerald-400",
+    gradient: "from-emerald-500/15 to-teal-500/15",
+    iconColor: "text-emerald-500",
   },
   {
     icon: <Cpu size={20} />,
     label: "AI Tools",
     description: "Writer, translator, code generator",
     prompt: "Show me what AI tools you can help me with",
-    gradient: "from-amber-500/20 to-orange-500/20",
-    iconColor: "text-amber-400",
+    gradient: "from-amber-500/15 to-orange-500/15",
+    iconColor: "text-amber-500",
   },
 ];
 
@@ -65,7 +70,80 @@ function getGreeting(): string {
   return "Good night";
 }
 
-export function ChatPane({ messages, loading, onSuggestionClick }: ChatPaneProps) {
+function MessageActions({ 
+  msg, index, totalMessages, onCopy, onEdit, onDelete, onRegenerate 
+}: { 
+  msg: Message; index: number; totalMessages: number;
+  onCopy?: (i: number) => void; onEdit?: (i: number, c: string) => void;
+  onDelete?: (i: number) => void; onRegenerate?: (i: number) => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(msg.content);
+  const editRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(msg.content);
+    setCopied(true);
+    toast.success("Copied!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleEditSave = () => {
+    if (editText.trim() && editText !== msg.content) {
+      onEdit?.(index, editText.trim());
+    }
+    setEditing(false);
+  };
+
+  useEffect(() => {
+    if (editing && editRef.current) {
+      editRef.current.focus();
+      editRef.current.style.height = "auto";
+      editRef.current.style.height = editRef.current.scrollHeight + "px";
+    }
+  }, [editing]);
+
+  if (editing) {
+    return (
+      <div className="mt-2 space-y-2">
+        <textarea
+          ref={editRef}
+          value={editText}
+          onChange={(e) => setEditText(e.target.value)}
+          className="w-full rounded-lg border border-border bg-background p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+        />
+        <div className="flex gap-2">
+          <button onClick={handleEditSave} className="px-3 py-1 text-xs rounded-lg bg-primary text-primary-foreground hover:opacity-90">Save</button>
+          <button onClick={() => { setEditing(false); setEditText(msg.content); }} className="px-3 py-1 text-xs rounded-lg bg-secondary text-secondary-foreground hover:bg-muted">Cancel</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-0.5 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+      <button onClick={handleCopy} className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Copy">
+        {copied ? <Check size={13} /> : <Copy size={13} />}
+      </button>
+      {msg.role === "user" && (
+        <button onClick={() => { setEditing(true); setEditText(msg.content); }} className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Edit">
+          <Pencil size={13} />
+        </button>
+      )}
+      {msg.role === "assistant" && (
+        <button onClick={() => onRegenerate?.(index)} className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Regenerate">
+          <RefreshCw size={13} />
+        </button>
+      )}
+      <button onClick={() => onDelete?.(index)} className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Delete">
+        <Trash2 size={13} />
+      </button>
+    </div>
+  );
+}
+
+export function ChatPane({ messages, loading, onSuggestionClick, onCopy, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -76,21 +154,16 @@ export function ChatPane({ messages, loading, onSuggestionClick }: ChatPaneProps
     return (
       <div className="flex-1 flex flex-col items-center justify-center bg-builder-canvas px-4 py-8 overflow-y-auto">
         <div className="max-w-md w-full space-y-8">
-          {/* Logo */}
           <div className="flex justify-center animate-float">
             <div className="w-20 h-20 rounded-2xl overflow-hidden glow-primary animate-glow">
               <img src={hexaIcon} alt="Hexa.AI" className="w-full h-full object-cover" />
             </div>
           </div>
-
-          {/* Greeting */}
           <div className="text-center space-y-2">
             <p className="text-muted-foreground text-sm">{getGreeting()}! 👋</p>
             <h2 className="text-2xl font-bold font-display gradient-text">What can I help you with?</h2>
             <p className="text-xs text-muted-foreground">Ask me anything — chat, code, design, or explore</p>
           </div>
-
-          {/* Action Cards */}
           <div className="space-y-2.5">
             {ACTION_CATEGORIES.map((cat, i) => (
               <button
@@ -119,30 +192,41 @@ export function ChatPane({ messages, loading, onSuggestionClick }: ChatPaneProps
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+            className={`group flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             {msg.role === "assistant" && (
               <div className="flex-shrink-0 w-8 h-8 rounded-xl overflow-hidden glow-primary">
                 <img src={hexaIcon} alt="Hexa" className="w-full h-full object-cover" />
               </div>
             )}
-            <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm break-words ${
-                msg.role === "user"
-                  ? "bg-primary/20 text-foreground rounded-br-md border border-primary/20 glow-primary"
-                  : "glass-card text-foreground rounded-bl-md"
-              }`}
-            >
-              {msg.role === "assistant" ? (
-                <div className="prose prose-sm max-w-none prose-invert prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0.5 prose-headings:font-display">
-                  <ReactMarkdown>{summarizeHtml(msg.content)}</ReactMarkdown>
-                </div>
-              ) : (
-                <span className="whitespace-pre-wrap">{msg.content}</span>
-              )}
+            <div className="max-w-[80%]">
+              <div
+                className={`rounded-2xl px-4 py-3 text-sm break-words ${
+                  msg.role === "user"
+                    ? "bg-primary text-primary-foreground rounded-br-md"
+                    : "glass-card text-foreground rounded-bl-md"
+                }`}
+              >
+                {msg.role === "assistant" ? (
+                  <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0.5 prose-headings:font-display">
+                    <ReactMarkdown>{summarizeHtml(msg.content)}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <span className="whitespace-pre-wrap">{msg.content}</span>
+                )}
+              </div>
+              <MessageActions
+                msg={msg}
+                index={i}
+                totalMessages={messages.length}
+                onCopy={onCopy}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onRegenerate={onRegenerate}
+              />
             </div>
             {msg.role === "user" && (
-              <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-muted/50 flex items-center justify-center border border-border/30">
+              <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-muted flex items-center justify-center border border-border/50">
                 <User size={14} className="text-muted-foreground" />
               </div>
             )}
@@ -155,9 +239,9 @@ export function ChatPane({ messages, loading, onSuggestionClick }: ChatPaneProps
             </div>
             <div className="glass-card rounded-2xl rounded-bl-md px-4 py-3 text-sm">
               <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0ms]" />
-                <div className="w-2 h-2 rounded-full bg-accent/60 animate-bounce [animation-delay:150ms]" />
-                <div className="w-2 h-2 rounded-full bg-primary/60 animate-bounce [animation-delay:300ms]" />
+                <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce [animation-delay:0ms]" />
+                <div className="w-2 h-2 rounded-full bg-accent/50 animate-bounce [animation-delay:150ms]" />
+                <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce [animation-delay:300ms]" />
               </div>
             </div>
           </div>
