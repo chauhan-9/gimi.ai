@@ -18,9 +18,10 @@ interface ChatInputProps {
   onSend: (msg: string, attachments?: File[]) => void;
   loading: boolean;
   suggestions?: string[];
+  placeholder?: string;
 }
 
-export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps) {
+export function ChatInput({ onSend, loading, suggestions = [], placeholder }: ChatInputProps) {
   const [text, setText] = useState("");
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -165,7 +166,7 @@ export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps)
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
             onInput={handleInput}
-            placeholder="Ask Hexa anything..."
+            placeholder={placeholder || "Ask Hexa anything..."}
             rows={1}
             className="w-full resize-none px-4 pt-3 pb-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none bg-transparent"
             disabled={loading}

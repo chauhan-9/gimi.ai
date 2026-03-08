@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Sidebar } from "@/components/builder/Sidebar";
-import { Header } from "@/components/builder/Header";
+import { Header, type View } from "@/components/builder/Header";
 import { ChatInput } from "@/components/builder/ChatInput";
 import { ChatPane } from "@/components/builder/ChatPane";
 import { PreviewPane } from "@/components/builder/PreviewPane";
+import { ToolsDashboard, ToolChatHeader, type AiTool } from "@/components/builder/ToolsDashboard";
 import { streamChat, extractHtml } from "@/lib/ai-stream";
 import {
   loadProjectsFromCloud,
@@ -24,7 +25,9 @@ const Index = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeId, setActiveId] = useState<string>("");
   const [showSidebar, setShowSidebar] = useState(false);
-  const [view, setView] = useState<"chat" | "preview" | "code">("chat");
+  const [view, setView] = useState<View>("chat");
+  const [activeTool, setActiveTool] = useState<AiTool | null>(null);
+  const [toolMessages, setToolMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
@@ -213,6 +216,40 @@ const Index = () => {
     }
   };
 
+  // --- Tool chat handlers ---
+  const [toolStreamingContent, setToolStreamingContent] = useState("");
+
+  const handleToolSend = async (text: string) => {
+    if (!activeTool) return;
+    const userMsg = { role: "user" as const, content: text };
+    const newMsgs = [...toolMessages, userMsg];
+    setToolMessages(newMsgs);
+    handleToolSendWithMessages(newMsgs);
+  };
+
+  const handleToolSendWithMessages = async (msgs: { role: "user" | "assistant"; content: string }[]) => {
+    if (!activeTool) return;
+    setLoading(true);
+    setToolStreamingContent("");
+    let fullContent = "";
+    try {
+      await streamChat({
+        messages: msgs,
+        tool: activeTool.id,
+        onDelta: (chunk) => { fullContent += chunk; setToolStreamingContent(fullContent); },
+        onDone: () => {
+          setToolMessages([...msgs, { role: "assistant", content: fullContent }]);
+          setToolStreamingContent("");
+          setLoading(false);
+        },
+      });
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong");
+      setToolStreamingContent("");
+      setLoading(false);
+    }
+  };
+
   const handleDownload = () => {
     if (!active?.html) return;
     const blob = new Blob([active.html], { type: "text/html" });
@@ -269,6 +306,12 @@ const Index = () => {
           onDownload={handleDownload}
           onToggleSidebar={() => setShowSidebar(!showSidebar)}
         />
+        {/* Tool chat header */}
+        {view === "tools" && activeTool && (
+          <ToolChatHeader tool={activeTool} onBack={() => setActiveTool(null)} />
+        )}
+
+        {/* Content area */}
         {view === "chat" ? (
           <ChatPane
             messages={allMessages}
@@ -278,10 +321,36 @@ const Index = () => {
             onDelete={handleDeleteMessage}
             onRegenerate={handleRegenerate}
           />
+        ) : view === "tools" ? (
+          activeTool ? (
+            <ChatPane
+              messages={toolStreamingContent
+                ? [...toolMessages, { role: "assistant" as const, content: toolStreamingContent }]
+                : toolMessages}
+              loading={loading && !toolStreamingContent}
+              onSuggestionClick={handleToolSend}
+              onDelete={(i) => setToolMessages((prev) => prev.filter((_, idx) => idx !== i))}
+              onRegenerate={(i) => {
+                const msgs = toolMessages.slice(0, i);
+                setToolMessages(msgs);
+                handleToolSendWithMessages(msgs);
+              }}
+            />
+          ) : (
+            <ToolsDashboard onSelectTool={(tool) => { setActiveTool(tool); setToolMessages([]); }} />
+          )
         ) : (
-          <PreviewPane html={active?.html || ""} view={view} />
+          <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
         )}
-        <ChatInput onSend={handleSend} loading={loading} />
+
+        {/* Input */}
+        {(view === "chat" || (view === "tools" && activeTool)) && (
+          <ChatInput
+            onSend={view === "tools" && activeTool ? handleToolSend : handleSend}
+            loading={loading}
+            placeholder={activeTool && view === "tools" ? activeTool.placeholder : undefined}
+          />
+        )}
       </div>
     </div>
   );
