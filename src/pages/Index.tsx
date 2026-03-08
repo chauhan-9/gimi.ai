@@ -216,6 +216,40 @@ const Index = () => {
     }
   };
 
+  // --- Tool chat handlers ---
+  const [toolStreamingContent, setToolStreamingContent] = useState("");
+
+  const handleToolSend = async (text: string) => {
+    if (!activeTool) return;
+    const userMsg = { role: "user" as const, content: text };
+    const newMsgs = [...toolMessages, userMsg];
+    setToolMessages(newMsgs);
+    handleToolSendWithMessages(newMsgs);
+  };
+
+  const handleToolSendWithMessages = async (msgs: { role: "user" | "assistant"; content: string }[]) => {
+    if (!activeTool) return;
+    setLoading(true);
+    setToolStreamingContent("");
+    let fullContent = "";
+    try {
+      await streamChat({
+        messages: msgs,
+        tool: activeTool.id,
+        onDelta: (chunk) => { fullContent += chunk; setToolStreamingContent(fullContent); },
+        onDone: () => {
+          setToolMessages([...msgs, { role: "assistant", content: fullContent }]);
+          setToolStreamingContent("");
+          setLoading(false);
+        },
+      });
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong");
+      setToolStreamingContent("");
+      setLoading(false);
+    }
+  };
+
   const handleDownload = () => {
     if (!active?.html) return;
     const blob = new Blob([active.html], { type: "text/html" });
