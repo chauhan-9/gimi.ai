@@ -128,14 +128,16 @@ export async function createProjectInCloud(name?: string, mode: AppMode = "build
 
 // ---- Local fallback ----
 
-const ACTIVE_KEY = "ai-builder-active";
+const ACTIVE_KEY_PREFIX = "hexa-active-";
 
-export function loadActiveId(): string | null {
-  return localStorage.getItem(ACTIVE_KEY);
+export function loadActiveId(mode?: AppMode): string | null {
+  if (mode) return localStorage.getItem(ACTIVE_KEY_PREFIX + mode);
+  // Legacy fallback
+  return localStorage.getItem("ai-builder-active");
 }
 
-export function saveActiveId(id: string) {
-  localStorage.setItem(ACTIVE_KEY, id);
+export function saveActiveId(id: string, mode?: AppMode) {
+  if (mode) localStorage.setItem(ACTIVE_KEY_PREFIX + mode, id);
 }
 
 export function createProject(name?: string, mode: AppMode = "builder"): Project {
