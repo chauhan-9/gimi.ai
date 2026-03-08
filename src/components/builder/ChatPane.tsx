@@ -177,20 +177,18 @@ export function ChatPane({ messages, loading, onSuggestionClick, onEdit, onDelet
                 <img src={hexaIcon} alt="Hexa" className="w-full h-full object-cover" />
               </div>
             )}
-            <div className="max-w-[80%]">
-              <div className={`rounded-2xl px-4 py-3 text-sm break-words ${
-                msg.role === "user"
-                  ? "bg-primary text-primary-foreground rounded-br-md"
-                  : "bg-card border border-border text-foreground rounded-bl-md"
-              }`}>
-                {msg.role === "assistant" ? (
-                  <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0.5 prose-headings:font-display">
+            <div className="max-w-[85%]">
+              {msg.role === "user" ? (
+                <div className="rounded-2xl rounded-br-md px-4 py-3 text-[15px] break-words bg-primary text-primary-foreground">
+                  <span className="whitespace-pre-wrap">{msg.content}</span>
+                </div>
+              ) : (
+                <div className="text-[15px] break-words text-foreground leading-relaxed px-1">
+                  <div className="prose prose-base max-w-none prose-p:my-1.5 prose-headings:my-2.5 prose-ul:my-1.5 prose-li:my-0.5 prose-headings:font-display prose-p:leading-relaxed">
                     <ReactMarkdown>{summarizeHtml(msg.content)}</ReactMarkdown>
                   </div>
-                ) : (
-                  <span className="whitespace-pre-wrap">{msg.content}</span>
-                )}
-              </div>
+                </div>
+              )}
               <MessageActions msg={msg} index={i} onEdit={onEdit} onDelete={onDelete} onRegenerate={onRegenerate} />
             </div>
             {msg.role === "user" && (
