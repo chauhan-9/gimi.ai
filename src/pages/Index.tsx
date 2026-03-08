@@ -94,7 +94,7 @@ const Index = () => {
     loadForMode();
   }, [appMode, isInitialized]);
 
-  useEffect(() => { if (activeId) saveActiveId(activeId); }, [activeId]);
+  useEffect(() => { if (activeId && appMode) saveActiveId(activeId, appMode); }, [activeId, appMode]);
 
   const updateProject = useCallback((id: string, updates: Partial<Project>) => {
     setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
