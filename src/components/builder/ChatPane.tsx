@@ -152,9 +152,11 @@ function MessageActions({ msg, index, onEdit, onDelete, onRegenerate }: {
   );
 }
 
-export function ChatPane({ messages, loading, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
+export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
-
+  const categories = appMode === "video" ? VIDEO_CATEGORIES : ACTION_CATEGORIES;
+  const welcomeTitle = appMode === "video" ? "What video do you want to create?" : "What can I help you with?";
+  const welcomeSubtitle = appMode === "video" ? "Scripts, storyboards, and video planning" : "Build websites, chat, or explore AI tools";
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
