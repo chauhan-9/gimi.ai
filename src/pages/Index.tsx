@@ -186,7 +186,7 @@ const Index = () => {
     <div className="flex h-[100dvh] overflow-hidden">
       {/* Mobile overlay */}
       {showSidebar && (
-        <div className="fixed inset-0 z-40 bg-foreground/30 lg:hidden" onClick={() => setShowSidebar(false)} />
+        <div className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm lg:hidden" onClick={() => setShowSidebar(false)} />
       )}
 
       {/* Sidebar */}

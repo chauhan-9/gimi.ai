@@ -1,5 +1,6 @@
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, MessageSquare, Sparkles } from "lucide-react";
 import type { Project } from "@/lib/storage";
+import hexaIcon from "@/assets/hexa-icon.png";
 
 interface SidebarProps {
   projects: Project[];
@@ -11,46 +12,59 @@ interface SidebarProps {
 
 export function Sidebar({ projects, activeId, onSelect, onNew, onDelete }: SidebarProps) {
   return (
-    <div className="flex flex-col h-full w-60 bg-sidebar-bg text-sidebar-fg flex-shrink-0">
-      <div className="p-3">
+    <div className="flex flex-col h-full w-64 glass-strong text-foreground flex-shrink-0">
+      {/* Brand */}
+      <div className="p-4 flex items-center gap-3">
+        <img src={hexaIcon} alt="Hexa.AI" className="w-9 h-9 rounded-xl" />
+        <div>
+          <h1 className="text-sm font-bold font-display gradient-text">Hexa.AI</h1>
+          <p className="text-[10px] text-muted-foreground">AI Assistant</p>
+        </div>
+      </div>
+
+      {/* New chat button */}
+      <div className="px-3 pb-3">
         <button
           onClick={onNew}
-          className="flex items-center justify-center gap-2 w-full rounded-lg bg-primary text-primary-foreground py-2.5 text-sm font-medium hover:opacity-90 transition-opacity"
+          className="flex items-center justify-center gap-2 w-full rounded-xl bg-primary/20 text-primary py-2.5 text-sm font-medium hover:bg-primary/30 transition-all glow-primary border border-primary/20"
         >
           <Plus size={16} />
-          New Project
+          New Chat
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-2 space-y-0.5">
+      {/* Chat list */}
+      <div className="flex-1 overflow-y-auto px-2 space-y-1 scrollbar-hide">
         {projects.map((p) => (
           <div
             key={p.id}
-            className={`group flex items-center gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer transition-colors ${
+            className={`group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm cursor-pointer transition-all ${
               p.id === activeId
-                ? "bg-sidebar-active text-primary-foreground"
-                : "hover:bg-sidebar-hover"
+                ? "glass-card text-foreground glow-primary border border-primary/20"
+                : "hover:bg-muted/30 text-muted-foreground hover:text-foreground"
             }`}
             onClick={() => onSelect(p.id)}
           >
-            <span className="truncate flex-1">{p.name}</span>
+            <MessageSquare size={14} className={p.id === activeId ? "text-primary" : "text-muted-foreground"} />
+            <span className="truncate flex-1 text-xs">{p.name}</span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(p.id);
               }}
-              className="opacity-0 group-hover:opacity-100 hover:text-destructive transition-opacity"
+              className="opacity-0 group-hover:opacity-100 hover:text-destructive transition-all"
             >
-              <Trash2 size={14} />
+              <Trash2 size={13} />
             </button>
           </div>
         ))}
       </div>
 
-      <div className="p-3 border-t border-sidebar-border">
-        <div className="flex items-center gap-2 text-xs text-sidebar-fg/60 px-3 py-2">
-          <span>⚡</span>
-          <span>Powered by Lovable AI</span>
+      {/* Footer */}
+      <div className="p-3 border-t border-border/30">
+        <div className="flex items-center gap-2 text-[10px] text-muted-foreground/50 px-3 py-2">
+          <Sparkles size={10} />
+          <span>Powered by Hexa.AI</span>
         </div>
       </div>
     </div>
