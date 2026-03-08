@@ -1,4 +1,5 @@
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/website-builder-chat`;
+const IMAGE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-image`;
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -92,12 +93,32 @@ export async function streamChat({
 }
 
 export function extractHtml(content: string): string {
-  // Try to extract HTML from markdown fences
   const htmlMatch = content.match(/```html\s*([\s\S]*?)```/);
   if (htmlMatch) return htmlMatch[1].trim();
-  
-  // If it starts with doctype or html tag, use as-is
   if (content.trim().match(/^(<(!DOCTYPE|html))/i)) return content.trim();
-  
   return content;
+}
+
+export async function generateImage(prompt: string): Promise<{ text: string; images: string[] }> {
+  const resp = await fetch(IMAGE_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+    },
+    body: JSON.stringify({ prompt }),
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text();
+    try {
+      const err = JSON.parse(text);
+      throw new Error(err.error || "Image generation failed");
+    } catch (e) {
+      if (e instanceof SyntaxError) throw new Error("Image generation failed: " + text);
+      throw e;
+    }
+  }
+
+  return resp.json();
 }
