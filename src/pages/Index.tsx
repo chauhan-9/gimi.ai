@@ -3,6 +3,7 @@ import { Sidebar } from "@/components/builder/Sidebar";
 import { SettingsModal } from "@/components/builder/SettingsModal";
 import { Header } from "@/components/builder/Header";
 import { ChatInput } from "@/components/builder/ChatInput";
+import { ChatPane } from "@/components/builder/ChatPane";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { sendMessage } from "@/lib/ai";
 import {
