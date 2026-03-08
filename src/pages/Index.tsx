@@ -327,6 +327,7 @@ const Index = () => {
       await streamChat({
         messages: msgs,
         tool: activeTool.id,
+        model: selectedModel,
         onDelta: (chunk) => { fullContent += chunk; setToolStreamingContent(fullContent); },
         onDone: () => {
           setToolMessages([...msgs, { role: "assistant", content: fullContent }]);
