@@ -230,8 +230,16 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [viewer3DSrc, setViewer3DSrc] = useState<string | null>(null);
 
+  const handleScroll = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 150;
+  };
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (isNearBottomRef.current) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages, loading]);
 
   if (messages.length === 0 && !loading) {
