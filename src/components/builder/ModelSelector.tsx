@@ -9,35 +9,48 @@ export interface ModelOption {
   description: string;
   icon: React.ReactNode;
   speed: "fast" | "balanced" | "powerful";
+  free?: boolean;
 }
 
 const CHAT_MODELS: ModelOption[] = [
+  // Free models
+  { id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Fast & lightweight", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Quick responses", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Good all-rounder", icon: <Sparkles size={14} />, speed: "balanced", free: true },
+  // Premium models
   { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", description: "Fast & capable", icon: <Zap size={14} />, speed: "fast" },
-  { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Balanced performance", icon: <Sparkles size={14} />, speed: "balanced" },
   { id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Most powerful reasoning", icon: <Brain size={14} />, speed: "powerful" },
   { id: "google/gemini-3.1-pro-preview", label: "Gemini 3.1 Pro", description: "Latest reasoning model", icon: <Brain size={14} />, speed: "powerful" },
-  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Fastest, lightweight", icon: <Zap size={14} />, speed: "fast" },
   { id: "openai/gpt-5-mini", label: "GPT-5 Mini", description: "Good balance", icon: <Sparkles size={14} />, speed: "balanced" },
   { id: "openai/gpt-5", label: "GPT-5", description: "Powerful all-rounder", icon: <Brain size={14} />, speed: "powerful" },
   { id: "openai/gpt-5.2", label: "GPT-5.2", description: "Enhanced reasoning", icon: <Brain size={14} />, speed: "powerful" },
 ];
 
 const BUILDER_MODELS: ModelOption[] = [
+  // Free models
+  { id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Basic code generation", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Quick code help", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Good code quality", icon: <Sparkles size={14} />, speed: "balanced", free: true },
+  // Premium models
   { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", description: "Fast code generation", icon: <Zap size={14} />, speed: "fast" },
   { id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Best for complex apps", icon: <Brain size={14} />, speed: "powerful" },
   { id: "google/gemini-3.1-pro-preview", label: "Gemini 3.1 Pro", description: "Latest & strongest", icon: <Brain size={14} />, speed: "powerful" },
+  { id: "openai/gpt-5-mini", label: "GPT-5 Mini", description: "Fast & good", icon: <Sparkles size={14} />, speed: "balanced" },
   { id: "openai/gpt-5", label: "GPT-5", description: "Excellent code quality", icon: <Brain size={14} />, speed: "powerful" },
   { id: "openai/gpt-5.2", label: "GPT-5.2", description: "Top-tier reasoning", icon: <Brain size={14} />, speed: "powerful" },
-  { id: "openai/gpt-5-mini", label: "GPT-5 Mini", description: "Fast & good", icon: <Sparkles size={14} />, speed: "balanced" },
 ];
 
 const IMAGE_MODELS: ModelOption[] = [
-  { id: "google/gemini-2.5-flash-image", label: "Gemini Flash Image", description: "Fast image generation", icon: <Image size={14} />, speed: "fast" },
+  { id: "google/gemini-2.5-flash-image", label: "Gemini Flash Image", description: "Fast image generation", icon: <Image size={14} />, speed: "fast", free: true },
   { id: "google/gemini-3-pro-image-preview", label: "Gemini 3 Pro Image", description: "Highest quality images", icon: <Image size={14} />, speed: "powerful" },
   { id: "google/gemini-2.5-flash-image-3d", label: "3D Image Creator", description: "Generate 3D-style images", icon: <Cpu size={14} />, speed: "balanced" },
 ];
 
 const VIDEO_MODELS: ModelOption[] = [
+  // Free models
+  { id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Basic video scripts", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Quick video ideas", icon: <Zap size={14} />, speed: "fast", free: true },
+  // Premium models
   { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", description: "Fast video scripts", icon: <Zap size={14} />, speed: "fast" },
   { id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Detailed storyboards", icon: <Brain size={14} />, speed: "powerful" },
   { id: "openai/gpt-5", label: "GPT-5", description: "Creative scripts", icon: <Brain size={14} />, speed: "powerful" },
