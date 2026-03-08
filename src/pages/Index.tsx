@@ -259,50 +259,69 @@ const Index = () => {
     );
   }
 
+  // If no mode selected, show HomeScreen
+  if (!appMode) {
+    return (
+      <div className="flex h-[100dvh] overflow-hidden">
+        <HomeScreen onSelectMode={(mode) => { setAppMode(mode); setView("chat"); }} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-[100dvh] overflow-hidden">
       {showSidebar && (
         <div className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm lg:hidden" onClick={() => setShowSidebar(false)} />
       )}
 
-      <div className={`fixed lg:static z-50 h-full transition-transform lg:translate-x-0 ${showSidebar ? "translate-x-0" : "-translate-x-full"}`}>
-        <Sidebar
-          projects={projects}
-          activeId={activeId}
-          onSelect={(id) => { setActiveId(id); setShowSidebar(false); setView("chat"); }}
-          onNew={handleNew}
-          onDelete={handleDelete}
-          onLogout={handleLogout}
-        />
-      </div>
+      {appMode === "builder" && (
+        <div className={`fixed lg:static z-50 h-full transition-transform lg:translate-x-0 ${showSidebar ? "translate-x-0" : "-translate-x-full"}`}>
+          <Sidebar
+            projects={projects}
+            activeId={activeId}
+            onSelect={(id) => { setActiveId(id); setShowSidebar(false); setView("chat"); }}
+            onNew={handleNew}
+            onDelete={handleDelete}
+            onLogout={handleLogout}
+          />
+        </div>
+      )}
 
       <div className="flex flex-col flex-1 min-w-0">
-        <Header view={view} onViewChange={setView} onDownload={handleDownload} onToggleSidebar={() => setShowSidebar(!showSidebar)} />
-        {view === "tools" && activeTool && (
-          <ToolChatHeader tool={activeTool} onBack={() => setActiveTool(null)} />
-        )}
+        <Header
+          view={view}
+          onViewChange={setView}
+          onDownload={handleDownload}
+          onToggleSidebar={() => setShowSidebar(!showSidebar)}
+          onBack={() => setAppMode(null)}
+          appMode={appMode}
+        />
 
-        {view === "chat" ? (
-          <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
-        ) : view === "tools" ? (
-          activeTool ? (
-            <ChatPane
-              messages={toolStreamingContent ? [...toolMessages, { role: "assistant" as const, content: toolStreamingContent }] : toolMessages}
-              loading={loading && !toolStreamingContent}
-              onSuggestionClick={handleToolSend}
-              onDelete={(i) => setToolMessages((prev) => prev.filter((_, idx) => idx !== i))}
-              onRegenerate={(i) => { const msgs = toolMessages.slice(0, i); setToolMessages(msgs); handleToolSendWithMessages(msgs); }}
-            />
-          ) : (
-            <ToolsDashboard onSelectTool={(tool) => { setActiveTool(tool); setToolMessages([]); }} />
-          )
-        ) : (
-          <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
-        )}
-
-        {(view === "chat" || (view === "tools" && activeTool)) && (
-          <ChatInput onSend={view === "tools" && activeTool ? handleToolSend : handleSend} loading={loading} placeholder={activeTool && view === "tools" ? activeTool.placeholder : undefined} />
-        )}
+        {appMode === "chat" ? (
+          <>
+            <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+            <ChatInput onSend={handleSend} loading={loading} />
+          </>
+        ) : appMode === "builder" ? (
+          <>
+            {view === "chat" ? (
+              <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+            ) : (
+              <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
+            )}
+            {view === "chat" && <ChatInput onSend={handleSend} loading={loading} />}
+          </>
+        ) : appMode === "image" ? (
+          <>
+            <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+            <ChatInput onSend={handleSend} loading={loading} placeholder="Describe the image you want to create..." />
+          </>
+        ) : appMode === "video" ? (
+          <>
+            <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+            <ChatInput onSend={handleSend} loading={loading} placeholder="Describe the video you want to create..." />
+          </>
+        ) : null}
       </div>
     </div>
   );
