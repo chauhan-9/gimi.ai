@@ -156,6 +156,63 @@ const Index = () => {
     }
   };
 
+  // --- Chat message actions ---
+  const handleDeleteMessage = async (index: number) => {
+    if (!active) return;
+    const newMessages = active.messages.filter((_, i) => i !== index);
+    updateProject(active.id, { messages: newMessages });
+    try { await replaceMessagesInCloud(active.id, newMessages); } catch {}
+  };
+
+  const handleEditMessage = async (index: number, newContent: string) => {
+    if (!active) return;
+    // Edit user message and remove all messages after it (will regenerate)
+    const newMessages = active.messages.slice(0, index);
+    newMessages.push({ role: "user", content: newContent });
+    updateProject(active.id, { messages: newMessages });
+    try { await replaceMessagesInCloud(active.id, newMessages); } catch {}
+    // Re-send to get new AI response
+    handleSendWithMessages(newMessages);
+  };
+
+  const handleRegenerate = async (index: number) => {
+    if (!active) return;
+    // Remove this assistant message and everything after, re-send
+    const newMessages = active.messages.slice(0, index);
+    updateProject(active.id, { messages: newMessages });
+    try { await replaceMessagesInCloud(active.id, newMessages); } catch {}
+    handleSendWithMessages(newMessages);
+  };
+
+  const handleSendWithMessages = async (msgs: { role: "user" | "assistant"; content: string }[]) => {
+    if (!active) return;
+    setLoading(true);
+    setStreamingContent("");
+    let fullContent = "";
+    try {
+      await streamChat({
+        messages: msgs,
+        onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
+        onDone: async () => {
+          const html = extractHtml(fullContent);
+          const finalMessages = [...msgs, { role: "assistant" as const, content: fullContent }];
+          updateProject(active.id, { messages: finalMessages, html });
+          setStreamingContent("");
+          setLoading(false);
+          try {
+            await saveMessageToCloud(active.id, "assistant", fullContent);
+            await saveProjectToCloud({ ...active, html });
+          } catch {}
+          if (html && html.trim().match(/^(<(!DOCTYPE|html))/i)) setView("preview");
+        },
+      });
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong");
+      setStreamingContent("");
+      setLoading(false);
+    }
+  };
+
   const handleDownload = () => {
     if (!active?.html) return;
     const blob = new Blob([active.html], { type: "text/html" });
