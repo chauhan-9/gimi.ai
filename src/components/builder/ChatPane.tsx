@@ -210,9 +210,21 @@ function MessageActions({ msg, index, onEdit, onDelete, onRegenerate }: {
 
 export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
-  const categories = appMode === "video" ? VIDEO_CATEGORIES : ACTION_CATEGORIES;
-  const welcomeTitle = appMode === "video" ? "What video do you want to create?" : "What can I help you with?";
-  const welcomeSubtitle = appMode === "video" ? "Scripts, storyboards, and video planning" : "Build websites, chat, or explore AI tools";
+  const MODE_CATEGORIES: Record<string, typeof CHAT_CATEGORIES> = {
+    chat: CHAT_CATEGORIES,
+    builder: BUILDER_CATEGORIES,
+    image: IMAGE_CATEGORIES,
+    video: VIDEO_CATEGORIES,
+  };
+  const MODE_TITLES: Record<string, { title: string; subtitle: string }> = {
+    chat: { title: "Kuch bhi pucho ya batao!", subtitle: "Koi bhi sawal, topic, ya idea — sab ka jawab milega" },
+    builder: { title: "Kya banana hai aaj?", subtitle: "Website, app, ya koi bhi web project create karo" },
+    image: { title: "Kaisi image chahiye?", subtitle: "Koi bhi image describe karo aur AI generate karega" },
+    video: { title: "Kaunsa video banana hai?", subtitle: "Scripts, storyboards, aur video planning" },
+  };
+  const categories = MODE_CATEGORIES[appMode || "chat"] || CHAT_CATEGORIES;
+  const welcomeTitle = MODE_TITLES[appMode || "chat"]?.title || "Kya help chahiye?";
+  const welcomeSubtitle = MODE_TITLES[appMode || "chat"]?.subtitle || "";
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [viewer3DSrc, setViewer3DSrc] = useState<string | null>(null);
 
