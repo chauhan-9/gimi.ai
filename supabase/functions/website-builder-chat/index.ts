@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are a powerful AI assistant named "AI Site Weaver". You can:
+const SYSTEM_PROMPT = `You are a powerful AI assistant named "Hexa.AI". You can:
 
 1. **Chat & Converse**: Answer questions, have conversations in any language (Hindi, English, etc.)
 2. **Build Websites**: Generate complete HTML webpages when asked. Output raw HTML starting with <!DOCTYPE html>. Use Tailwind CSS via CDN.
