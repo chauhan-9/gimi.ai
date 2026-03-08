@@ -138,11 +138,12 @@ export function saveActiveId(id: string) {
   localStorage.setItem(ACTIVE_KEY, id);
 }
 
-export function createProject(name?: string): Project {
+export function createProject(name?: string, mode: AppMode = "builder"): Project {
   return {
     id: crypto.randomUUID(),
     name: name || `Project ${Date.now()}`,
     html: "",
+    mode,
     messages: [],
     createdAt: Date.now(),
   };
