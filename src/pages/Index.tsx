@@ -58,6 +58,11 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  // Update selected model when mode changes
+  useEffect(() => {
+    if (appMode) setSelectedModel(getStoredModel(appMode));
+  }, [appMode]);
+
   // Load projects when mode changes
   useEffect(() => {
     if (!isInitialized || !appMode) return;
