@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Download, Video, Film, Clapperboard, Sparkles, Box, ZoomIn, HelpCircle, Lightbulb, BookOpen, Image as ImageIcon } from "lucide-react";
+import { User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Download, Video, Film, Clapperboard, Sparkles, Box, ZoomIn, HelpCircle, Lightbulb, BookOpen, Image as ImageIcon, ArrowDown } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import hexaIcon from "@/assets/hexa-icon.png";
 import { toast } from "sonner";
@@ -212,6 +212,8 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const prevMsgCountRef = useRef(0);
   const MODE_CATEGORIES: Record<string, typeof CHAT_CATEGORIES> = {
     chat: CHAT_CATEGORIES,
     builder: BUILDER_CATEGORIES,
@@ -233,14 +235,26 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
   const handleScroll = () => {
     const el = scrollContainerRef.current;
     if (!el) return;
-    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 150;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 150;
+    isNearBottomRef.current = nearBottom;
+    setShowScrollBtn(!nearBottom);
   };
 
+  const scrollToBottom = () => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Only auto-scroll when user sends a new message (message count increases with a user message)
   useEffect(() => {
-    if (isNearBottomRef.current) {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const userMessages = messages.filter(m => m.role === "user");
+    const prevCount = prevMsgCountRef.current;
+    const newCount = userMessages.length;
+    if (newCount > prevCount) {
+      // User just sent a message, scroll to bottom
+      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     }
-  }, [messages, loading]);
+    prevMsgCountRef.current = newCount;
+  }, [messages]);
 
   if (messages.length === 0 && !loading) {
     return (
@@ -370,7 +384,19 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce [animation-delay:0ms]" />
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-bounce [animation-delay:150ms]" />
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce [animation-delay:300ms]" />
-              </div>
+    </div>
+
+      {/* Scroll to bottom button */}
+      {showScrollBtn && (
+        <div className="relative">
+          <button
+            onClick={scrollToBottom}
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 w-9 h-9 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity animate-in fade-in-0 zoom-in-95"
+          >
+            <ArrowDown size={18} />
+          </button>
+        </div>
+      )}
             </div>
           </div>
         )}
