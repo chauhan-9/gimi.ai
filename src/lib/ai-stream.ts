@@ -6,11 +6,13 @@ type Msg = { role: "user" | "assistant"; content: string };
 export async function streamChat({
   messages,
   tool,
+  model,
   onDelta,
   onDone,
 }: {
   messages: Msg[];
   tool?: string;
+  model?: string;
   onDelta: (deltaText: string) => void;
   onDone: () => void;
 }) {
@@ -20,7 +22,7 @@ export async function streamChat({
       "Content-Type": "application/json",
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify({ messages, tool }),
+    body: JSON.stringify({ messages, tool, model }),
   });
 
   if (!resp.ok) {
@@ -99,14 +101,14 @@ export function extractHtml(content: string): string {
   return content;
 }
 
-export async function generateImage(prompt: string): Promise<{ text: string; images: string[] }> {
+export async function generateImage(prompt: string, model?: string): Promise<{ text: string; images: string[] }> {
   const resp = await fetch(IMAGE_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify({ prompt }),
+    body: JSON.stringify({ prompt, model }),
   });
 
   if (!resp.ok) {

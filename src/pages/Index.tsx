@@ -10,6 +10,7 @@ import { ToolsDashboard, ToolChatHeader, type AiTool } from "@/components/builde
 import { HomeScreen } from "@/components/builder/HomeScreen";
 import type { AppMode } from "@/lib/storage";
 import { streamChat, extractHtml, generateImage } from "@/lib/ai-stream";
+import { getStoredModel } from "@/components/builder/ModelSelector";
 import {
   loadProjectsFromCloud,
   saveProjectToCloud,
@@ -36,6 +37,7 @@ const Index = () => {
   const [streamingContent, setStreamingContent] = useState("");
   const [toolStreamingContent, setToolStreamingContent] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
+  const [selectedModel, setSelectedModel] = useState(() => getStoredModel("chat"));
   const abortRef = useRef<AbortController | null>(null);
   const navigate = useNavigate();
 
@@ -55,6 +57,11 @@ const Index = () => {
     init();
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Update selected model when mode changes
+  useEffect(() => {
+    if (appMode) setSelectedModel(getStoredModel(appMode));
+  }, [appMode]);
 
   // Load projects when mode changes
   useEffect(() => {
@@ -148,6 +155,7 @@ const Index = () => {
     try {
       await streamChat({
         messages: newMessages,
+        model: selectedModel,
         onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
         onDone: async () => {
           const html = extractHtml(fullContent);
@@ -184,7 +192,7 @@ const Index = () => {
     } catch (err) { console.error("Failed to save:", err); }
 
     try {
-      const result = await generateImage(text);
+      const result = await generateImage(text, selectedModel);
       // Build assistant content with images as markdown
       let assistantContent = result.text || "";
       if (result.images && result.images.length > 0) {
@@ -227,6 +235,7 @@ const Index = () => {
       await streamChat({
         messages: newMessages,
         tool: "video",
+        model: selectedModel,
         onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
         onDone: async () => {
           const finalMessages = [...newMessages, { role: "assistant" as const, content: fullContent }];
@@ -279,6 +288,7 @@ const Index = () => {
     try {
       await streamChat({
         messages: msgs,
+        model: selectedModel,
         onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
         onDone: async () => {
           const html = extractHtml(fullContent);
@@ -317,6 +327,7 @@ const Index = () => {
       await streamChat({
         messages: msgs,
         tool: activeTool.id,
+        model: selectedModel,
         onDelta: (chunk) => { fullContent += chunk; setToolStreamingContent(fullContent); },
         onDone: () => {
           setToolMessages([...msgs, { role: "assistant", content: fullContent }]);
@@ -401,6 +412,8 @@ const Index = () => {
           onToggleSidebar={() => setShowSidebar(!showSidebar)}
           onBack={() => { setAppMode(null); setProjects([]); setActiveId(""); }}
           appMode={appMode}
+          selectedModel={selectedModel}
+          onModelChange={setSelectedModel}
         />
 
         {appMode === "builder" ? (

@@ -1,6 +1,7 @@
 import { ArrowLeft, Download, Menu } from "lucide-react";
 import hexaIcon from "@/assets/hexa-icon.png";
 import type { AppMode } from "@/lib/storage";
+import { ModelSelector } from "./ModelSelector";
 
 export type View = "chat" | "tools" | "preview" | "code";
 
@@ -11,10 +12,11 @@ export interface HeaderProps {
   onToggleSidebar: () => void;
   onBack?: () => void;
   appMode?: AppMode | null;
+  selectedModel?: string;
+  onModelChange?: (modelId: string) => void;
 }
 
-export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack, appMode }: HeaderProps) {
-  // Different tabs based on mode
+export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack, appMode, selectedModel, onModelChange }: HeaderProps) {
   const tabs: { key: View; label: string }[] =
     appMode === "builder"
       ? [
@@ -45,35 +47,39 @@ export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack
         </div>
       </div>
 
-      {tabs.length > 0 && (
-        <div className="flex items-center bg-muted rounded-xl p-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => onViewChange(tab.key)}
-              className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg font-medium transition-all ${
-                view === tab.key
-                  ? "bg-card text-primary shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="flex items-center gap-2">
+        {tabs.length > 0 && (
+          <div className="flex items-center bg-muted rounded-xl p-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => onViewChange(tab.key)}
+                className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg font-medium transition-all ${
+                  view === tab.key
+                    ? "bg-card text-primary shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
 
-      {appMode === "builder" && (
-        <button
-          onClick={onDownload}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <Download size={16} />
-          <span className="hidden sm:inline">Download</span>
-        </button>
-      )}
+        {appMode && selectedModel && onModelChange && (
+          <ModelSelector mode={appMode} selectedModel={selectedModel} onModelChange={onModelChange} />
+        )}
 
-      {!tabs.length && !appMode?.match(/builder/) && <div />}
+        {appMode === "builder" && (
+          <button
+            onClick={onDownload}
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Download size={16} />
+            <span className="hidden sm:inline">Download</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }
