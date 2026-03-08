@@ -16,11 +16,22 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    // Handle 3D model variant
+    const is3D = model === "google/gemini-2.5-flash-image-3d";
+    const actualModel = is3D ? "google/gemini-2.5-flash-image" : (model || "google/gemini-2.5-flash-image");
+    const enhancedPrompt = is3D
+      ? `Create a stunning 3D rendered image: ${prompt}. Make it look like a high-quality 3D render with realistic lighting, depth, shadows, and volumetric effects. Use a cinematic 3D style with detailed textures and materials.`
+      : prompt;
+
     // Build messages
-    const userContent: any[] = [{ type: "text", text: prompt }];
+    const userContent: any[] = [{ type: "text", text: enhancedPrompt }];
     if (editImageUrl) {
       userContent.push({ type: "image_url", image_url: { url: editImageUrl } });
     }
+
+    const systemPrompt = is3D
+      ? "You are an expert 3D artist and renderer. Generate images that look like professional 3D renders with realistic lighting, depth, materials, and cinematic quality. Every image should have a 3D rendered look with proper perspective, shadows, and volumetric lighting."
+      : "You are an expert AI image generator. Generate high-quality images based on user descriptions. Always generate an image for every request.";
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -29,12 +40,9 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: model || "google/gemini-2.5-flash-image",
+        model: actualModel,
         messages: [
-          {
-            role: "system",
-            content: "You are an expert AI image generator. Generate high-quality images based on user descriptions. Always generate an image for every request.",
-          },
+          { role: "system", content: systemPrompt },
           { role: "user", content: userContent },
         ],
         modalities: ["image", "text"],
