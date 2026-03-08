@@ -1,16 +1,33 @@
-import { useState } from "react";
-import { X, Download, ZoomIn, ZoomOut, RotateCcw, Box } from "lucide-react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { X, Download } from "lucide-react";
 import { toast } from "sonner";
 
 interface ImageLightboxProps {
   src: string;
   alt?: string;
   onClose: () => void;
-  onOpen3D?: () => void;
 }
 
-export function ImageLightbox({ src, alt, onClose, onOpen3D }: ImageLightboxProps) {
+export function ImageLightbox({ src, alt, onClose }: ImageLightboxProps) {
   const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // Touch/pinch state
+  const touchStateRef = useRef<{
+    lastDist: number;
+    lastCenter: { x: number; y: number };
+    isDragging: boolean;
+    startPos: { x: number; y: number };
+    startTranslate: { x: number; y: number };
+  }>({
+    lastDist: 0,
+    lastCenter: { x: 0, y: 0 },
+    isDragging: false,
+    startPos: { x: 0, y: 0 },
+    startTranslate: { x: 0, y: 0 },
+  });
 
   const handleDownload = () => {
     const link = document.createElement("a");
@@ -20,52 +37,167 @@ export function ImageLightbox({ src, alt, onClose, onOpen3D }: ImageLightboxProp
     toast.success("Download started!");
   };
 
-  const zoomIn = () => setScale((s) => Math.min(s + 0.25, 3));
-  const zoomOut = () => setScale((s) => Math.max(s - 0.25, 0.5));
-  const resetZoom = () => setScale(1);
+  const resetView = () => {
+    setScale(1);
+    setTranslate({ x: 0, y: 0 });
+  };
+
+  // --- Mouse wheel zoom ---
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    setScale((s) => Math.max(0.5, Math.min(5, s + delta)));
+  }, []);
+
+  // --- Touch gestures (pinch + drag) ---
+  const getTouchDist = (touches: React.TouchList) => {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const getTouchCenter = (touches: React.TouchList) => ({
+    x: (touches[0].clientX + touches[1].clientX) / 2,
+    y: (touches[0].clientY + touches[1].clientY) / 2,
+  });
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      touchStateRef.current.lastDist = getTouchDist(e.touches);
+      touchStateRef.current.lastCenter = getTouchCenter(e.touches);
+    } else if (e.touches.length === 1) {
+      touchStateRef.current.isDragging = true;
+      touchStateRef.current.startPos = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      };
+      touchStateRef.current.startTranslate = { ...translate };
+    }
+  }, [translate]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    if (e.touches.length === 2) {
+      // Pinch zoom
+      const newDist = getTouchDist(e.touches);
+      const ratio = newDist / touchStateRef.current.lastDist;
+      setScale((s) => Math.max(0.5, Math.min(5, s * ratio)));
+      touchStateRef.current.lastDist = newDist;
+    } else if (e.touches.length === 1 && touchStateRef.current.isDragging && scale > 1) {
+      // Drag/pan when zoomed in
+      const dx = e.touches[0].clientX - touchStateRef.current.startPos.x;
+      const dy = e.touches[0].clientY - touchStateRef.current.startPos.y;
+      setTranslate({
+        x: touchStateRef.current.startTranslate.x + dx,
+        y: touchStateRef.current.startTranslate.y + dy,
+      });
+    }
+  }, [scale]);
+
+  const handleTouchEnd = useCallback(() => {
+    touchStateRef.current.isDragging = false;
+  }, []);
+
+  // --- Mouse drag (for desktop) ---
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (scale <= 1) return;
+    e.preventDefault();
+    touchStateRef.current.isDragging = true;
+    touchStateRef.current.startPos = { x: e.clientX, y: e.clientY };
+    touchStateRef.current.startTranslate = { ...translate };
+  }, [scale, translate]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!touchStateRef.current.isDragging || scale <= 1) return;
+    const dx = e.clientX - touchStateRef.current.startPos.x;
+    const dy = e.clientY - touchStateRef.current.startPos.y;
+    setTranslate({
+      x: touchStateRef.current.startTranslate.x + dx,
+      y: touchStateRef.current.startTranslate.y + dy,
+    });
+  }, [scale]);
+
+  const handleMouseUp = useCallback(() => {
+    touchStateRef.current.isDragging = false;
+  }, []);
+
+  // Double tap to reset
+  const lastTapRef = useRef(0);
+  const handleDoubleTap = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      if (scale !== 1) {
+        resetView();
+      } else {
+        setScale(2);
+      }
+    }
+    lastTapRef.current = now;
+  }, [scale]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/80 backdrop-blur-md animate-in fade-in-0 duration-200">
-      {/* Toolbar */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-card/90 backdrop-blur-sm border border-border rounded-xl px-2 py-1.5 shadow-lg z-10">
-        <button onClick={zoomIn} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Zoom in">
-          <ZoomIn size={18} />
-        </button>
-        <button onClick={zoomOut} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Zoom out">
-          <ZoomOut size={18} />
-        </button>
-        <button onClick={resetZoom} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Reset zoom">
-          <RotateCcw size={18} />
-        </button>
-        <div className="w-px h-6 bg-border mx-1" />
-        <span className="text-xs text-muted-foreground px-1 min-w-[40px] text-center">{Math.round(scale * 100)}%</span>
-        <div className="w-px h-6 bg-border mx-1" />
-        {onOpen3D && (
-          <button onClick={onOpen3D} className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" title="View in 3D">
-            <Box size={18} />
-          </button>
-        )}
-        <button onClick={handleDownload} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Download">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-foreground/90 backdrop-blur-md animate-in fade-in-0 duration-200">
+      {/* Top toolbar - minimal */}
+      <div className="absolute top-4 right-4 flex items-center gap-1 z-10">
+        <button
+          onClick={handleDownload}
+          className="p-2.5 rounded-full bg-card/80 backdrop-blur-sm text-muted-foreground hover:text-foreground border border-border shadow-lg transition-colors"
+          title="Download"
+        >
           <Download size={18} />
         </button>
-        <div className="w-px h-6 bg-border mx-1" />
-        <button onClick={onClose} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Close">
+        <button
+          onClick={onClose}
+          className="p-2.5 rounded-full bg-card/80 backdrop-blur-sm text-muted-foreground hover:text-destructive border border-border shadow-lg transition-colors"
+          title="Close"
+        >
           <X size={18} />
         </button>
       </div>
 
-      {/* Image */}
+      {/* Zoom indicator */}
+      {scale !== 1 && (
+        <div className="absolute top-4 left-4 z-10 bg-card/80 backdrop-blur-sm border border-border rounded-full px-3 py-1.5 text-xs text-muted-foreground shadow-lg">
+          {Math.round(scale * 100)}%
+        </div>
+      )}
+
+      {/* Image area - full screen touch/gesture zone */}
       <div
-        className="overflow-auto max-h-[90vh] max-w-[95vw] cursor-grab active:cursor-grabbing"
-        onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+        ref={containerRef}
+        className="flex-1 flex items-center justify-center overflow-hidden touch-none select-none"
+        onWheel={handleWheel}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onClick={(e) => {
+          if (e.target === containerRef.current) {
+            handleDoubleTap();
+          }
+        }}
+        style={{ cursor: scale > 1 ? "grab" : "default" }}
       >
         <img
+          ref={imgRef}
           src={src}
           alt={alt || "Image preview"}
-          className="rounded-xl shadow-2xl transition-transform duration-200 select-none"
-          style={{ transform: `scale(${scale})`, transformOrigin: "center" }}
+          className="max-h-[85vh] max-w-[95vw] rounded-xl shadow-2xl transition-transform duration-100 pointer-events-none"
+          style={{
+            transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
+            transformOrigin: "center",
+          }}
           draggable={false}
+          onClick={handleDoubleTap}
         />
+      </div>
+
+      {/* Help text */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-card/70 backdrop-blur-sm border border-border rounded-full px-4 py-1.5 text-[10px] text-muted-foreground">
+        👆 Pinch to zoom • Drag to move • Double-tap to reset
       </div>
     </div>
   );
