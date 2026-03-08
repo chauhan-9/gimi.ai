@@ -121,6 +121,12 @@ const Index = () => {
 
   const handleSend = async (text: string) => {
     if (!active) return;
+
+    // Image mode: use dedicated image generation
+    if (appMode === "image") {
+      return handleImageSend(text);
+    }
+
     const userMsg = { role: "user" as const, content: text };
     const newMessages = [...active.messages, userMsg];
     const newName = active.messages.length === 0 ? text.slice(0, 40) : active.name;
@@ -155,6 +161,44 @@ const Index = () => {
       toast.error(err.message || "Something went wrong");
       updateProject(active.id, { messages: active.messages });
       setStreamingContent("");
+      setLoading(false);
+    }
+  };
+
+  const handleImageSend = async (text: string) => {
+    if (!active) return;
+    const userMsg = { role: "user" as const, content: text };
+    const newMessages = [...active.messages, userMsg];
+    const newName = active.messages.length === 0 ? text.slice(0, 40) : active.name;
+    updateProject(active.id, { messages: newMessages, name: newName });
+    setLoading(true);
+
+    try {
+      await saveMessageToCloud(active.id, "user", text);
+      if (newName !== active.name) await saveProjectToCloud({ ...active, name: newName });
+    } catch (err) { console.error("Failed to save:", err); }
+
+    try {
+      const result = await generateImage(text);
+      // Build assistant content with images as markdown
+      let assistantContent = result.text || "";
+      if (result.images && result.images.length > 0) {
+        result.images.forEach((imgUrl) => {
+          assistantContent += `\n\n![Generated Image](${imgUrl})`;
+        });
+      }
+      const finalMessages = [...newMessages, { role: "assistant" as const, content: assistantContent }];
+      updateProject(active.id, { messages: finalMessages });
+      try {
+        // Save text description only (base64 is too large for DB)
+        const dbContent = result.text || "🖼️ Image generated";
+        await saveMessageToCloud(active.id, "assistant", dbContent);
+        await saveProjectToCloud({ ...active, name: newName });
+      } catch {}
+    } catch (err: any) {
+      toast.error(err.message || "Image generation failed");
+      updateProject(active.id, { messages: active.messages });
+    } finally {
       setLoading(false);
     }
   };
