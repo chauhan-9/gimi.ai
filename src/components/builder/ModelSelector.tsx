@@ -149,6 +149,7 @@ export function ModelSelector({ mode, selectedModel, onModelChange }: ModelSelec
       >
         <Cpu size={12} className="text-primary" />
         <span className="text-foreground font-medium truncate max-w-[100px]">{current.label}</span>
+        {current.free && <span className="text-[7px] font-bold px-1 py-0.5 rounded bg-green-500/15 text-green-500 uppercase leading-none">Free</span>}
         <ChevronDown size={12} className={`text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
