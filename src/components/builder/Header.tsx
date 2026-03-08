@@ -1,7 +1,6 @@
 import { ArrowLeft, Download, Menu } from "lucide-react";
 import hexaIcon from "@/assets/hexa-icon.png";
 import type { AppMode } from "@/lib/storage";
-import { ModelSelector } from "./ModelSelector";
 
 export type View = "chat" | "tools" | "preview" | "code";
 
@@ -12,11 +11,9 @@ export interface HeaderProps {
   onToggleSidebar: () => void;
   onBack?: () => void;
   appMode?: AppMode | null;
-  selectedModel?: string;
-  onModelChange?: (modelId: string) => void;
 }
 
-export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack, appMode, selectedModel, onModelChange }: HeaderProps) {
+export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack, appMode }: HeaderProps) {
   const tabs: { key: View; label: string }[] =
     appMode === "builder"
       ? [
@@ -64,10 +61,6 @@ export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack
               </button>
             ))}
           </div>
-        )}
-
-        {appMode && selectedModel && onModelChange && (
-          <ModelSelector mode={appMode} selectedModel={selectedModel} onModelChange={onModelChange} />
         )}
 
         {appMode === "builder" && (

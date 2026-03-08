@@ -7,6 +7,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { ModelSelector } from "./ModelSelector";
+import type { AppMode } from "@/lib/storage";
 
 interface Attachment {
   file: File;
@@ -19,9 +21,12 @@ interface ChatInputProps {
   loading: boolean;
   suggestions?: string[];
   placeholder?: string;
+  appMode?: AppMode;
+  selectedModel?: string;
+  onModelChange?: (modelId: string) => void;
 }
 
-export function ChatInput({ onSend, loading, placeholder }: ChatInputProps) {
+export function ChatInput({ onSend, loading, placeholder, appMode, selectedModel, onModelChange }: ChatInputProps) {
   const [text, setText] = useState("");
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -144,6 +149,9 @@ export function ChatInput({ onSend, loading, placeholder }: ChatInputProps) {
           />
           <div className="flex items-center justify-between px-3 pb-2.5">
             <div className="flex items-center gap-0.5">
+              {appMode && selectedModel && onModelChange && (
+                <ModelSelector mode={appMode} selectedModel={selectedModel} onModelChange={onModelChange} />
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50" disabled={loading}>
