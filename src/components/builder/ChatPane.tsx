@@ -343,13 +343,6 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
                                 <ZoomIn size={14} />
                               </button>
                               <button
-                                onClick={() => setViewer3DSrc(src || "")}
-                                className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-primary transition-colors"
-                                title="View in 3D"
-                              >
-                                <Box size={14} />
-                              </button>
-                              <button
                                 onClick={() => {
                                   const link = document.createElement("a");
                                   link.href = src || "";
