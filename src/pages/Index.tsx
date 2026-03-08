@@ -426,8 +426,6 @@ const Index = () => {
           onToggleSidebar={() => setShowSidebar(!showSidebar)}
           onBack={() => { setAppMode(null); setProjects([]); setActiveId(""); setStreamingContent(""); setLoading(false); }}
           appMode={appMode}
-          selectedModel={selectedModel}
-          onModelChange={setSelectedModel}
         />
 
         {appMode === "builder" ? (

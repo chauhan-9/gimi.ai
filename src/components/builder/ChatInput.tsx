@@ -149,6 +149,9 @@ export function ChatInput({ onSend, loading, placeholder, appMode, selectedModel
           />
           <div className="flex items-center justify-between px-3 pb-2.5">
             <div className="flex items-center gap-0.5">
+              {appMode && selectedModel && onModelChange && (
+                <ModelSelector mode={appMode} selectedModel={selectedModel} onModelChange={onModelChange} />
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50" disabled={loading}>
