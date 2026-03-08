@@ -235,6 +235,7 @@ const Index = () => {
       await streamChat({
         messages: newMessages,
         tool: "video",
+        model: selectedModel,
         onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
         onDone: async () => {
           const finalMessages = [...newMessages, { role: "assistant" as const, content: fullContent }];
