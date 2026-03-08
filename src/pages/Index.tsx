@@ -150,7 +150,15 @@ const Index = () => {
         ) : (
           <PreviewPane html={active?.html || ""} view={view} />
         )}
-        <ChatInput onSend={handleSend} loading={loading} />
+        <ChatInput
+          onSend={handleSend}
+          loading={loading}
+          suggestions={
+            active?.messages.length === 0
+              ? ["Create a landing page", "Build a portfolio site", "Design a dashboard"]
+              : []
+          }
+        />
       </div>
     </div>
   );
