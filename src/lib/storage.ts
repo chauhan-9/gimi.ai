@@ -1,9 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export type AppMode = "chat" | "builder" | "image" | "video";
+
 export interface Project {
   id: string;
   name: string;
   html: string;
+  mode: AppMode;
   messages: { role: "user" | "assistant"; content: string }[];
   createdAt: number;
 }
@@ -16,13 +19,14 @@ async function getUserId(): Promise<string> {
   return session.user.id;
 }
 
-export async function loadProjectsFromCloud(): Promise<Project[]> {
+export async function loadProjectsFromCloud(mode?: AppMode): Promise<Project[]> {
   const userId = await getUserId();
-  const { data, error } = await supabase
+  let query = supabase
     .from("projects")
     .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+    .eq("user_id", userId);
+  if (mode) query = query.eq("mode", mode);
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error || !data) return [];
 
@@ -38,6 +42,7 @@ export async function loadProjectsFromCloud(): Promise<Project[]> {
       id: p.id,
       name: p.name,
       html: p.html || "",
+      mode: (p as any).mode || "builder",
       messages: (msgs || []).map((m: any) => ({ role: m.role, content: m.content })),
       createdAt: new Date(p.created_at).getTime(),
     });
@@ -102,11 +107,11 @@ export async function deleteProjectFromCloud(id: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function createProjectInCloud(name?: string): Promise<Project> {
+export async function createProjectInCloud(name?: string, mode: AppMode = "builder"): Promise<Project> {
   const userId = await getUserId();
   const { data, error } = await supabase
     .from("projects")
-    .insert({ name: name || `Project ${Date.now()}`, user_id: userId })
+    .insert({ name: name || `Project ${Date.now()}`, user_id: userId, mode } as any)
     .select()
     .single();
 
@@ -115,6 +120,7 @@ export async function createProjectInCloud(name?: string): Promise<Project> {
     id: data.id,
     name: data.name,
     html: data.html || "",
+    mode: (data as any).mode || mode,
     messages: [],
     createdAt: new Date(data.created_at).getTime(),
   };
@@ -132,11 +138,12 @@ export function saveActiveId(id: string) {
   localStorage.setItem(ACTIVE_KEY, id);
 }
 
-export function createProject(name?: string): Project {
+export function createProject(name?: string, mode: AppMode = "builder"): Project {
   return {
     id: crypto.randomUUID(),
     name: name || `Project ${Date.now()}`,
     html: "",
+    mode,
     messages: [],
     createdAt: Date.now(),
   };

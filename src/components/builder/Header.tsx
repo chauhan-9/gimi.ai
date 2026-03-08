@@ -1,6 +1,6 @@
 import { ArrowLeft, Download, Menu } from "lucide-react";
 import hexaIcon from "@/assets/hexa-icon.png";
-import type { AppMode } from "./HomeScreen";
+import type { AppMode } from "@/lib/storage";
 
 export type View = "chat" | "tools" | "preview" | "code";
 
