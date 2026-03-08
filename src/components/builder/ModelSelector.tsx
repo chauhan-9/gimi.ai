@@ -161,7 +161,46 @@ export function ModelSelector({ mode, selectedModel, onModelChange }: ModelSelec
           <div className="px-3 py-1.5 border-b border-border mb-1">
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Select Model</p>
           </div>
-          {models.map((model) => (
+          {/* Free Models Section */}
+          {models.some((m) => m.free) && (
+            <div className="px-3 pt-1 pb-0.5">
+              <p className="text-[9px] font-semibold text-green-500 uppercase tracking-wider">✦ Free Models</p>
+            </div>
+          )}
+          {models.filter((m) => m.free).map((model) => (
+            <button
+              key={model.id}
+              onClick={() => handleSelect(model)}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-muted transition-colors ${
+                model.id === selectedModel ? "bg-primary/5" : ""
+              }`}
+            >
+              <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center ${
+                model.id === selectedModel ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+              }`}>
+                {model.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-xs font-medium ${model.id === selectedModel ? "text-primary" : "text-foreground"}`}>
+                    {model.label}
+                  </span>
+                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-500 uppercase">Free</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground truncate">{model.description}</p>
+              </div>
+              {model.id === selectedModel && (
+                <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+              )}
+            </button>
+          ))}
+          {/* Premium Models Section */}
+          {models.some((m) => !m.free) && (
+            <div className="px-3 pt-2 pb-0.5 border-t border-border mt-1">
+              <p className="text-[9px] font-semibold text-primary uppercase tracking-wider">⚡ Premium Models</p>
+            </div>
+          )}
+          {models.filter((m) => !m.free).map((model) => (
             <button
               key={model.id}
               onClick={() => handleSelect(model)}
