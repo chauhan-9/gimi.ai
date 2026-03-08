@@ -7,7 +7,8 @@ import { ChatInput } from "@/components/builder/ChatInput";
 import { ChatPane } from "@/components/builder/ChatPane";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { ToolsDashboard, ToolChatHeader, type AiTool } from "@/components/builder/ToolsDashboard";
-import { HomeScreen, type AppMode } from "@/components/builder/HomeScreen";
+import { HomeScreen } from "@/components/builder/HomeScreen";
+import type { AppMode } from "@/lib/storage";
 import { streamChat, extractHtml } from "@/lib/ai-stream";
 import {
   loadProjectsFromCloud,
@@ -40,7 +41,7 @@ const Index = () => {
 
   const active = projects.find((p) => p.id === activeId) || projects[0];
 
-  // Auth check + load projects
+  // Auth check
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) navigate("/auth", { replace: true });
@@ -49,28 +50,36 @@ const Index = () => {
     async function init() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/auth", { replace: true }); return; }
-
-      try {
-        let cloudProjects = await loadProjectsFromCloud();
-        if (cloudProjects.length === 0) {
-          const p = await createProjectInCloud("My First Project");
-          cloudProjects = [p];
-        }
-        setProjects(cloudProjects);
-        const savedId = loadActiveId();
-        const validId = cloudProjects.find((p) => p.id === savedId)?.id || cloudProjects[0]?.id;
-        setActiveId(validId || "");
-      } catch (err) {
-        console.error("Failed to load:", err);
-        const p = createProject("My First Project");
-        setProjects([p]);
-        setActiveId(p.id);
-      }
       setIsInitialized(true);
     }
     init();
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Load projects when mode changes
+  useEffect(() => {
+    if (!isInitialized || !appMode) return;
+
+    async function loadForMode() {
+      try {
+        let modeProjects = await loadProjectsFromCloud(appMode!);
+        if (modeProjects.length === 0) {
+          const p = await createProjectInCloud("New Chat", appMode!);
+          modeProjects = [p];
+        }
+        setProjects(modeProjects);
+        const savedId = loadActiveId();
+        const validId = modeProjects.find((p) => p.id === savedId)?.id || modeProjects[0]?.id;
+        setActiveId(validId || "");
+      } catch (err) {
+        console.error("Failed to load:", err);
+        const p = createProject("New Chat", appMode!);
+        setProjects([p]);
+        setActiveId(p.id);
+      }
+    }
+    loadForMode();
+  }, [appMode, isInitialized]);
 
   useEffect(() => { if (activeId) saveActiveId(activeId); }, [activeId]);
 
@@ -79,8 +88,9 @@ const Index = () => {
   }, []);
 
   const handleNew = async () => {
+    if (!appMode) return;
     try {
-      const p = await createProjectInCloud();
+      const p = await createProjectInCloud(undefined, appMode);
       setProjects((prev) => [p, ...prev]);
       setActiveId(p.id);
       setShowSidebar(false);
@@ -89,11 +99,12 @@ const Index = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (!appMode) return;
     try {
       await deleteProjectFromCloud(id);
       const next = projects.filter((p) => p.id !== id);
       if (next.length === 0) {
-        const p = await createProjectInCloud("My First Project");
+        const p = await createProjectInCloud("New Chat", appMode);
         setProjects([p]);
         setActiveId(p.id);
       } else {
@@ -137,7 +148,7 @@ const Index = () => {
             await saveMessageToCloud(active.id, "assistant", fullContent);
             await saveProjectToCloud({ ...active, html, name: newName });
           } catch {}
-          if (html && html.trim().match(/^(<(!DOCTYPE|html))/i)) setView("preview");
+          if (appMode === "builder" && html && html.trim().match(/^(<(!DOCTYPE|html))/i)) setView("preview");
         },
       });
     } catch (err: any) {
@@ -191,7 +202,7 @@ const Index = () => {
             await saveMessageToCloud(active.id, "assistant", fullContent);
             await saveProjectToCloud({ ...active, html });
           } catch {}
-          if (html && html.trim().match(/^(<(!DOCTYPE|html))/i)) setView("preview");
+          if (appMode === "builder" && html && html.trim().match(/^(<(!DOCTYPE|html))/i)) setView("preview");
         },
       });
     } catch (err: any) {
@@ -268,24 +279,31 @@ const Index = () => {
     );
   }
 
+  const placeholders: Record<AppMode, string> = {
+    chat: "Type your message...",
+    builder: "Describe your website...",
+    image: "Describe the image you want to create...",
+    video: "Describe the video you want to create...",
+  };
+
   return (
     <div className="flex h-[100dvh] overflow-hidden">
       {showSidebar && (
         <div className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm lg:hidden" onClick={() => setShowSidebar(false)} />
       )}
 
-      {appMode === "builder" && (
-        <div className={`fixed lg:static z-50 h-full transition-transform lg:translate-x-0 ${showSidebar ? "translate-x-0" : "-translate-x-full"}`}>
-          <Sidebar
-            projects={projects}
-            activeId={activeId}
-            onSelect={(id) => { setActiveId(id); setShowSidebar(false); setView("chat"); }}
-            onNew={handleNew}
-            onDelete={handleDelete}
-            onLogout={handleLogout}
-          />
-        </div>
-      )}
+      {/* Sidebar for ALL modes */}
+      <div className={`fixed lg:static z-50 h-full transition-transform lg:translate-x-0 ${showSidebar ? "translate-x-0" : "-translate-x-full"}`}>
+        <Sidebar
+          projects={projects}
+          activeId={activeId}
+          onSelect={(id) => { setActiveId(id); setShowSidebar(false); setView("chat"); }}
+          onNew={handleNew}
+          onDelete={handleDelete}
+          onLogout={handleLogout}
+          mode={appMode}
+        />
+      </div>
 
       <div className="flex flex-col flex-1 min-w-0">
         <Header
@@ -293,35 +311,25 @@ const Index = () => {
           onViewChange={setView}
           onDownload={handleDownload}
           onToggleSidebar={() => setShowSidebar(!showSidebar)}
-          onBack={() => setAppMode(null)}
+          onBack={() => { setAppMode(null); setProjects([]); setActiveId(""); }}
           appMode={appMode}
         />
 
-        {appMode === "chat" ? (
-          <>
-            <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
-            <ChatInput onSend={handleSend} loading={loading} />
-          </>
-        ) : appMode === "builder" ? (
+        {appMode === "builder" ? (
           <>
             {view === "chat" ? (
               <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
             ) : (
               <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
             )}
-            {view === "chat" && <ChatInput onSend={handleSend} loading={loading} />}
+            {view === "chat" && <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders.builder} />}
           </>
-        ) : appMode === "image" ? (
+        ) : (
           <>
             <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
-            <ChatInput onSend={handleSend} loading={loading} placeholder="Describe the image you want to create..." />
+            <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders[appMode]} />
           </>
-        ) : appMode === "video" ? (
-          <>
-            <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
-            <ChatInput onSend={handleSend} loading={loading} placeholder="Describe the video you want to create..." />
-          </>
-        ) : null}
+        )}
       </div>
     </div>
   );

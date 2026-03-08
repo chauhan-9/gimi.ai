@@ -1,7 +1,6 @@
 import { MessageCircle, Code, Image, Video } from "lucide-react";
 import hexaIcon from "@/assets/hexa-icon.png";
-
-export type AppMode = "chat" | "builder" | "image" | "video";
+import type { AppMode } from "@/lib/storage";
 
 interface HomeScreenProps {
   onSelectMode: (mode: AppMode) => void;

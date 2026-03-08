@@ -1,5 +1,5 @@
-import { Plus, Trash2, MessageSquare, LogOut } from "lucide-react";
-import type { Project } from "@/lib/storage";
+import { Plus, Trash2, MessageSquare, LogOut, Code, Image, Video } from "lucide-react";
+import type { Project, AppMode } from "@/lib/storage";
 import hexaIcon from "@/assets/hexa-icon.png";
 
 interface SidebarProps {
@@ -9,9 +9,19 @@ interface SidebarProps {
   onNew: () => void;
   onDelete: (id: string) => void;
   onLogout: () => void;
+  mode: AppMode;
 }
 
-export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onLogout }: SidebarProps) {
+const modeConfig: Record<AppMode, { label: string; icon: React.ReactNode; newLabel: string }> = {
+  chat: { label: "Chats", icon: <MessageSquare size={14} />, newLabel: "New Chat" },
+  builder: { label: "Projects", icon: <Code size={14} />, newLabel: "New Project" },
+  image: { label: "Images", icon: <Image size={14} />, newLabel: "New Image" },
+  video: { label: "Videos", icon: <Video size={14} />, newLabel: "New Video" },
+};
+
+export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onLogout, mode }: SidebarProps) {
+  const config = modeConfig[mode];
+
   return (
     <div className="flex flex-col h-full w-64 bg-card border-r border-border flex-shrink-0">
       {/* Brand */}
@@ -19,22 +29,22 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onLogou
         <img src={hexaIcon} alt="Hexa.AI" className="w-9 h-9 rounded-xl" />
         <div>
           <h1 className="text-sm font-bold font-display gradient-text">Hexa.AI</h1>
-          <p className="text-[10px] text-muted-foreground">AI Website Builder</p>
+          <p className="text-[10px] text-muted-foreground">{config.label}</p>
         </div>
       </div>
 
-      {/* New chat */}
+      {/* New button */}
       <div className="px-3 pb-3">
         <button
           onClick={onNew}
           className="flex items-center justify-center gap-2 w-full rounded-xl bg-primary text-primary-foreground py-2.5 text-sm font-medium hover:opacity-90 transition-opacity"
         >
           <Plus size={16} />
-          New Chat
+          {config.newLabel}
         </button>
       </div>
 
-      {/* Chat list */}
+      {/* List */}
       <div className="flex-1 overflow-y-auto px-2 space-y-0.5 scrollbar-hide">
         {projects.map((p) => (
           <div
@@ -46,7 +56,7 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onLogou
             }`}
             onClick={() => onSelect(p.id)}
           >
-            <MessageSquare size={14} className={p.id === activeId ? "text-primary" : "text-muted-foreground"} />
+            <span className={p.id === activeId ? "text-primary" : "text-muted-foreground"}>{config.icon}</span>
             <span className="truncate flex-1 text-xs">{p.name}</span>
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(p.id); }}
