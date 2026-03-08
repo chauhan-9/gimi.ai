@@ -19,13 +19,14 @@ async function getUserId(): Promise<string> {
   return session.user.id;
 }
 
-export async function loadProjectsFromCloud(): Promise<Project[]> {
+export async function loadProjectsFromCloud(mode?: AppMode): Promise<Project[]> {
   const userId = await getUserId();
-  const { data, error } = await supabase
+  let query = supabase
     .from("projects")
     .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+    .eq("user_id", userId);
+  if (mode) query = query.eq("mode", mode);
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error || !data) return [];
 
