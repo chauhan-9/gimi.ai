@@ -155,6 +155,7 @@ const Index = () => {
     try {
       await streamChat({
         messages: newMessages,
+        model: selectedModel,
         onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
         onDone: async () => {
           const html = extractHtml(fullContent);
