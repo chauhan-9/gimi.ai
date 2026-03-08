@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Sidebar } from "@/components/builder/Sidebar";
-import { Header } from "@/components/builder/Header";
+import { Header, type View } from "@/components/builder/Header";
 import { ChatInput } from "@/components/builder/ChatInput";
 import { ChatPane } from "@/components/builder/ChatPane";
 import { PreviewPane } from "@/components/builder/PreviewPane";
+import { ToolsDashboard, ToolChatHeader, type AiTool } from "@/components/builder/ToolsDashboard";
 import { streamChat, extractHtml } from "@/lib/ai-stream";
 import {
   loadProjectsFromCloud,
