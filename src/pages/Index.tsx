@@ -125,7 +125,11 @@ const Index = () => {
           onDownload={handleDownload}
           onToggleSidebar={() => setShowSidebar(!showSidebar)}
         />
-        <PreviewPane html={active?.html || ""} view={view} />
+        {view === "chat" ? (
+          <ChatPane messages={active?.messages || []} loading={loading} />
+        ) : (
+          <PreviewPane html={active?.html || ""} view={view} />
+        )}
         <ChatInput onSend={handleSend} loading={loading} />
       </div>
 
