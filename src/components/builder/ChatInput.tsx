@@ -7,6 +7,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { ModelSelector } from "./ModelSelector";
+import type { AppMode } from "@/lib/storage";
 
 interface Attachment {
   file: File;
@@ -19,6 +21,9 @@ interface ChatInputProps {
   loading: boolean;
   suggestions?: string[];
   placeholder?: string;
+  appMode?: AppMode;
+  selectedModel?: string;
+  onModelChange?: (modelId: string) => void;
 }
 
 export function ChatInput({ onSend, loading, placeholder }: ChatInputProps) {
