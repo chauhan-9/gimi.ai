@@ -22,13 +22,34 @@ interface ChatPaneProps {
   onRegenerate?: (index: number) => void;
 }
 
-const ACTION_CATEGORIES = [
+const CHAT_CATEGORIES = [
   {
     icon: <MessageCircle size={18} />,
-    label: "Chat with AI",
-    description: "Ask anything you want",
-    prompt: "Hello! Mujhe kuch interesting batao",
+    label: "Kuch bhi pucho",
+    description: "Koi bhi sawal ka jawab pao",
+    prompt: "Mujhe kuch interesting facts batao jo maine pehle nahi sune honge",
   },
+  {
+    icon: <HelpCircle size={18} />,
+    label: "Sawal ka Jawab",
+    description: "Kisi bhi topic pe help lo",
+    prompt: "Machine Learning kya hota hai? Simple language mein samjhao",
+  },
+  {
+    icon: <Lightbulb size={18} />,
+    label: "Ideas & Suggestions",
+    description: "Naye ideas aur suggestions pao",
+    prompt: "Mujhe kuch creative business ideas suggest karo for 2026",
+  },
+  {
+    icon: <BookOpen size={18} />,
+    label: "Kuch Seekho",
+    description: "Koi bhi topic samjho easily",
+    prompt: "Mujhe Python programming basics sikhao step by step",
+  },
+];
+
+const BUILDER_CATEGORIES = [
   {
     icon: <Code size={18} />,
     label: "Build a Website",
@@ -43,9 +64,42 @@ const ACTION_CATEGORIES = [
   },
   {
     icon: <Globe size={18} />,
-    label: "Explore Ideas",
-    description: "Discover new project ideas",
-    prompt: "Suggest me some innovative web app ideas for 2026",
+    label: "Web App Banao",
+    description: "Full functional web app create karo",
+    prompt: "Create a todo app with dark theme and local storage",
+  },
+  {
+    icon: <Sparkles size={18} />,
+    label: "Landing Page",
+    description: "Beautiful landing page design",
+    prompt: "Create a stunning SaaS product landing page with hero section, features, and pricing",
+  },
+];
+
+const IMAGE_CATEGORIES = [
+  {
+    icon: <ImageIcon size={18} />,
+    label: "Image Generate karo",
+    description: "Koi bhi image create karo",
+    prompt: "A beautiful sunset over mountains with purple and orange sky, realistic photography",
+  },
+  {
+    icon: <Palette size={18} />,
+    label: "Art & Illustration",
+    description: "Creative artwork banao",
+    prompt: "A cute cartoon cat sitting on a moon in watercolor style",
+  },
+  {
+    icon: <Sparkles size={18} />,
+    label: "Logo Design",
+    description: "Professional logo create karo",
+    prompt: "A modern minimalist logo for a tech company called 'NexGen' with blue and white colors",
+  },
+  {
+    icon: <Globe size={18} />,
+    label: "Realistic Photo",
+    description: "Real jaisi photo banao",
+    prompt: "A photorealistic image of a futuristic city at night with neon lights and flying cars",
   },
 ];
 
