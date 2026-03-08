@@ -395,8 +395,8 @@ const Index = () => {
   }
 
   const placeholders: Record<AppMode, string> = {
-    chat: "Type your message...",
-    builder: "Describe your website...",
+    chat: "Kuch bhi pucho ya batao...",
+    builder: "Describe your website or app...",
     image: "Describe the image you want to create...",
     video: "Describe the video you want to create...",
   };
