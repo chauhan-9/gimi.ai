@@ -1,8 +1,10 @@
 import { Download, Menu } from "lucide-react";
 
+type View = "chat" | "preview" | "code";
+
 interface HeaderProps {
-  view: "preview" | "code";
-  onViewChange: (v: "preview" | "code") => void;
+  view: View;
+  onViewChange: (v: View) => void;
   onDownload: () => void;
   onToggleSidebar: () => void;
 }
