@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import hexaIcon from "@/assets/hexa-icon.png";
 import { toast } from "sonner";
 import { ImageLightbox } from "./ImageLightbox";
-import { Image3DViewer } from "./Image3DViewer";
+
 
 interface Message {
   role: "user" | "assistant";
@@ -230,7 +230,7 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
   const welcomeTitle = MODE_TITLES[appMode || "chat"]?.title || "Kya help chahiye?";
   const welcomeSubtitle = MODE_TITLES[appMode || "chat"]?.subtitle || "";
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
-  const [viewer3DSrc, setViewer3DSrc] = useState<string | null>(null);
+  
 
   const handleScroll = () => {
     const el = scrollContainerRef.current;
@@ -343,13 +343,6 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
                                 <ZoomIn size={14} />
                               </button>
                               <button
-                                onClick={() => setViewer3DSrc(src || "")}
-                                className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-primary transition-colors"
-                                title="View in 3D"
-                              >
-                                <Box size={14} />
-                              </button>
-                              <button
                                 onClick={() => {
                                   const link = document.createElement("a");
                                   link.href = src || "";
@@ -408,12 +401,7 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
         <ImageLightbox
           src={lightboxSrc}
           onClose={() => setLightboxSrc(null)}
-          onOpen3D={() => { setLightboxSrc(null); setViewer3DSrc(lightboxSrc); }}
         />
-      )}
-
-      {viewer3DSrc && (
-        <Image3DViewer src={viewer3DSrc} onClose={() => setViewer3DSrc(null)} />
       )}
     </React.Fragment>
   );
