@@ -1,9 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export type AppMode = "chat" | "builder" | "image" | "video";
+
 export interface Project {
   id: string;
   name: string;
   html: string;
+  mode: AppMode;
   messages: { role: "user" | "assistant"; content: string }[];
   createdAt: number;
 }
