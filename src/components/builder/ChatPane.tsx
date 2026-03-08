@@ -47,6 +47,33 @@ const ACTION_CATEGORIES = [
   },
 ];
 
+const VIDEO_CATEGORIES = [
+  {
+    icon: <Film size={18} />,
+    label: "YouTube Script",
+    description: "Complete video script with scenes",
+    prompt: "Write a YouTube video script on 'Top 10 AI Tools in 2026' with intro, scenes, and outro",
+  },
+  {
+    icon: <Clapperboard size={18} />,
+    label: "Reels / Shorts",
+    description: "Short-form video concepts",
+    prompt: "Create a 60-second Instagram Reel concept about daily productivity hacks",
+  },
+  {
+    icon: <Video size={18} />,
+    label: "Explainer Video",
+    description: "Product or concept explainer",
+    prompt: "Create a 2-minute explainer video script for a food delivery app",
+  },
+  {
+    icon: <Sparkles size={18} />,
+    label: "Video Ideas",
+    description: "Trending video concepts",
+    prompt: "Suggest 5 trending YouTube video ideas for a tech channel in 2026",
+  },
+];
+
 function getGreeting(): string {
   const hour = new Date().getHours();
   if (hour < 12) return "Good morning";
