@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import ReactDOM from "react-dom";
 import { ChevronDown, Zap, Brain, Sparkles, Cpu, Image, Video } from "lucide-react";
 import type { AppMode } from "@/lib/storage";
 
