@@ -172,11 +172,11 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
           </div>
           <div className="text-center space-y-2">
             <p className="text-muted-foreground text-sm">{getGreeting()}! 👋</p>
-            <h2 className="text-2xl font-bold font-display text-foreground">What can I help you with?</h2>
-            <p className="text-xs text-muted-foreground">Build websites, chat, or explore AI tools</p>
+            <h2 className="text-2xl font-bold font-display text-foreground">{welcomeTitle}</h2>
+            <p className="text-xs text-muted-foreground">{welcomeSubtitle}</p>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
-            {ACTION_CATEGORIES.map((cat, i) => (
+            {categories.map((cat, i) => (
               <button
                 key={i}
                 onClick={() => onSuggestionClick?.(cat.prompt)}
