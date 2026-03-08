@@ -210,6 +210,8 @@ function MessageActions({ msg, index, onEdit, onDelete, onRegenerate }: {
 
 export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef(true);
   const MODE_CATEGORIES: Record<string, typeof CHAT_CATEGORIES> = {
     chat: CHAT_CATEGORIES,
     builder: BUILDER_CATEGORIES,
