@@ -351,13 +351,20 @@ const Index = () => {
 
   const handleDownload = () => {
     if (!active?.html) return;
-    const blob = new Blob([active.html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "index.html";
-    a.click();
-    URL.revokeObjectURL(url);
+    const files = parseHtmlToFiles(active.html);
+    if (files.length > 0) {
+      downloadProjectFiles(files, active.name || "hexa-project");
+      toast.success("Project files downloading!");
+    } else {
+      // Fallback: download as single HTML
+      const blob = new Blob([active.html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "index.html";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   };
 
   const displayMessages = active?.messages || [];
