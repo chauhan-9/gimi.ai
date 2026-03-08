@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Download, Video, Film, Clapperboard, Sparkles } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Download, Video, Film, Clapperboard, Sparkles, Box, ZoomIn } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import hexaIcon from "@/assets/hexa-icon.png";
 import { toast } from "sonner";
+import { ImageLightbox } from "./ImageLightbox";
+import { Image3DViewer } from "./Image3DViewer";
 
 interface Message {
   role: "user" | "assistant";
@@ -157,6 +159,9 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
   const categories = appMode === "video" ? VIDEO_CATEGORIES : ACTION_CATEGORIES;
   const welcomeTitle = appMode === "video" ? "What video do you want to create?" : "What can I help you with?";
   const welcomeSubtitle = appMode === "video" ? "Scripts, storyboards, and video planning" : "Build websites, chat, or explore AI tools";
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [viewer3DSrc, setViewer3DSrc] = useState<string | null>(null);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
@@ -198,6 +203,7 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
   }
 
   return (
+    <React.Fragment>
     <div className="flex-1 overflow-y-auto bg-background">
       <div className="max-w-3xl mx-auto py-6 px-4 space-y-4">
         {messages.map((msg, i) => (
@@ -233,23 +239,40 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
                             <img
                               src={src}
                               alt={alt || "Generated image"}
-                              className="rounded-xl max-w-full shadow-lg my-3 border border-border"
+                              className="rounded-xl max-w-full shadow-lg my-3 border border-border cursor-pointer hover:shadow-xl transition-shadow"
                               loading="lazy"
+                              onClick={() => setLightboxSrc(src || "")}
                               {...props}
                             />
-                            <button
-                              onClick={() => {
-                                const link = document.createElement("a");
-                                link.href = src || "";
-                                link.download = `hexa-image-${Date.now()}.png`;
-                                link.click();
-                                toast.success("Download started!");
-                              }}
-                              className="absolute top-5 right-2 p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground opacity-0 group-hover/img:opacity-100 transition-opacity"
-                              title="Download image"
-                            >
-                              <Download size={14} />
-                            </button>
+                            <div className="absolute top-5 right-2 flex items-center gap-1 opacity-0 group-hover/img:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => setLightboxSrc(src || "")}
+                                className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
+                                title="Zoom"
+                              >
+                                <ZoomIn size={14} />
+                              </button>
+                              <button
+                                onClick={() => setViewer3DSrc(src || "")}
+                                className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-primary transition-colors"
+                                title="View in 3D"
+                              >
+                                <Box size={14} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const link = document.createElement("a");
+                                  link.href = src || "";
+                                  link.download = `hexa-image-${Date.now()}.png`;
+                                  link.click();
+                                  toast.success("Download started!");
+                                }}
+                                className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
+                                title="Download"
+                              >
+                                <Download size={14} />
+                              </button>
+                            </div>
                           </div>
                         ),
                       }}
@@ -278,6 +301,19 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
         <div ref={bottomRef} />
       </div>
     </div>
+
+      {lightboxSrc && (
+        <ImageLightbox
+          src={lightboxSrc}
+          onClose={() => setLightboxSrc(null)}
+          onOpen3D={() => { setLightboxSrc(null); setViewer3DSrc(lightboxSrc); }}
+        />
+      )}
+
+      {viewer3DSrc && (
+        <Image3DViewer src={viewer3DSrc} onClose={() => setViewer3DSrc(null)} />
+      )}
+    </React.Fragment>
   );
 }
 
