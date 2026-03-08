@@ -127,6 +127,11 @@ const Index = () => {
       return handleImageSend(text);
     }
 
+    // Video mode: use video-specific AI tool
+    if (appMode === "video") {
+      return handleVideoSend(text);
+    }
+
     const userMsg = { role: "user" as const, content: text };
     const newMessages = [...active.messages, userMsg];
     const newName = active.messages.length === 0 ? text.slice(0, 40) : active.name;
@@ -199,6 +204,45 @@ const Index = () => {
       toast.error(err.message || "Image generation failed");
       updateProject(active.id, { messages: active.messages });
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVideoSend = async (text: string) => {
+    if (!active) return;
+    const userMsg = { role: "user" as const, content: text };
+    const newMessages = [...active.messages, userMsg];
+    const newName = active.messages.length === 0 ? text.slice(0, 40) : active.name;
+    updateProject(active.id, { messages: newMessages, name: newName });
+    setLoading(true);
+    setStreamingContent("");
+
+    try {
+      await saveMessageToCloud(active.id, "user", text);
+      if (newName !== active.name) await saveProjectToCloud({ ...active, name: newName });
+    } catch (err) { console.error("Failed to save:", err); }
+
+    let fullContent = "";
+    try {
+      await streamChat({
+        messages: newMessages,
+        tool: "video",
+        onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
+        onDone: async () => {
+          const finalMessages = [...newMessages, { role: "assistant" as const, content: fullContent }];
+          updateProject(active.id, { messages: finalMessages });
+          setStreamingContent("");
+          setLoading(false);
+          try {
+            await saveMessageToCloud(active.id, "assistant", fullContent);
+            await saveProjectToCloud({ ...active, name: newName });
+          } catch {}
+        },
+      });
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong");
+      updateProject(active.id, { messages: active.messages });
+      setStreamingContent("");
       setLoading(false);
     }
   };
@@ -362,7 +406,7 @@ const Index = () => {
         {appMode === "builder" ? (
           <>
             {view === "chat" ? (
-              <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+              <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
             ) : (
               <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
             )}
@@ -370,7 +414,7 @@ const Index = () => {
           </>
         ) : (
           <>
-            <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+            <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
             <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders[appMode]} />
           </>
         )}

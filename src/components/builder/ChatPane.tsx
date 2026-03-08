@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Cpu, Download } from "lucide-react";
+import { User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Download, Video, Film, Clapperboard, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import hexaIcon from "@/assets/hexa-icon.png";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ interface Message {
 interface ChatPaneProps {
   messages: Message[];
   loading: boolean;
+  appMode?: string;
   onSuggestionClick?: (text: string) => void;
   onCopy?: (index: number) => void;
   onEdit?: (index: number, newContent: string) => void;
@@ -43,6 +44,33 @@ const ACTION_CATEGORIES = [
     label: "Explore Ideas",
     description: "Discover new project ideas",
     prompt: "Suggest me some innovative web app ideas for 2026",
+  },
+];
+
+const VIDEO_CATEGORIES = [
+  {
+    icon: <Film size={18} />,
+    label: "YouTube Script",
+    description: "Complete video script with scenes",
+    prompt: "Write a YouTube video script on 'Top 10 AI Tools in 2026' with intro, scenes, and outro",
+  },
+  {
+    icon: <Clapperboard size={18} />,
+    label: "Reels / Shorts",
+    description: "Short-form video concepts",
+    prompt: "Create a 60-second Instagram Reel concept about daily productivity hacks",
+  },
+  {
+    icon: <Video size={18} />,
+    label: "Explainer Video",
+    description: "Product or concept explainer",
+    prompt: "Create a 2-minute explainer video script for a food delivery app",
+  },
+  {
+    icon: <Sparkles size={18} />,
+    label: "Video Ideas",
+    description: "Trending video concepts",
+    prompt: "Suggest 5 trending YouTube video ideas for a tech channel in 2026",
   },
 ];
 
@@ -124,9 +152,11 @@ function MessageActions({ msg, index, onEdit, onDelete, onRegenerate }: {
   );
 }
 
-export function ChatPane({ messages, loading, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
+export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
-
+  const categories = appMode === "video" ? VIDEO_CATEGORIES : ACTION_CATEGORIES;
+  const welcomeTitle = appMode === "video" ? "What video do you want to create?" : "What can I help you with?";
+  const welcomeSubtitle = appMode === "video" ? "Scripts, storyboards, and video planning" : "Build websites, chat, or explore AI tools";
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
@@ -142,11 +172,11 @@ export function ChatPane({ messages, loading, onSuggestionClick, onEdit, onDelet
           </div>
           <div className="text-center space-y-2">
             <p className="text-muted-foreground text-sm">{getGreeting()}! 👋</p>
-            <h2 className="text-2xl font-bold font-display text-foreground">What can I help you with?</h2>
-            <p className="text-xs text-muted-foreground">Build websites, chat, or explore AI tools</p>
+            <h2 className="text-2xl font-bold font-display text-foreground">{welcomeTitle}</h2>
+            <p className="text-xs text-muted-foreground">{welcomeSubtitle}</p>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
-            {ACTION_CATEGORIES.map((cat, i) => (
+            {categories.map((cat, i) => (
               <button
                 key={i}
                 onClick={() => onSuggestionClick?.(cat.prompt)}
