@@ -12,6 +12,7 @@ import {
   deleteProjectFromCloud,
   createProjectInCloud,
   deleteMessagesFromCloud,
+  replaceMessagesInCloud,
   loadActiveId,
   saveActiveId,
   createProject,
