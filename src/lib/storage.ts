@@ -66,6 +66,25 @@ export async function saveMessageToCloud(
   if (error) throw error;
 }
 
+export async function deleteMessagesFromCloud(projectId: string): Promise<void> {
+  const { error } = await supabase.from("messages").delete().eq("project_id", projectId);
+  if (error) throw error;
+}
+
+export async function replaceMessagesInCloud(
+  projectId: string,
+  messages: { role: "user" | "assistant"; content: string }[]
+): Promise<void> {
+  // Delete all then re-insert
+  await deleteMessagesFromCloud(projectId);
+  if (messages.length > 0) {
+    const { error } = await supabase.from("messages").insert(
+      messages.map((m) => ({ project_id: projectId, role: m.role, content: m.content }))
+    );
+    if (error) throw error;
+  }
+}
+
 export async function deleteProjectFromCloud(id: string): Promise<void> {
   const { error } = await supabase.from("projects").delete().eq("id", id);
   if (error) throw error;
