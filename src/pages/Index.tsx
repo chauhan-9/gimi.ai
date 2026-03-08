@@ -6,52 +6,89 @@ import { ChatPane } from "@/components/builder/ChatPane";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { streamChat, extractHtml } from "@/lib/ai-stream";
 import {
-  loadProjects, saveProjects,
-  loadActiveId, saveActiveId,
+  loadProjectsFromCloud,
+  saveProjectToCloud,
+  saveMessageToCloud,
+  deleteProjectFromCloud,
+  createProjectInCloud,
+  loadActiveId,
+  saveActiveId,
   createProject,
   type Project,
 } from "@/lib/storage";
+import { toast } from "sonner";
 
 const Index = () => {
-  const [projects, setProjects] = useState<Project[]>(() => {
-    const p = loadProjects();
-    return p.length ? p : [createProject("My First Project")];
-  });
-  const [activeId, setActiveId] = useState<string>(() => {
-    return loadActiveId() || projects[0]?.id || "";
-  });
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [activeId, setActiveId] = useState<string>("");
   const [showSidebar, setShowSidebar] = useState(false);
   const [view, setView] = useState<"chat" | "preview" | "code">("chat");
   const [loading, setLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
+  const [isInitialized, setIsInitialized] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   const active = projects.find((p) => p.id === activeId) || projects[0];
 
-  // Persist
-  useEffect(() => { saveProjects(projects); }, [projects]);
-  useEffect(() => { saveActiveId(activeId); }, [activeId]);
+  // Load from cloud on mount
+  useEffect(() => {
+    async function init() {
+      try {
+        let cloudProjects = await loadProjectsFromCloud();
+        if (cloudProjects.length === 0) {
+          const p = await createProjectInCloud("My First Project");
+          cloudProjects = [p];
+        }
+        setProjects(cloudProjects);
+        const savedId = loadActiveId();
+        const validId = cloudProjects.find((p) => p.id === savedId)?.id || cloudProjects[0]?.id;
+        setActiveId(validId || "");
+      } catch (err) {
+        console.error("Failed to load from cloud, using local:", err);
+        const p = createProject("My First Project");
+        setProjects([p]);
+        setActiveId(p.id);
+      }
+      setIsInitialized(true);
+    }
+    init();
+  }, []);
+
+  // Persist active ID
+  useEffect(() => {
+    if (activeId) saveActiveId(activeId);
+  }, [activeId]);
 
   const updateProject = useCallback((id: string, updates: Partial<Project>) => {
     setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
   }, []);
 
-  const handleNew = () => {
-    const p = createProject();
-    setProjects((prev) => [p, ...prev]);
-    setActiveId(p.id);
-    setShowSidebar(false);
+  const handleNew = async () => {
+    try {
+      const p = await createProjectInCloud();
+      setProjects((prev) => [p, ...prev]);
+      setActiveId(p.id);
+      setShowSidebar(false);
+      setView("chat");
+    } catch {
+      toast.error("Failed to create project");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    const next = projects.filter((p) => p.id !== id);
-    if (next.length === 0) {
-      const p = createProject("My First Project");
-      setProjects([p]);
-      setActiveId(p.id);
-    } else {
-      setProjects(next);
-      if (activeId === id) setActiveId(next[0].id);
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteProjectFromCloud(id);
+      const next = projects.filter((p) => p.id !== id);
+      if (next.length === 0) {
+        const p = await createProjectInCloud("My First Project");
+        setProjects([p]);
+        setActiveId(p.id);
+      } else {
+        setProjects(next);
+        if (activeId === id) setActiveId(next[0].id);
+      }
+    } catch {
+      toast.error("Failed to delete project");
     }
   };
 
@@ -60,12 +97,21 @@ const Index = () => {
 
     const userMsg = { role: "user" as const, content: text };
     const newMessages = [...active.messages, userMsg];
-    updateProject(active.id, { 
-      messages: newMessages,
-      name: active.messages.length === 0 ? text.slice(0, 40) : active.name,
-    });
+    const newName = active.messages.length === 0 ? text.slice(0, 40) : active.name;
+    
+    updateProject(active.id, { messages: newMessages, name: newName });
     setLoading(true);
     setStreamingContent("");
+
+    // Save user message to cloud
+    try {
+      await saveMessageToCloud(active.id, "user", text);
+      if (newName !== active.name) {
+        await saveProjectToCloud({ ...active, name: newName });
+      }
+    } catch (err) {
+      console.error("Failed to save message to cloud:", err);
+    }
 
     let fullContent = "";
 
@@ -76,24 +122,32 @@ const Index = () => {
           fullContent += chunk;
           setStreamingContent(fullContent);
         },
-        onDone: () => {
+        onDone: async () => {
           const html = extractHtml(fullContent);
           const finalMessages = [
             ...newMessages,
             { role: "assistant" as const, content: fullContent },
           ];
-          updateProject(active.id, {
-            messages: finalMessages,
-            html,
-          });
+          updateProject(active.id, { messages: finalMessages, html });
           setStreamingContent("");
           setLoading(false);
-          // Auto-switch to preview when generation is done
-          setView("preview");
+
+          // Save assistant message to cloud
+          try {
+            await saveMessageToCloud(active.id, "assistant", fullContent);
+            await saveProjectToCloud({ ...active, html, name: newName });
+          } catch (err) {
+            console.error("Failed to save to cloud:", err);
+          }
+
+          // Auto-switch to preview only if HTML was generated
+          if (html && html.trim().match(/^(<(!DOCTYPE|html))/i)) {
+            setView("preview");
+          }
         },
       });
     } catch (err: any) {
-      alert(err.message || "Something went wrong");
+      toast.error(err.message || "Something went wrong");
       updateProject(active.id, { messages: active.messages });
       setStreamingContent("");
       setLoading(false);
@@ -117,6 +171,17 @@ const Index = () => {
     ? [...displayMessages, { role: "assistant" as const, content: streamingContent }]
     : displayMessages;
 
+  if (!isInitialized) {
+    return (
+      <div className="flex h-[100dvh] items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-[100dvh] overflow-hidden">
       {/* Mobile overlay */}
@@ -131,7 +196,7 @@ const Index = () => {
         <Sidebar
           projects={projects}
           activeId={activeId}
-          onSelect={(id) => { setActiveId(id); setShowSidebar(false); }}
+          onSelect={(id) => { setActiveId(id); setShowSidebar(false); setView("chat"); }}
           onNew={handleNew}
           onDelete={handleDelete}
         />
@@ -146,19 +211,15 @@ const Index = () => {
           onToggleSidebar={() => setShowSidebar(!showSidebar)}
         />
         {view === "chat" ? (
-          <ChatPane messages={allMessages} loading={loading && !streamingContent} />
+          <ChatPane
+            messages={allMessages}
+            loading={loading && !streamingContent}
+            onSuggestionClick={handleSend}
+          />
         ) : (
           <PreviewPane html={active?.html || ""} view={view} />
         )}
-        <ChatInput
-          onSend={handleSend}
-          loading={loading}
-          suggestions={
-            active?.messages.length === 0
-              ? ["Create a landing page", "Build a portfolio site", "Design a dashboard"]
-              : []
-          }
-        />
+        <ChatInput onSend={handleSend} loading={loading} />
       </div>
     </div>
   );
