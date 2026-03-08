@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bot, User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Cpu } from "lucide-react";
+import { User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Cpu } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import hexaIcon from "@/assets/hexa-icon.png";
 import { toast } from "sonner";
@@ -21,44 +21,28 @@ interface ChatPaneProps {
 
 const ACTION_CATEGORIES = [
   {
-    icon: <MessageCircle size={20} />,
+    icon: <MessageCircle size={18} />,
     label: "Chat with AI",
-    description: "Kisi bhi topic par baat karo",
+    description: "Ask anything you want",
     prompt: "Hello! Mujhe kuch interesting batao",
-    gradient: "from-primary/15 to-accent/15",
-    iconColor: "text-primary",
   },
   {
-    icon: <Code size={20} />,
-    label: "Build an App",
-    description: "Website ya app banwao AI se",
+    icon: <Code size={18} />,
+    label: "Build a Website",
+    description: "Create any website or app",
     prompt: "Create a beautiful landing page for a tech startup",
-    gradient: "from-blue-500/15 to-cyan-500/15",
-    iconColor: "text-blue-500",
   },
   {
-    icon: <Palette size={20} />,
+    icon: <Palette size={18} />,
     label: "Design Something",
-    description: "Creative design ideas pao",
+    description: "Get creative design ideas",
     prompt: "Design a modern portfolio website with dark theme",
-    gradient: "from-pink-500/15 to-rose-500/15",
-    iconColor: "text-pink-500",
   },
   {
-    icon: <Globe size={20} />,
+    icon: <Globe size={18} />,
     label: "Explore Ideas",
-    description: "Naye ideas discover karo",
+    description: "Discover new project ideas",
     prompt: "Suggest me some innovative web app ideas for 2026",
-    gradient: "from-emerald-500/15 to-teal-500/15",
-    iconColor: "text-emerald-500",
-  },
-  {
-    icon: <Cpu size={20} />,
-    label: "AI Tools",
-    description: "Writer, translator, code generator",
-    prompt: "Show me what AI tools you can help me with",
-    gradient: "from-amber-500/15 to-orange-500/15",
-    iconColor: "text-amber-500",
   },
 ];
 
@@ -70,12 +54,11 @@ function getGreeting(): string {
   return "Good night";
 }
 
-function MessageActions({ 
-  msg, index, totalMessages, onCopy, onEdit, onDelete, onRegenerate 
-}: { 
-  msg: Message; index: number; totalMessages: number;
-  onCopy?: (i: number) => void; onEdit?: (i: number, c: string) => void;
-  onDelete?: (i: number) => void; onRegenerate?: (i: number) => void;
+function MessageActions({ msg, index, onEdit, onDelete, onRegenerate }: {
+  msg: Message; index: number;
+  onEdit?: (i: number, c: string) => void;
+  onDelete?: (i: number) => void;
+  onRegenerate?: (i: number) => void;
 }) {
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -90,9 +73,7 @@ function MessageActions({
   };
 
   const handleEditSave = () => {
-    if (editText.trim() && editText !== msg.content) {
-      onEdit?.(index, editText.trim());
-    }
+    if (editText.trim() && editText !== msg.content) onEdit?.(index, editText.trim());
     setEditing(false);
   };
 
@@ -111,11 +92,11 @@ function MessageActions({
           ref={editRef}
           value={editText}
           onChange={(e) => setEditText(e.target.value)}
-          className="w-full rounded-lg border border-border bg-background p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+          className="w-full rounded-lg border border-border bg-card p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
         />
         <div className="flex gap-2">
           <button onClick={handleEditSave} className="px-3 py-1 text-xs rounded-lg bg-primary text-primary-foreground hover:opacity-90">Save</button>
-          <button onClick={() => { setEditing(false); setEditText(msg.content); }} className="px-3 py-1 text-xs rounded-lg bg-secondary text-secondary-foreground hover:bg-muted">Cancel</button>
+          <button onClick={() => { setEditing(false); setEditText(msg.content); }} className="px-3 py-1 text-xs rounded-lg bg-muted text-muted-foreground hover:bg-secondary">Cancel</button>
         </div>
       </div>
     );
@@ -143,7 +124,7 @@ function MessageActions({
   );
 }
 
-export function ChatPane({ messages, loading, onSuggestionClick, onCopy, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
+export function ChatPane({ messages, loading, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -152,31 +133,31 @@ export function ChatPane({ messages, loading, onSuggestionClick, onCopy, onEdit,
 
   if (messages.length === 0 && !loading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-builder-canvas px-4 py-8 overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-center bg-background px-4 py-8 overflow-y-auto">
         <div className="max-w-md w-full space-y-8">
-          <div className="flex justify-center animate-float">
-            <div className="w-20 h-20 rounded-2xl overflow-hidden glow-primary animate-glow">
+          <div className="flex justify-center">
+            <div className="w-16 h-16 rounded-2xl overflow-hidden">
               <img src={hexaIcon} alt="Hexa.AI" className="w-full h-full object-cover" />
             </div>
           </div>
           <div className="text-center space-y-2">
             <p className="text-muted-foreground text-sm">{getGreeting()}! 👋</p>
-            <h2 className="text-2xl font-bold font-display gradient-text">What can I help you with?</h2>
-            <p className="text-xs text-muted-foreground">Ask me anything — chat, code, design, or explore</p>
+            <h2 className="text-2xl font-bold font-display text-foreground">What can I help you with?</h2>
+            <p className="text-xs text-muted-foreground">Build websites, chat, or explore AI tools</p>
           </div>
-          <div className="space-y-2.5">
+          <div className="grid grid-cols-2 gap-2.5">
             {ACTION_CATEGORIES.map((cat, i) => (
               <button
                 key={i}
                 onClick={() => onSuggestionClick?.(cat.prompt)}
-                className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl glass-card hover:glow-primary hover:border-primary/30 transition-all text-left group"
+                className="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border border-border bg-card hover:bg-muted hover:border-primary/30 transition-all text-center group"
               >
-                <div className={`flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <span className={cat.iconColor}>{cat.icon}</span>
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                  {cat.icon}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground font-display">{cat.label}</p>
-                  <p className="text-xs text-muted-foreground truncate">{cat.description}</p>
+                <div>
+                  <p className="text-xs font-medium text-foreground">{cat.label}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{cat.description}</p>
                 </div>
               </button>
             ))}
@@ -187,26 +168,21 @@ export function ChatPane({ messages, loading, onSuggestionClick, onCopy, onEdit,
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-builder-canvas">
+    <div className="flex-1 overflow-y-auto bg-background">
       <div className="max-w-3xl mx-auto py-6 px-4 space-y-4">
         {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`group flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
+          <div key={i} className={`group flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             {msg.role === "assistant" && (
-              <div className="flex-shrink-0 w-8 h-8 rounded-xl overflow-hidden glow-primary">
+              <div className="flex-shrink-0 w-7 h-7 rounded-lg overflow-hidden mt-1">
                 <img src={hexaIcon} alt="Hexa" className="w-full h-full object-cover" />
               </div>
             )}
             <div className="max-w-[80%]">
-              <div
-                className={`rounded-2xl px-4 py-3 text-sm break-words ${
-                  msg.role === "user"
-                    ? "bg-primary text-primary-foreground rounded-br-md"
-                    : "glass-card text-foreground rounded-bl-md"
-                }`}
-              >
+              <div className={`rounded-2xl px-4 py-3 text-sm break-words ${
+                msg.role === "user"
+                  ? "bg-primary text-primary-foreground rounded-br-md"
+                  : "bg-card border border-border text-foreground rounded-bl-md"
+              }`}>
                 {msg.role === "assistant" ? (
                   <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0.5 prose-headings:font-display">
                     <ReactMarkdown>{summarizeHtml(msg.content)}</ReactMarkdown>
@@ -215,33 +191,25 @@ export function ChatPane({ messages, loading, onSuggestionClick, onCopy, onEdit,
                   <span className="whitespace-pre-wrap">{msg.content}</span>
                 )}
               </div>
-              <MessageActions
-                msg={msg}
-                index={i}
-                totalMessages={messages.length}
-                onCopy={onCopy}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onRegenerate={onRegenerate}
-              />
+              <MessageActions msg={msg} index={i} onEdit={onEdit} onDelete={onDelete} onRegenerate={onRegenerate} />
             </div>
             {msg.role === "user" && (
-              <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-muted flex items-center justify-center border border-border/50">
-                <User size={14} className="text-muted-foreground" />
+              <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-muted flex items-center justify-center border border-border mt-1">
+                <User size={13} className="text-muted-foreground" />
               </div>
             )}
           </div>
         ))}
         {loading && (
           <div className="flex gap-3 justify-start">
-            <div className="flex-shrink-0 w-8 h-8 rounded-xl overflow-hidden glow-primary">
+            <div className="flex-shrink-0 w-7 h-7 rounded-lg overflow-hidden">
               <img src={hexaIcon} alt="Hexa" className="w-full h-full object-cover" />
             </div>
-            <div className="glass-card rounded-2xl rounded-bl-md px-4 py-3 text-sm">
+            <div className="bg-card border border-border rounded-2xl rounded-bl-md px-4 py-3 text-sm">
               <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce [animation-delay:0ms]" />
-                <div className="w-2 h-2 rounded-full bg-accent/50 animate-bounce [animation-delay:150ms]" />
-                <div className="w-2 h-2 rounded-full bg-primary/50 animate-bounce [animation-delay:300ms]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce [animation-delay:0ms]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-bounce [animation-delay:150ms]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce [animation-delay:300ms]" />
               </div>
             </div>
           </div>
