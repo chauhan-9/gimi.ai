@@ -7,6 +7,7 @@ import { ChatInput } from "@/components/builder/ChatInput";
 import { ChatPane } from "@/components/builder/ChatPane";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { ToolsDashboard, ToolChatHeader, type AiTool } from "@/components/builder/ToolsDashboard";
+import { HomeScreen, type AppMode } from "@/components/builder/HomeScreen";
 import { streamChat, extractHtml } from "@/lib/ai-stream";
 import {
   loadProjectsFromCloud,
