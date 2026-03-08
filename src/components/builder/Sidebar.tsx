@@ -95,7 +95,9 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
             {renaming !== p.id && (
               <button
                 onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === p.id ? null : p.id); }}
-                className="opacity-0 group-hover:opacity-100 hover:text-foreground transition-all p-0.5 rounded-md hover:bg-muted"
+                className={`hover:text-foreground transition-all p-0.5 rounded-md hover:bg-muted ${
+                  p.id === activeId ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                }`}
               >
                 <MoreVertical size={14} />
               </button>
