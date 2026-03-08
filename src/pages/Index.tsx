@@ -413,6 +413,11 @@ const Index = () => {
           onSelect={(id) => { setActiveId(id); setShowSidebar(false); setView("chat"); }}
           onNew={handleNew}
           onDelete={handleDelete}
+          onRename={async (id, newName) => {
+            updateProject(id, { name: newName });
+            const proj = projects.find(p => p.id === id);
+            if (proj) { try { await saveProjectToCloud({ ...proj, name: newName }); } catch {} }
+          }}
           onLogout={handleLogout}
           mode={appMode}
         />

@@ -1,4 +1,5 @@
-import { Plus, Trash2, MessageSquare, LogOut, Code, Image, Video } from "lucide-react";
+import { Plus, Trash2, MessageSquare, LogOut, Code, Image, Video, MoreVertical, Edit2, Copy } from "lucide-react";
+import { useState } from "react";
 import type { Project, AppMode } from "@/lib/storage";
 import hexaIcon from "@/assets/hexa-icon.png";
 
@@ -8,6 +9,8 @@ interface SidebarProps {
   onSelect: (id: string) => void;
   onNew: () => void;
   onDelete: (id: string) => void;
+  onRename?: (id: string, newName: string) => void;
+  onDuplicate?: (id: string) => void;
   onLogout: () => void;
   mode: AppMode;
 }
@@ -19,8 +22,24 @@ const modeConfig: Record<AppMode, { label: string; icon: React.ReactNode; newLab
   video: { label: "Videos", icon: <Video size={14} />, newLabel: "New Video" },
 };
 
-export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onLogout, mode }: SidebarProps) {
+export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRename, onDuplicate, onLogout, mode }: SidebarProps) {
   const config = modeConfig[mode];
+  const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+
+  const handleRenameStart = (p: Project) => {
+    setRenaming(p.id);
+    setRenameValue(p.name);
+    setMenuOpen(null);
+  };
+
+  const handleRenameSubmit = (id: string) => {
+    if (renameValue.trim() && onRename) {
+      onRename(id, renameValue.trim());
+    }
+    setRenaming(null);
+  };
 
   return (
     <div className="flex flex-col h-full w-64 bg-card border-r border-border flex-shrink-0">
@@ -49,21 +68,71 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onLogou
         {projects.map((p) => (
           <div
             key={p.id}
-            className={`group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm cursor-pointer transition-colors ${
+            className={`group relative flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm cursor-pointer transition-colors ${
               p.id === activeId
                 ? "bg-primary/10 text-foreground"
                 : "hover:bg-muted text-muted-foreground hover:text-foreground"
             }`}
-            onClick={() => onSelect(p.id)}
+            onClick={() => { if (renaming !== p.id) onSelect(p.id); }}
           >
             <span className={p.id === activeId ? "text-primary" : "text-muted-foreground"}>{config.icon}</span>
-            <span className="truncate flex-1 text-xs">{p.name}</span>
-            <button
-              onClick={(e) => { e.stopPropagation(); onDelete(p.id); }}
-              className="opacity-0 group-hover:opacity-100 hover:text-destructive transition-all"
-            >
-              <Trash2 size={13} />
-            </button>
+
+            {renaming === p.id ? (
+              <input
+                autoFocus
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                onBlur={() => handleRenameSubmit(p.id)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleRenameSubmit(p.id); if (e.key === "Escape") setRenaming(null); }}
+                className="flex-1 text-xs bg-transparent border border-border rounded px-1.5 py-0.5 outline-none focus:border-primary"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <span className="truncate flex-1 text-xs">{p.name}</span>
+            )}
+
+            {/* Three-dot menu button */}
+            {renaming !== p.id && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === p.id ? null : p.id); }}
+                className="opacity-0 group-hover:opacity-100 hover:text-foreground transition-all p-0.5 rounded-md hover:bg-muted"
+              >
+                <MoreVertical size={14} />
+              </button>
+            )}
+
+            {/* Dropdown menu */}
+            {menuOpen === p.id && (
+              <>
+                <div className="fixed inset-0 z-50" onClick={() => setMenuOpen(null)} />
+                <div className="absolute right-2 top-full mt-1 z-50 w-40 rounded-xl border border-border bg-popover shadow-lg py-1 animate-in fade-in-0 zoom-in-95">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleRenameStart(p); }}
+                    className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-popover-foreground hover:bg-muted transition-colors"
+                  >
+                    <Edit2 size={13} />
+                    Rename
+                  </button>
+                  {onDuplicate && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onDuplicate(p.id); setMenuOpen(null); }}
+                      className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-popover-foreground hover:bg-muted transition-colors"
+                    >
+                      <Copy size={13} />
+                      Duplicate
+                    </button>
+                  )}
+                  <div className="my-1 border-t border-border" />
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDelete(p.id); setMenuOpen(null); }}
+                    className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    <Trash2 size={13} />
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ))}
       </div>
