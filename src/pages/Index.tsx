@@ -67,6 +67,12 @@ const Index = () => {
   useEffect(() => {
     if (!isInitialized || !appMode) return;
 
+    // Clear previous mode's data immediately
+    setProjects([]);
+    setActiveId("");
+    setStreamingContent("");
+    setToolStreamingContent("");
+
     async function loadForMode() {
       try {
         let modeProjects = await loadProjectsFromCloud(appMode!);
@@ -75,7 +81,7 @@ const Index = () => {
           modeProjects = [p];
         }
         setProjects(modeProjects);
-        const savedId = loadActiveId();
+        const savedId = loadActiveId(appMode!);
         const validId = modeProjects.find((p) => p.id === savedId)?.id || modeProjects[0]?.id;
         setActiveId(validId || "");
       } catch (err) {
