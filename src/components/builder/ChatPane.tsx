@@ -280,7 +280,7 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
 
   return (
     <React.Fragment>
-    <div className="flex-1 overflow-y-auto bg-background">
+    <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto bg-background">
       <div className="max-w-3xl mx-auto py-6 px-4 space-y-4">
         {messages.map((msg, i) => (
           <div key={i} className={`group flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
