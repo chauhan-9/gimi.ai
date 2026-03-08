@@ -230,7 +230,7 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
   const welcomeTitle = MODE_TITLES[appMode || "chat"]?.title || "Kya help chahiye?";
   const welcomeSubtitle = MODE_TITLES[appMode || "chat"]?.subtitle || "";
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
-  const [viewer3DSrc, setViewer3DSrc] = useState<string | null>(null);
+  
 
   const handleScroll = () => {
     const el = scrollContainerRef.current;
