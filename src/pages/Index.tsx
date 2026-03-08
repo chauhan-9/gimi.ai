@@ -435,12 +435,12 @@ const Index = () => {
             ) : (
               <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
             )}
-            {view === "chat" && <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders.builder} />}
+            {view === "chat" && <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders.builder} appMode={appMode} selectedModel={selectedModel} onModelChange={setSelectedModel} />}
           </>
         ) : (
           <>
             <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
-            <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders[appMode]} />
+            <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders[appMode]} appMode={appMode} selectedModel={selectedModel} onModelChange={setSelectedModel} />
           </>
         )}
       </div>
