@@ -11,6 +11,7 @@ import { HomeScreen } from "@/components/builder/HomeScreen";
 import type { AppMode } from "@/lib/storage";
 import { streamChat, extractHtml, generateImage } from "@/lib/ai-stream";
 import { getStoredModel } from "@/components/builder/ModelSelector";
+import { parseHtmlToFiles, downloadProjectFiles } from "@/lib/code-parser";
 import {
   loadProjectsFromCloud,
   saveProjectToCloud,
@@ -350,13 +351,20 @@ const Index = () => {
 
   const handleDownload = () => {
     if (!active?.html) return;
-    const blob = new Blob([active.html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "index.html";
-    a.click();
-    URL.revokeObjectURL(url);
+    const files = parseHtmlToFiles(active.html);
+    if (files.length > 0) {
+      downloadProjectFiles(files, active.name || "hexa-project");
+      toast.success("Project files downloading!");
+    } else {
+      // Fallback: download as single HTML
+      const blob = new Blob([active.html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "index.html";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   };
 
   const displayMessages = active?.messages || [];
