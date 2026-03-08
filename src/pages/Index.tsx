@@ -192,7 +192,7 @@ const Index = () => {
     } catch (err) { console.error("Failed to save:", err); }
 
     try {
-      const result = await generateImage(text);
+      const result = await generateImage(text, selectedModel);
       // Build assistant content with images as markdown
       let assistantContent = result.text || "";
       if (result.images && result.images.length > 0) {
