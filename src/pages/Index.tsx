@@ -245,6 +245,7 @@ const Index = () => {
       setStreamingContent("");
       setLoading(false);
     }
+  };
 
   const handleDeleteMessage = async (index: number) => {
     if (!active) return;
