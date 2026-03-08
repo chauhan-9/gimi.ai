@@ -6,34 +6,8 @@ export interface Project {
   createdAt: number;
 }
 
-export interface Settings {
-  apiUrl: string;
-  apiKey: string;
-  modelId: string;
-}
-
 const PROJECTS_KEY = "ai-builder-projects";
-const SETTINGS_KEY = "ai-builder-settings";
 const ACTIVE_KEY = "ai-builder-active";
-
-export const defaultSettings: Settings = {
-  apiUrl: "https://openrouter.ai/api/v1/chat/completions",
-  apiKey: "",
-  modelId: "deepseek/deepseek-r1:free",
-};
-
-export function loadSettings(): Settings {
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    return raw ? { ...defaultSettings, ...JSON.parse(raw) } : defaultSettings;
-  } catch {
-    return defaultSettings;
-  }
-}
-
-export function saveSettings(s: Settings) {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-}
 
 export function loadProjects(): Project[] {
   try {
