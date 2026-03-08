@@ -25,7 +25,9 @@ const Index = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeId, setActiveId] = useState<string>("");
   const [showSidebar, setShowSidebar] = useState(false);
-  const [view, setView] = useState<"chat" | "preview" | "code">("chat");
+  const [view, setView] = useState<View>("chat");
+  const [activeTool, setActiveTool] = useState<AiTool | null>(null);
+  const [toolMessages, setToolMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
