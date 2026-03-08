@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Download, Video, Film, Clapperboard, Sparkles, Box, ZoomIn } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import hexaIcon from "@/assets/hexa-icon.png";
