@@ -8,12 +8,20 @@ export interface Project {
   createdAt: number;
 }
 
-// ---- Cloud persistence ----
+// ---- Cloud persistence (user-scoped) ----
+
+async function getUserId(): Promise<string> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user?.id) throw new Error("Not authenticated");
+  return session.user.id;
+}
 
 export async function loadProjectsFromCloud(): Promise<Project[]> {
+  const userId = await getUserId();
   const { data, error } = await supabase
     .from("projects")
     .select("*")
+    .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   if (error || !data) return [];
@@ -38,12 +46,14 @@ export async function loadProjectsFromCloud(): Promise<Project[]> {
 }
 
 export async function saveProjectToCloud(project: Project): Promise<string> {
+  const userId = await getUserId();
   const { data, error } = await supabase
     .from("projects")
     .upsert({
       id: project.id,
       name: project.name,
       html: project.html,
+      user_id: userId,
       updated_at: new Date().toISOString(),
     }, { onConflict: "id" })
     .select("id")
@@ -58,10 +68,12 @@ export async function saveMessageToCloud(
   role: "user" | "assistant",
   content: string
 ): Promise<void> {
+  const userId = await getUserId();
   const { error } = await supabase.from("messages").insert({
     project_id: projectId,
     role,
     content,
+    user_id: userId,
   });
   if (error) throw error;
 }
@@ -75,11 +87,11 @@ export async function replaceMessagesInCloud(
   projectId: string,
   messages: { role: "user" | "assistant"; content: string }[]
 ): Promise<void> {
-  // Delete all then re-insert
+  const userId = await getUserId();
   await deleteMessagesFromCloud(projectId);
   if (messages.length > 0) {
     const { error } = await supabase.from("messages").insert(
-      messages.map((m) => ({ project_id: projectId, role: m.role, content: m.content }))
+      messages.map((m) => ({ project_id: projectId, role: m.role, content: m.content, user_id: userId }))
     );
     if (error) throw error;
   }
@@ -91,9 +103,10 @@ export async function deleteProjectFromCloud(id: string): Promise<void> {
 }
 
 export async function createProjectInCloud(name?: string): Promise<Project> {
+  const userId = await getUserId();
   const { data, error } = await supabase
     .from("projects")
-    .insert({ name: name || `Project ${Date.now()}` })
+    .insert({ name: name || `Project ${Date.now()}`, user_id: userId })
     .select()
     .single();
 
@@ -107,23 +120,9 @@ export async function createProjectInCloud(name?: string): Promise<Project> {
   };
 }
 
-// ---- Local fallback (kept for offline) ----
+// ---- Local fallback ----
 
-const PROJECTS_KEY = "ai-builder-projects";
 const ACTIVE_KEY = "ai-builder-active";
-
-export function loadProjects(): Project[] {
-  try {
-    const raw = localStorage.getItem(PROJECTS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function saveProjects(projects: Project[]) {
-  localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
-}
 
 export function loadActiveId(): string | null {
   return localStorage.getItem(ACTIVE_KEY);

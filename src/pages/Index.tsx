@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/builder/Sidebar";
 import { Header, type View } from "@/components/builder/Header";
 import { ChatInput } from "@/components/builder/ChatInput";
@@ -12,7 +14,6 @@ import {
   saveMessageToCloud,
   deleteProjectFromCloud,
   createProjectInCloud,
-  deleteMessagesFromCloud,
   replaceMessagesInCloud,
   loadActiveId,
   saveActiveId,
@@ -30,14 +31,23 @@ const Index = () => {
   const [toolMessages, setToolMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
+  const [toolStreamingContent, setToolStreamingContent] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const navigate = useNavigate();
 
   const active = projects.find((p) => p.id === activeId) || projects[0];
 
-  // Load from cloud on mount
+  // Auth check + load projects
   useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) navigate("/auth", { replace: true });
+    });
+
     async function init() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { navigate("/auth", { replace: true }); return; }
+
       try {
         let cloudProjects = await loadProjectsFromCloud();
         if (cloudProjects.length === 0) {
@@ -49,7 +59,7 @@ const Index = () => {
         const validId = cloudProjects.find((p) => p.id === savedId)?.id || cloudProjects[0]?.id;
         setActiveId(validId || "");
       } catch (err) {
-        console.error("Failed to load from cloud, using local:", err);
+        console.error("Failed to load:", err);
         const p = createProject("My First Project");
         setProjects([p]);
         setActiveId(p.id);
@@ -57,12 +67,10 @@ const Index = () => {
       setIsInitialized(true);
     }
     init();
-  }, []);
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
-  // Persist active ID
-  useEffect(() => {
-    if (activeId) saveActiveId(activeId);
-  }, [activeId]);
+  useEffect(() => { if (activeId) saveActiveId(activeId); }, [activeId]);
 
   const updateProject = useCallback((id: string, updates: Partial<Project>) => {
     setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
@@ -75,9 +83,7 @@ const Index = () => {
       setActiveId(p.id);
       setShowSidebar(false);
       setView("chat");
-    } catch {
-      toast.error("Failed to create project");
-    }
+    } catch { toast.error("Failed to create project"); }
   };
 
   const handleDelete = async (id: string) => {
@@ -92,63 +98,44 @@ const Index = () => {
         setProjects(next);
         if (activeId === id) setActiveId(next[0].id);
       }
-    } catch {
-      toast.error("Failed to delete project");
-    }
+    } catch { toast.error("Failed to delete project"); }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth", { replace: true });
   };
 
   const handleSend = async (text: string) => {
     if (!active) return;
-
     const userMsg = { role: "user" as const, content: text };
     const newMessages = [...active.messages, userMsg];
     const newName = active.messages.length === 0 ? text.slice(0, 40) : active.name;
-    
     updateProject(active.id, { messages: newMessages, name: newName });
     setLoading(true);
     setStreamingContent("");
 
-    // Save user message to cloud
     try {
       await saveMessageToCloud(active.id, "user", text);
-      if (newName !== active.name) {
-        await saveProjectToCloud({ ...active, name: newName });
-      }
-    } catch (err) {
-      console.error("Failed to save message to cloud:", err);
-    }
+      if (newName !== active.name) await saveProjectToCloud({ ...active, name: newName });
+    } catch (err) { console.error("Failed to save:", err); }
 
     let fullContent = "";
-
     try {
       await streamChat({
         messages: newMessages,
-        onDelta: (chunk) => {
-          fullContent += chunk;
-          setStreamingContent(fullContent);
-        },
+        onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
         onDone: async () => {
           const html = extractHtml(fullContent);
-          const finalMessages = [
-            ...newMessages,
-            { role: "assistant" as const, content: fullContent },
-          ];
+          const finalMessages = [...newMessages, { role: "assistant" as const, content: fullContent }];
           updateProject(active.id, { messages: finalMessages, html });
           setStreamingContent("");
           setLoading(false);
-
-          // Save assistant message to cloud
           try {
             await saveMessageToCloud(active.id, "assistant", fullContent);
             await saveProjectToCloud({ ...active, html, name: newName });
-          } catch (err) {
-            console.error("Failed to save to cloud:", err);
-          }
-
-          // Auto-switch to preview only if HTML was generated
-          if (html && html.trim().match(/^(<(!DOCTYPE|html))/i)) {
-            setView("preview");
-          }
+          } catch {}
+          if (html && html.trim().match(/^(<(!DOCTYPE|html))/i)) setView("preview");
         },
       });
     } catch (err: any) {
@@ -159,7 +146,6 @@ const Index = () => {
     }
   };
 
-  // --- Chat message actions ---
   const handleDeleteMessage = async (index: number) => {
     if (!active) return;
     const newMessages = active.messages.filter((_, i) => i !== index);
@@ -169,18 +155,15 @@ const Index = () => {
 
   const handleEditMessage = async (index: number, newContent: string) => {
     if (!active) return;
-    // Edit user message and remove all messages after it (will regenerate)
     const newMessages = active.messages.slice(0, index);
     newMessages.push({ role: "user", content: newContent });
     updateProject(active.id, { messages: newMessages });
     try { await replaceMessagesInCloud(active.id, newMessages); } catch {}
-    // Re-send to get new AI response
     handleSendWithMessages(newMessages);
   };
 
   const handleRegenerate = async (index: number) => {
     if (!active) return;
-    // Remove this assistant message and everything after, re-send
     const newMessages = active.messages.slice(0, index);
     updateProject(active.id, { messages: newMessages });
     try { await replaceMessagesInCloud(active.id, newMessages); } catch {}
@@ -215,9 +198,6 @@ const Index = () => {
       setLoading(false);
     }
   };
-
-  // --- Tool chat handlers ---
-  const [toolStreamingContent, setToolStreamingContent] = useState("");
 
   const handleToolSend = async (text: string) => {
     if (!activeTool) return;
@@ -261,7 +241,6 @@ const Index = () => {
     URL.revokeObjectURL(url);
   };
 
-  // Build messages list including streaming message
   const displayMessages = active?.messages || [];
   const allMessages = streamingContent
     ? [...displayMessages, { role: "assistant" as const, content: streamingContent }]
@@ -280,61 +259,37 @@ const Index = () => {
 
   return (
     <div className="flex h-[100dvh] overflow-hidden">
-      {/* Mobile overlay */}
       {showSidebar && (
         <div className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm lg:hidden" onClick={() => setShowSidebar(false)} />
       )}
 
-      {/* Sidebar */}
-      <div className={`fixed lg:static z-50 h-full transition-transform lg:translate-x-0 ${
-        showSidebar ? "translate-x-0" : "-translate-x-full"
-      }`}>
+      <div className={`fixed lg:static z-50 h-full transition-transform lg:translate-x-0 ${showSidebar ? "translate-x-0" : "-translate-x-full"}`}>
         <Sidebar
           projects={projects}
           activeId={activeId}
           onSelect={(id) => { setActiveId(id); setShowSidebar(false); setView("chat"); }}
           onNew={handleNew}
           onDelete={handleDelete}
+          onLogout={handleLogout}
         />
       </div>
 
-      {/* Main area */}
       <div className="flex flex-col flex-1 min-w-0">
-        <Header
-          view={view}
-          onViewChange={setView}
-          onDownload={handleDownload}
-          onToggleSidebar={() => setShowSidebar(!showSidebar)}
-        />
-        {/* Tool chat header */}
+        <Header view={view} onViewChange={setView} onDownload={handleDownload} onToggleSidebar={() => setShowSidebar(!showSidebar)} />
         {view === "tools" && activeTool && (
           <ToolChatHeader tool={activeTool} onBack={() => setActiveTool(null)} />
         )}
 
-        {/* Content area */}
         {view === "chat" ? (
-          <ChatPane
-            messages={allMessages}
-            loading={loading && !streamingContent}
-            onSuggestionClick={handleSend}
-            onEdit={handleEditMessage}
-            onDelete={handleDeleteMessage}
-            onRegenerate={handleRegenerate}
-          />
+          <ChatPane messages={allMessages} loading={loading && !streamingContent} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
         ) : view === "tools" ? (
           activeTool ? (
             <ChatPane
-              messages={toolStreamingContent
-                ? [...toolMessages, { role: "assistant" as const, content: toolStreamingContent }]
-                : toolMessages}
+              messages={toolStreamingContent ? [...toolMessages, { role: "assistant" as const, content: toolStreamingContent }] : toolMessages}
               loading={loading && !toolStreamingContent}
               onSuggestionClick={handleToolSend}
               onDelete={(i) => setToolMessages((prev) => prev.filter((_, idx) => idx !== i))}
-              onRegenerate={(i) => {
-                const msgs = toolMessages.slice(0, i);
-                setToolMessages(msgs);
-                handleToolSendWithMessages(msgs);
-              }}
+              onRegenerate={(i) => { const msgs = toolMessages.slice(0, i); setToolMessages(msgs); handleToolSendWithMessages(msgs); }}
             />
           ) : (
             <ToolsDashboard onSelectTool={(tool) => { setActiveTool(tool); setToolMessages([]); }} />
@@ -343,13 +298,8 @@ const Index = () => {
           <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
         )}
 
-        {/* Input */}
         {(view === "chat" || (view === "tools" && activeTool)) && (
-          <ChatInput
-            onSend={view === "tools" && activeTool ? handleToolSend : handleSend}
-            loading={loading}
-            placeholder={activeTool && view === "tools" ? activeTool.placeholder : undefined}
-          />
+          <ChatInput onSend={view === "tools" && activeTool ? handleToolSend : handleSend} loading={loading} placeholder={activeTool && view === "tools" ? activeTool.placeholder : undefined} />
         )}
       </div>
     </div>
