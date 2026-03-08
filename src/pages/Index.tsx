@@ -10,6 +10,7 @@ import { ToolsDashboard, ToolChatHeader, type AiTool } from "@/components/builde
 import { HomeScreen } from "@/components/builder/HomeScreen";
 import type { AppMode } from "@/lib/storage";
 import { streamChat, extractHtml, generateImage } from "@/lib/ai-stream";
+import { getStoredModel } from "@/components/builder/ModelSelector";
 import {
   loadProjectsFromCloud,
   saveProjectToCloud,
