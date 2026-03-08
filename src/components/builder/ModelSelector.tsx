@@ -9,35 +9,48 @@ export interface ModelOption {
   description: string;
   icon: React.ReactNode;
   speed: "fast" | "balanced" | "powerful";
+  free?: boolean;
 }
 
 const CHAT_MODELS: ModelOption[] = [
+  // Free models
+  { id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Fast & lightweight", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Quick responses", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Good all-rounder", icon: <Sparkles size={14} />, speed: "balanced", free: true },
+  // Premium models
   { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", description: "Fast & capable", icon: <Zap size={14} />, speed: "fast" },
-  { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Balanced performance", icon: <Sparkles size={14} />, speed: "balanced" },
   { id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Most powerful reasoning", icon: <Brain size={14} />, speed: "powerful" },
   { id: "google/gemini-3.1-pro-preview", label: "Gemini 3.1 Pro", description: "Latest reasoning model", icon: <Brain size={14} />, speed: "powerful" },
-  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Fastest, lightweight", icon: <Zap size={14} />, speed: "fast" },
   { id: "openai/gpt-5-mini", label: "GPT-5 Mini", description: "Good balance", icon: <Sparkles size={14} />, speed: "balanced" },
   { id: "openai/gpt-5", label: "GPT-5", description: "Powerful all-rounder", icon: <Brain size={14} />, speed: "powerful" },
   { id: "openai/gpt-5.2", label: "GPT-5.2", description: "Enhanced reasoning", icon: <Brain size={14} />, speed: "powerful" },
 ];
 
 const BUILDER_MODELS: ModelOption[] = [
+  // Free models
+  { id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Basic code generation", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Quick code help", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Good code quality", icon: <Sparkles size={14} />, speed: "balanced", free: true },
+  // Premium models
   { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", description: "Fast code generation", icon: <Zap size={14} />, speed: "fast" },
   { id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Best for complex apps", icon: <Brain size={14} />, speed: "powerful" },
   { id: "google/gemini-3.1-pro-preview", label: "Gemini 3.1 Pro", description: "Latest & strongest", icon: <Brain size={14} />, speed: "powerful" },
+  { id: "openai/gpt-5-mini", label: "GPT-5 Mini", description: "Fast & good", icon: <Sparkles size={14} />, speed: "balanced" },
   { id: "openai/gpt-5", label: "GPT-5", description: "Excellent code quality", icon: <Brain size={14} />, speed: "powerful" },
   { id: "openai/gpt-5.2", label: "GPT-5.2", description: "Top-tier reasoning", icon: <Brain size={14} />, speed: "powerful" },
-  { id: "openai/gpt-5-mini", label: "GPT-5 Mini", description: "Fast & good", icon: <Sparkles size={14} />, speed: "balanced" },
 ];
 
 const IMAGE_MODELS: ModelOption[] = [
-  { id: "google/gemini-2.5-flash-image", label: "Gemini Flash Image", description: "Fast image generation", icon: <Image size={14} />, speed: "fast" },
+  { id: "google/gemini-2.5-flash-image", label: "Gemini Flash Image", description: "Fast image generation", icon: <Image size={14} />, speed: "fast", free: true },
   { id: "google/gemini-3-pro-image-preview", label: "Gemini 3 Pro Image", description: "Highest quality images", icon: <Image size={14} />, speed: "powerful" },
   { id: "google/gemini-2.5-flash-image-3d", label: "3D Image Creator", description: "Generate 3D-style images", icon: <Cpu size={14} />, speed: "balanced" },
 ];
 
 const VIDEO_MODELS: ModelOption[] = [
+  // Free models
+  { id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Basic video scripts", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Quick video ideas", icon: <Zap size={14} />, speed: "fast", free: true },
+  // Premium models
   { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", description: "Fast video scripts", icon: <Zap size={14} />, speed: "fast" },
   { id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Detailed storyboards", icon: <Brain size={14} />, speed: "powerful" },
   { id: "openai/gpt-5", label: "GPT-5", description: "Creative scripts", icon: <Brain size={14} />, speed: "powerful" },
@@ -136,6 +149,7 @@ export function ModelSelector({ mode, selectedModel, onModelChange }: ModelSelec
       >
         <Cpu size={12} className="text-primary" />
         <span className="text-foreground font-medium truncate max-w-[100px]">{current.label}</span>
+        {current.free && <span className="text-[7px] font-bold px-1 py-0.5 rounded bg-green-500/15 text-green-500 uppercase leading-none">Free</span>}
         <ChevronDown size={12} className={`text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
@@ -148,7 +162,46 @@ export function ModelSelector({ mode, selectedModel, onModelChange }: ModelSelec
           <div className="px-3 py-1.5 border-b border-border mb-1">
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Select Model</p>
           </div>
-          {models.map((model) => (
+          {/* Free Models Section */}
+          {models.some((m) => m.free) && (
+            <div className="px-3 pt-1 pb-0.5">
+              <p className="text-[9px] font-semibold text-green-500 uppercase tracking-wider">✦ Free Models</p>
+            </div>
+          )}
+          {models.filter((m) => m.free).map((model) => (
+            <button
+              key={model.id}
+              onClick={() => handleSelect(model)}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-muted transition-colors ${
+                model.id === selectedModel ? "bg-primary/5" : ""
+              }`}
+            >
+              <div className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center ${
+                model.id === selectedModel ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+              }`}>
+                {model.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-xs font-medium ${model.id === selectedModel ? "text-primary" : "text-foreground"}`}>
+                    {model.label}
+                  </span>
+                  <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-500 uppercase">Free</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground truncate">{model.description}</p>
+              </div>
+              {model.id === selectedModel && (
+                <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+              )}
+            </button>
+          ))}
+          {/* Premium Models Section */}
+          {models.some((m) => !m.free) && (
+            <div className="px-3 pt-2 pb-0.5 border-t border-border mt-1">
+              <p className="text-[9px] font-semibold text-primary uppercase tracking-wider">⚡ Premium Models</p>
+            </div>
+          )}
+          {models.filter((m) => !m.free).map((model) => (
             <button
               key={model.id}
               onClick={() => handleSelect(model)}
