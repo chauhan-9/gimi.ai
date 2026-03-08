@@ -16,9 +16,7 @@ export function Header({ view, onViewChange, onDownload, onToggleSidebar }: Head
         <button onClick={onToggleSidebar} className="lg:hidden text-muted-foreground hover:text-foreground">
           <Menu size={20} />
         </button>
-        <div className="flex items-center gap-1.5 text-xs">
-          <span>🔴</span><span>🟡</span><span>🟢</span>
-        </div>
+        <span className="text-sm font-bold text-foreground tracking-tight">hexa.ai</span>
       </div>
 
       <div className="flex items-center bg-secondary rounded-lg p-0.5">

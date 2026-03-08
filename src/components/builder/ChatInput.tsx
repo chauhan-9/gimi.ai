@@ -237,7 +237,7 @@ export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps)
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
             onInput={handleInput}
-            placeholder="Ask Lovable..."
+            placeholder="Ask Hexa anything..."
             rows={1}
             className="w-full resize-none px-4 pt-3 pb-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none bg-transparent"
             disabled={loading}

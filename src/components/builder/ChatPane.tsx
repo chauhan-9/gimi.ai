@@ -68,7 +68,7 @@ export function ChatPane({ messages, loading, onSuggestionClick }: ChatPaneProps
           {/* Logo / Brand */}
           <div className="flex justify-center">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-accent flex items-center justify-center">
-              <Sparkles size={28} className="text-primary" />
+              <span className="text-2xl font-black text-primary tracking-tighter">H</span>
             </div>
           </div>
 
