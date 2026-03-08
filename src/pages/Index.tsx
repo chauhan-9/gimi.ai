@@ -11,6 +11,7 @@ import { HomeScreen } from "@/components/builder/HomeScreen";
 import type { AppMode } from "@/lib/storage";
 import { streamChat, extractHtml, generateImage } from "@/lib/ai-stream";
 import { getStoredModel } from "@/components/builder/ModelSelector";
+import { parseHtmlToFiles, downloadProjectFiles } from "@/lib/code-parser";
 import {
   loadProjectsFromCloud,
   saveProjectToCloud,
