@@ -416,7 +416,7 @@ const Index = () => {
           onViewChange={setView}
           onDownload={handleDownload}
           onToggleSidebar={() => setShowSidebar(!showSidebar)}
-          onBack={() => { setAppMode(null); setProjects([]); setActiveId(""); }}
+          onBack={() => { setAppMode(null); setProjects([]); setActiveId(""); setStreamingContent(""); setLoading(false); }}
           appMode={appMode}
           selectedModel={selectedModel}
           onModelChange={setSelectedModel}
