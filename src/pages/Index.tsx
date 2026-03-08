@@ -67,6 +67,12 @@ const Index = () => {
   useEffect(() => {
     if (!isInitialized || !appMode) return;
 
+    // Clear previous mode's data immediately
+    setProjects([]);
+    setActiveId("");
+    setStreamingContent("");
+    setToolStreamingContent("");
+
     async function loadForMode() {
       try {
         let modeProjects = await loadProjectsFromCloud(appMode!);
@@ -75,7 +81,7 @@ const Index = () => {
           modeProjects = [p];
         }
         setProjects(modeProjects);
-        const savedId = loadActiveId();
+        const savedId = loadActiveId(appMode!);
         const validId = modeProjects.find((p) => p.id === savedId)?.id || modeProjects[0]?.id;
         setActiveId(validId || "");
       } catch (err) {
@@ -88,7 +94,7 @@ const Index = () => {
     loadForMode();
   }, [appMode, isInitialized]);
 
-  useEffect(() => { if (activeId) saveActiveId(activeId); }, [activeId]);
+  useEffect(() => { if (activeId && appMode) saveActiveId(activeId, appMode); }, [activeId, appMode]);
 
   const updateProject = useCallback((id: string, updates: Partial<Project>) => {
     setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
@@ -410,7 +416,7 @@ const Index = () => {
           onViewChange={setView}
           onDownload={handleDownload}
           onToggleSidebar={() => setShowSidebar(!showSidebar)}
-          onBack={() => { setAppMode(null); setProjects([]); setActiveId(""); }}
+          onBack={() => { setAppMode(null); setProjects([]); setActiveId(""); setStreamingContent(""); setLoading(false); }}
           appMode={appMode}
           selectedModel={selectedModel}
           onModelChange={setSelectedModel}
