@@ -31,11 +31,9 @@ export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack
             <ArrowLeft size={20} />
           </button>
         )}
-        {appMode === "builder" && (
-          <button onClick={onToggleSidebar} className="lg:hidden text-muted-foreground hover:text-foreground transition-colors">
-            <Menu size={20} />
-          </button>
-        )}
+        <button onClick={onToggleSidebar} className="lg:hidden text-muted-foreground hover:text-foreground transition-colors">
+          <Menu size={20} />
+        </button>
         <div className="flex items-center gap-2">
           <img src={hexaIcon} alt="Hexa.AI" className="w-7 h-7 rounded-lg" />
           <span className="text-sm font-bold font-display gradient-text tracking-tight">
