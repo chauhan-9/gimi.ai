@@ -18,9 +18,10 @@ interface ChatInputProps {
   onSend: (msg: string, attachments?: File[]) => void;
   loading: boolean;
   suggestions?: string[];
+  placeholder?: string;
 }
 
-export function ChatInput({ onSend, loading, suggestions = [] }: ChatInputProps) {
+export function ChatInput({ onSend, loading, suggestions = [], placeholder }: ChatInputProps) {
   const [text, setText] = useState("");
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isRecording, setIsRecording] = useState(false);
