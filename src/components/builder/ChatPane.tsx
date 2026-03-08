@@ -300,8 +300,8 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
         )}
         <div ref={bottomRef} />
       </div>
+    </div>
 
-      {/* Image Lightbox */}
       {lightboxSrc && (
         <ImageLightbox
           src={lightboxSrc}
@@ -310,7 +310,6 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
         />
       )}
 
-      {/* 3D Viewer */}
       {viewer3DSrc && (
         <Image3DViewer src={viewer3DSrc} onClose={() => setViewer3DSrc(null)} />
       )}
