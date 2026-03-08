@@ -129,7 +129,7 @@ export function ModelSelector({ mode, selectedModel, onModelChange }: ModelSelec
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1.5 w-64 bg-card border border-border rounded-xl shadow-lg z-50 py-1.5 max-h-80 overflow-y-auto animate-in fade-in-0 zoom-in-95 duration-150">
+        <div className="absolute bottom-full left-0 mb-1.5 w-64 bg-card border border-border rounded-xl shadow-lg z-50 py-1.5 max-h-80 overflow-y-auto animate-in fade-in-0 zoom-in-95 duration-150">
           <div className="px-3 py-1.5 border-b border-border mb-1">
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Select Model</p>
           </div>
