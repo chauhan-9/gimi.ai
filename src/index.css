@@ -134,4 +134,64 @@
   .animate-glow {
     box-shadow: 0 4px 24px hsla(262, 80%, 55%, 0.12);
   }
+
+  /* Chat message prose enhancements */
+  .chat-prose ol > li {
+    margin-top: 1.25rem !important;
+    margin-bottom: 1.25rem !important;
+    padding-left: 0.25rem;
+  }
+
+  .chat-prose ol > li:first-child {
+    margin-top: 0.5rem !important;
+  }
+
+  .chat-prose ol > li > p:first-child {
+    margin-top: 0 !important;
+  }
+
+  .chat-prose ul > li {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .chat-prose h3, .chat-prose h2 {
+    margin-top: 1.75rem !important;
+    margin-bottom: 0.75rem !important;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  .chat-prose h3:first-child, .chat-prose h2:first-child {
+    margin-top: 0.5rem !important;
+  }
+
+  .chat-prose > p + p {
+    margin-top: 1rem !important;
+  }
+
+  .chat-prose strong {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .chat-prose ol {
+    counter-reset: list-counter;
+    list-style: none;
+    padding-left: 0 !important;
+  }
+
+  .chat-prose ol > li {
+    counter-increment: list-counter;
+    position: relative;
+    padding-left: 2rem !important;
+  }
+
+  .chat-prose ol > li::before {
+    content: counter(list-counter) ".";
+    position: absolute;
+    left: 0;
+    font-weight: 700;
+    color: hsl(var(--primary));
+    font-size: 1rem;
+  }
 }
