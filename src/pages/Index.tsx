@@ -370,7 +370,7 @@ const Index = () => {
           </>
         ) : (
           <>
-            <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+            <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} userName={userName} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
             <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders[appMode]} appMode={appMode} selectedModel={selectedModel} onModelChange={setSelectedModel} />
           </>
         )}
