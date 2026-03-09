@@ -6,7 +6,6 @@ import { Header, type View } from "@/components/builder/Header";
 import { ChatInput } from "@/components/builder/ChatInput";
 import { ChatPane } from "@/components/builder/ChatPane";
 import { PreviewPane } from "@/components/builder/PreviewPane";
-import { ToolsDashboard, ToolChatHeader, type AiTool } from "@/components/builder/ToolsDashboard";
 import { HomeScreen } from "@/components/builder/HomeScreen";
 import type { AppMode } from "@/lib/storage";
 import { streamChat, extractHtml, generateImage } from "@/lib/ai-stream";
@@ -32,11 +31,8 @@ const Index = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [appMode, setAppMode] = useState<AppMode | null>(null);
   const [view, setView] = useState<View>("chat");
-  const [activeTool, setActiveTool] = useState<AiTool | null>(null);
-  const [toolMessages, setToolMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
-  const [toolStreamingContent, setToolStreamingContent] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedModel, setSelectedModel] = useState(() => getStoredModel("chat"));
   const abortRef = useRef<AbortController | null>(null);
@@ -68,11 +64,9 @@ const Index = () => {
   useEffect(() => {
     if (!isInitialized || !appMode) return;
 
-    // Clear previous mode's data immediately
     setProjects([]);
     setActiveId("");
     setStreamingContent("");
-    setToolStreamingContent("");
 
     async function loadForMode() {
       try {
@@ -133,17 +127,19 @@ const Index = () => {
     navigate("/auth", { replace: true });
   };
 
+  // Detect if user wants image generation in chat mode
+  const isImageRequest = (text: string): boolean => {
+    const lower = text.toLowerCase();
+    const keywords = ["image", "photo", "picture", "illustration", "logo", "draw", "generate image", "create image", "tasveer", "image bana", "photo bana", "image generate", "pic bana"];
+    return keywords.some(k => lower.includes(k));
+  };
+
   const handleSend = async (text: string) => {
     if (!active) return;
 
-    // Image mode: use dedicated image generation
-    if (appMode === "image") {
+    // In chat mode, detect image requests and route to image generation
+    if (appMode === "chat" && isImageRequest(text)) {
       return handleImageSend(text);
-    }
-
-    // Video mode: use video-specific AI tool
-    if (appMode === "video") {
-      return handleVideoSend(text);
     }
 
     const userMsg = { role: "user" as const, content: text };
@@ -201,8 +197,7 @@ const Index = () => {
     } catch (err) { console.error("Failed to save:", err); }
 
     try {
-      const result = await generateImage(text, selectedModel);
-      // Build assistant content with images as markdown
+      const result = await generateImage(text, "google/gemini-2.5-flash-image");
       let assistantContent = result.text || "";
       if (result.images && result.images.length > 0) {
         result.images.forEach((imgUrl) => {
@@ -212,7 +207,6 @@ const Index = () => {
       const finalMessages = [...newMessages, { role: "assistant" as const, content: assistantContent }];
       updateProject(active.id, { messages: finalMessages });
       try {
-        // Save text description only (base64 is too large for DB)
         const dbContent = result.text || "🖼️ Image generated";
         await saveMessageToCloud(active.id, "assistant", dbContent);
         await saveProjectToCloud({ ...active, name: newName });
@@ -221,46 +215,6 @@ const Index = () => {
       toast.error(err.message || "Image generation failed");
       updateProject(active.id, { messages: active.messages });
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVideoSend = async (text: string) => {
-    if (!active) return;
-    const userMsg = { role: "user" as const, content: text };
-    const newMessages = [...active.messages, userMsg];
-    const newName = active.messages.length === 0 ? text.slice(0, 40) : active.name;
-    updateProject(active.id, { messages: newMessages, name: newName });
-    setLoading(true);
-    setStreamingContent("");
-
-    try {
-      await saveMessageToCloud(active.id, "user", text);
-      if (newName !== active.name) await saveProjectToCloud({ ...active, name: newName });
-    } catch (err) { console.error("Failed to save:", err); }
-
-    let fullContent = "";
-    try {
-      await streamChat({
-        messages: newMessages,
-        tool: "video",
-        model: selectedModel,
-        onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
-        onDone: async () => {
-          const finalMessages = [...newMessages, { role: "assistant" as const, content: fullContent }];
-          updateProject(active.id, { messages: finalMessages });
-          setStreamingContent("");
-          setLoading(false);
-          try {
-            await saveMessageToCloud(active.id, "assistant", fullContent);
-            await saveProjectToCloud({ ...active, name: newName });
-          } catch {}
-        },
-      });
-    } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
-      updateProject(active.id, { messages: active.messages });
-      setStreamingContent("");
       setLoading(false);
     }
   };
@@ -295,8 +249,10 @@ const Index = () => {
     setStreamingContent("");
     let fullContent = "";
     try {
+      const toolParam = appMode === "chat" ? "chat" : undefined;
       await streamChat({
         messages: msgs,
+        tool: toolParam,
         model: selectedModel,
         onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
         onDone: async () => {
@@ -319,38 +275,6 @@ const Index = () => {
     }
   };
 
-  const handleToolSend = async (text: string) => {
-    if (!activeTool) return;
-    const userMsg = { role: "user" as const, content: text };
-    const newMsgs = [...toolMessages, userMsg];
-    setToolMessages(newMsgs);
-    handleToolSendWithMessages(newMsgs);
-  };
-
-  const handleToolSendWithMessages = async (msgs: { role: "user" | "assistant"; content: string }[]) => {
-    if (!activeTool) return;
-    setLoading(true);
-    setToolStreamingContent("");
-    let fullContent = "";
-    try {
-      await streamChat({
-        messages: msgs,
-        tool: activeTool.id,
-        model: selectedModel,
-        onDelta: (chunk) => { fullContent += chunk; setToolStreamingContent(fullContent); },
-        onDone: () => {
-          setToolMessages([...msgs, { role: "assistant", content: fullContent }]);
-          setToolStreamingContent("");
-          setLoading(false);
-        },
-      });
-    } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
-      setToolStreamingContent("");
-      setLoading(false);
-    }
-  };
-
   const handleDownload = () => {
     if (!active?.html) return;
     const files = parseHtmlToFiles(active.html);
@@ -358,7 +282,6 @@ const Index = () => {
       downloadProjectFiles(files, active.name || "hexa-project");
       toast.success("Project files downloading!");
     } else {
-      // Fallback: download as single HTML
       const blob = new Blob([active.html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -385,7 +308,6 @@ const Index = () => {
     );
   }
 
-  // If no mode selected, show HomeScreen
   if (!appMode) {
     return (
       <div className="flex h-[100dvh] overflow-hidden">
@@ -395,10 +317,8 @@ const Index = () => {
   }
 
   const placeholders: Record<AppMode, string> = {
-    chat: "Kuch bhi pucho ya batao...",
+    chat: "Kuch bhi pucho, image banao, video plan karo...",
     builder: "Describe your website or app...",
-    image: "Describe the image you want to create...",
-    video: "Describe the video you want to create...",
   };
 
   return (
@@ -407,7 +327,6 @@ const Index = () => {
         <div className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm lg:hidden" onClick={() => setShowSidebar(false)} />
       )}
 
-      {/* Sidebar for ALL modes */}
       <div className={`fixed lg:static z-50 h-full transition-transform lg:translate-x-0 ${showSidebar ? "translate-x-0" : "-translate-x-full"}`}>
         <Sidebar
           projects={projects}
