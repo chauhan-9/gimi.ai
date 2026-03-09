@@ -22,11 +22,27 @@ const modeConfig: Record<AppMode, { label: string; icon: React.ReactNode; newLab
   builder: { label: "Projects", icon: <Code size={14} />, newLabel: "New Project" },
 };
 
-export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRename, onDuplicate, onLogout, mode }: SidebarProps) {
+export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRename, onDuplicate, onLogout, onProfile, mode }: SidebarProps) {
   const config = modeConfig[mode];
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [userInitials, setUserInitials] = useState("?");
+  const [userDisplayName, setUserDisplayName] = useState("");
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadUser() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: profile } = await supabase.from("profiles").select("display_name, avatar_url").eq("id", session.user.id).single();
+      const name = profile?.display_name || session.user.email?.split("@")[0] || "?";
+      setUserDisplayName(name);
+      setUserAvatar(profile?.avatar_url || null);
+      setUserInitials(name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2));
+    }
+    loadUser();
+  }, []);
 
   const handleRenameStart = (p: Project) => {
     setRenaming(p.id);
