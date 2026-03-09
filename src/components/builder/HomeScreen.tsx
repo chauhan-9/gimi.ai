@@ -31,13 +31,7 @@ function getGreeting(): string {
   return "Good night";
 }
 
-export function HomeScreen({ onSelectMode, onContinueLastChat }: HomeScreenProps) {
-  const [lastMode, setLastMode] = useState<AppMode | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("hexa-last-mode") as AppMode | null;
-    if (saved === "chat" || saved === "builder") setLastMode(saved);
-  }, []);
+export function HomeScreen({ onSelectMode }: HomeScreenProps) {
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-background px-4 py-8 overflow-y-auto">
