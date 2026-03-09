@@ -30,6 +30,7 @@ const Index = () => {
   const [activeId, setActiveId] = useState<string>("");
   const [showSidebar, setShowSidebar] = useState(false);
   const [appMode, setAppMode] = useState<AppMode | null>(null);
+  const [continueLastSession, setContinueLastSession] = useState(false);
   const [view, setView] = useState<View>("chat");
   const [showProfile, setShowProfile] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -67,8 +68,9 @@ const Index = () => {
   }, [appMode]);
 
   // Load projects when mode changes
-  // Requirement: whenever user leaves the module and comes back, show a fresh new chat/project,
-  // but keep all previous chats/projects saved in history.
+  // Logic:
+  // - Normal entry (onSelectMode): always create a fresh new chat, old chats go in history
+  // - Continue last session (onContinueLastChat): don't create new, open last active project
   useEffect(() => {
     if (!isInitialized || !appMode) return;
 
@@ -77,6 +79,9 @@ const Index = () => {
     setStreamingContent("");
     setShowProfile(false);
 
+    // Save last mode so Home can show "Continue"
+    localStorage.setItem("hexa-last-mode", appMode);
+
     async function loadForMode() {
       const defaultName = appMode === "chat" ? "New Chat" : "New Project";
 
@@ -84,25 +89,32 @@ const Index = () => {
         // 1) Load previous history
         const history = await loadProjectsFromCloud(appMode);
 
-        // 2) Always create a fresh empty project for the new session entry
-        const fresh = await createProjectInCloud(defaultName, appMode);
-
-        setProjects([fresh, ...history]);
-        setActiveId(fresh.id);
-        setView("chat");
+        if (continueLastSession && history.length > 0) {
+          // Continue mode: open the most recent project (top of list)
+          setProjects(history);
+          setActiveId(history[0].id);
+          setView("chat");
+        } else {
+          // Fresh mode: create a new empty project + history behind it
+          const fresh = await createProjectInCloud(defaultName, appMode);
+          setProjects([fresh, ...history]);
+          setActiveId(fresh.id);
+          setView("chat");
+        }
       } catch (err) {
         console.error("Failed to load:", err);
-
-        // Fallback: still show a fresh local project (history might not be available)
-        const fresh = createProject(appMode === "chat" ? "New Chat" : "New Project", appMode);
+        const fresh = createProject(defaultName, appMode);
         setProjects([fresh]);
         setActiveId(fresh.id);
         setView("chat");
       }
+
+      // Reset the flag
+      setContinueLastSession(false);
     }
 
     loadForMode();
-  }, [appMode, isInitialized]);
+  }, [appMode, isInitialized, continueLastSession]);
 
   useEffect(() => { if (activeId && appMode) saveActiveId(activeId, appMode); }, [activeId, appMode]);
 
@@ -326,7 +338,18 @@ const Index = () => {
   if (!appMode) {
     return (
       <div className="flex h-[100dvh] overflow-hidden">
-        <HomeScreen onSelectMode={(mode) => { setAppMode(mode); setView("chat"); }} />
+        <HomeScreen
+          onSelectMode={(mode) => {
+            setContinueLastSession(false);
+            setAppMode(mode);
+            setView("chat");
+          }}
+          onContinueLastChat={(mode) => {
+            setContinueLastSession(true);
+            setAppMode(mode);
+            setView("chat");
+          }}
+        />
       </div>
     );
   }
