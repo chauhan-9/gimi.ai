@@ -19,7 +19,6 @@ import {
   deleteProjectFromCloud,
   createProjectInCloud,
   replaceMessagesInCloud,
-  loadActiveId,
   saveActiveId,
   createProject,
   type Project,
@@ -68,31 +67,40 @@ const Index = () => {
   }, [appMode]);
 
   // Load projects when mode changes
+  // Requirement: whenever user leaves the module and comes back, show a fresh new chat/project,
+  // but keep all previous chats/projects saved in history.
   useEffect(() => {
     if (!isInitialized || !appMode) return;
 
     setProjects([]);
     setActiveId("");
     setStreamingContent("");
+    setShowProfile(false);
 
     async function loadForMode() {
+      const defaultName = appMode === "chat" ? "New Chat" : "New Project";
+
       try {
-        let modeProjects = await loadProjectsFromCloud(appMode!);
-        if (modeProjects.length === 0) {
-          const p = await createProjectInCloud("New Chat", appMode!);
-          modeProjects = [p];
-        }
-        setProjects(modeProjects);
-        const savedId = loadActiveId(appMode!);
-        const validId = modeProjects.find((p) => p.id === savedId)?.id || modeProjects[0]?.id;
-        setActiveId(validId || "");
+        // 1) Load previous history
+        const history = await loadProjectsFromCloud(appMode);
+
+        // 2) Always create a fresh empty project for the new session entry
+        const fresh = await createProjectInCloud(defaultName, appMode);
+
+        setProjects([fresh, ...history]);
+        setActiveId(fresh.id);
+        setView("chat");
       } catch (err) {
         console.error("Failed to load:", err);
-        const p = createProject("New Chat", appMode!);
-        setProjects([p]);
-        setActiveId(p.id);
+
+        // Fallback: still show a fresh local project (history might not be available)
+        const fresh = createProject(appMode === "chat" ? "New Chat" : "New Project", appMode);
+        setProjects([fresh]);
+        setActiveId(fresh.id);
+        setView("chat");
       }
     }
+
     loadForMode();
   }, [appMode, isInitialized]);
 
