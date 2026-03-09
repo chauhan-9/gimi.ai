@@ -1,6 +1,7 @@
-import { Plus, Trash2, MessageSquare, LogOut, Code, MoreVertical, Edit2, Copy } from "lucide-react";
-import { useState } from "react";
+import { Plus, Trash2, MessageSquare, LogOut, Code, MoreVertical, Edit2, Copy, User } from "lucide-react";
+import { useState, useEffect } from "react";
 import type { Project, AppMode } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
 import hexaIcon from "@/assets/hexa-icon.png";
 
 interface SidebarProps {
@@ -12,6 +13,7 @@ interface SidebarProps {
   onRename?: (id: string, newName: string) => void;
   onDuplicate?: (id: string) => void;
   onLogout: () => void;
+  onProfile?: () => void;
   mode: AppMode;
 }
 
@@ -20,11 +22,27 @@ const modeConfig: Record<AppMode, { label: string; icon: React.ReactNode; newLab
   builder: { label: "Projects", icon: <Code size={14} />, newLabel: "New Project" },
 };
 
-export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRename, onDuplicate, onLogout, mode }: SidebarProps) {
+export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRename, onDuplicate, onLogout, onProfile, mode }: SidebarProps) {
   const config = modeConfig[mode];
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [userInitials, setUserInitials] = useState("?");
+  const [userDisplayName, setUserDisplayName] = useState("");
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadUser() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: profile } = await supabase.from("profiles").select("display_name, avatar_url").eq("id", session.user.id).single();
+      const name = profile?.display_name || session.user.email?.split("@")[0] || "?";
+      setUserDisplayName(name);
+      setUserAvatar(profile?.avatar_url || null);
+      setUserInitials(name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2));
+    }
+    loadUser();
+  }, []);
 
   const handleRenameStart = (p: Project) => {
     setRenaming(p.id);
@@ -132,13 +150,19 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
         ))}
       </div>
 
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-t border-border space-y-1">
         <button
-          onClick={onLogout}
-          className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          onClick={onProfile}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-foreground hover:bg-muted transition-colors"
         >
-          <LogOut size={14} />
-          Sign Out
+          {userAvatar ? (
+            <img src={userAvatar} alt="" className="w-7 h-7 rounded-lg object-cover" />
+          ) : (
+            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
+              {userInitials}
+            </div>
+          )}
+          <span className="truncate flex-1 text-left text-xs font-medium">{userDisplayName}</span>
         </button>
       </div>
     </div>

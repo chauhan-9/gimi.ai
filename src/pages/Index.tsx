@@ -7,6 +7,7 @@ import { ChatInput } from "@/components/builder/ChatInput";
 import { ChatPane } from "@/components/builder/ChatPane";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { HomeScreen } from "@/components/builder/HomeScreen";
+import { ProfilePage } from "@/components/builder/ProfilePage";
 import type { AppMode } from "@/lib/storage";
 import { streamChat, extractHtml, generateImage } from "@/lib/ai-stream";
 import { getStoredModel } from "@/components/builder/ModelSelector";
@@ -31,6 +32,7 @@ const Index = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [appMode, setAppMode] = useState<AppMode | null>(null);
   const [view, setView] = useState<View>("chat");
+  const [showProfile, setShowProfile] = useState(false);
   const [loading, setLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
@@ -336,8 +338,8 @@ const Index = () => {
         <Sidebar
           projects={projects}
           activeId={activeId}
-          onSelect={(id) => { setActiveId(id); setShowSidebar(false); setView("chat"); }}
-          onNew={handleNew}
+          onSelect={(id) => { setActiveId(id); setShowSidebar(false); setView("chat"); setShowProfile(false); }}
+          onNew={() => { handleNew(); setShowProfile(false); }}
           onDelete={handleDelete}
           onRename={async (id, newName) => {
             updateProject(id, { name: newName });
@@ -345,33 +347,52 @@ const Index = () => {
             if (proj) { try { await saveProjectToCloud({ ...proj, name: newName }); } catch {} }
           }}
           onLogout={handleLogout}
+          onProfile={() => { setShowProfile(true); setShowSidebar(false); }}
           mode={appMode}
         />
       </div>
 
       <div className="flex flex-col flex-1 min-w-0">
-        <Header
-          view={view}
-          onViewChange={setView}
-          onDownload={handleDownload}
-          onToggleSidebar={() => setShowSidebar(!showSidebar)}
-          onBack={() => { setAppMode(null); setProjects([]); setActiveId(""); setStreamingContent(""); setLoading(false); }}
-          appMode={appMode}
-        />
-
-        {appMode === "builder" ? (
-          <>
-            {view === "chat" ? (
-              <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} userName={userName} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
-            ) : (
-              <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
-            )}
-            {view === "chat" && <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders.builder} appMode={appMode} selectedModel={selectedModel} onModelChange={setSelectedModel} />}
-          </>
+        {showProfile ? (
+          <ProfilePage
+            onBack={() => setShowProfile(false)}
+            onLogout={handleLogout}
+            onClearAllChats={async () => {
+              try {
+                for (const p of projects) {
+                  await replaceMessagesInCloud(p.id, []);
+                }
+                setProjects(prev => prev.map(p => ({ ...p, messages: [] })));
+                setShowProfile(false);
+              } catch { toast.error("Failed to clear chats"); }
+            }}
+          />
         ) : (
           <>
-            <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} userName={userName} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
-            <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders[appMode]} appMode={appMode} selectedModel={selectedModel} onModelChange={setSelectedModel} />
+            <Header
+              view={view}
+              onViewChange={setView}
+              onDownload={handleDownload}
+              onToggleSidebar={() => setShowSidebar(!showSidebar)}
+              onBack={() => { setAppMode(null); setProjects([]); setActiveId(""); setStreamingContent(""); setLoading(false); }}
+              appMode={appMode}
+            />
+
+            {appMode === "builder" ? (
+              <>
+                {view === "chat" ? (
+                  <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} userName={userName} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+                ) : (
+                  <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
+                )}
+                {view === "chat" && <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders.builder} appMode={appMode} selectedModel={selectedModel} onModelChange={setSelectedModel} />}
+              </>
+            ) : (
+              <>
+                <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} userName={userName} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+                <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders[appMode]} appMode={appMode} selectedModel={selectedModel} onModelChange={setSelectedModel} />
+              </>
+            )}
           </>
         )}
       </div>
