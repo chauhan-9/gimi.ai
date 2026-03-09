@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppMode = "chat" | "builder" | "image" | "video";
+export type AppMode = "chat" | "builder";
 
 export interface Project {
   id: string;

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Download, Video, Film, Clapperboard, Sparkles, Box, ZoomIn, HelpCircle, Lightbulb, BookOpen, Image as ImageIcon, ArrowDown } from "lucide-react";
+import { User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Download, Sparkles, ZoomIn, HelpCircle, Lightbulb, BookOpen, Image as ImageIcon, ArrowDown } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import hexaIcon from "@/assets/hexa-icon.png";
 import { toast } from "sonner";
@@ -30,16 +30,16 @@ const CHAT_CATEGORIES = [
     prompt: "Mujhe kuch interesting facts batao jo maine pehle nahi sune honge",
   },
   {
-    icon: <HelpCircle size={18} />,
-    label: "Sawal ka Jawab",
-    description: "Kisi bhi topic pe help lo",
-    prompt: "Machine Learning kya hota hai? Simple language mein samjhao",
+    icon: <ImageIcon size={18} />,
+    label: "Image Banao",
+    description: "AI se koi bhi image create karo",
+    prompt: "A beautiful sunset over mountains with purple and orange sky, realistic photography",
   },
   {
     icon: <Lightbulb size={18} />,
-    label: "Ideas & Suggestions",
-    description: "Naye ideas aur suggestions pao",
-    prompt: "Mujhe kuch creative business ideas suggest karo for 2026",
+    label: "Ideas & Help",
+    description: "Naye ideas, video scripts, translations",
+    prompt: "Mujhe ek YouTube video script likh do on 'Top 10 AI Tools in 2026'",
   },
   {
     icon: <BookOpen size={18} />,
@@ -73,60 +73,6 @@ const BUILDER_CATEGORIES = [
     label: "Landing Page",
     description: "Beautiful landing page design",
     prompt: "Create a stunning SaaS product landing page with hero section, features, and pricing",
-  },
-];
-
-const IMAGE_CATEGORIES = [
-  {
-    icon: <ImageIcon size={18} />,
-    label: "Image Generate karo",
-    description: "Koi bhi image create karo",
-    prompt: "A beautiful sunset over mountains with purple and orange sky, realistic photography",
-  },
-  {
-    icon: <Palette size={18} />,
-    label: "Art & Illustration",
-    description: "Creative artwork banao",
-    prompt: "A cute cartoon cat sitting on a moon in watercolor style",
-  },
-  {
-    icon: <Sparkles size={18} />,
-    label: "Logo Design",
-    description: "Professional logo create karo",
-    prompt: "A modern minimalist logo for a tech company called 'NexGen' with blue and white colors",
-  },
-  {
-    icon: <Globe size={18} />,
-    label: "Realistic Photo",
-    description: "Real jaisi photo banao",
-    prompt: "A photorealistic image of a futuristic city at night with neon lights and flying cars",
-  },
-];
-
-const VIDEO_CATEGORIES = [
-  {
-    icon: <Film size={18} />,
-    label: "YouTube Script",
-    description: "Complete video script with scenes",
-    prompt: "Write a YouTube video script on 'Top 10 AI Tools in 2026' with intro, scenes, and outro",
-  },
-  {
-    icon: <Clapperboard size={18} />,
-    label: "Reels / Shorts",
-    description: "Short-form video concepts",
-    prompt: "Create a 60-second Instagram Reel concept about daily productivity hacks",
-  },
-  {
-    icon: <Video size={18} />,
-    label: "Explainer Video",
-    description: "Product or concept explainer",
-    prompt: "Create a 2-minute explainer video script for a food delivery app",
-  },
-  {
-    icon: <Sparkles size={18} />,
-    label: "Video Ideas",
-    description: "Trending video concepts",
-    prompt: "Suggest 5 trending YouTube video ideas for a tech channel in 2026",
   },
 ];
 
@@ -217,14 +163,10 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
   const MODE_CATEGORIES: Record<string, typeof CHAT_CATEGORIES> = {
     chat: CHAT_CATEGORIES,
     builder: BUILDER_CATEGORIES,
-    image: IMAGE_CATEGORIES,
-    video: VIDEO_CATEGORIES,
   };
   const MODE_TITLES: Record<string, { title: string; subtitle: string }> = {
-    chat: { title: "Kuch bhi pucho ya batao!", subtitle: "Koi bhi sawal, topic, ya idea — sab ka jawab milega" },
+    chat: { title: "Kuch bhi pucho ya banao!", subtitle: "Chat karo, image banao, video script likho — sab ek jagah" },
     builder: { title: "Kya banana hai aaj?", subtitle: "Website, app, ya koi bhi web project create karo" },
-    image: { title: "Kaisi image chahiye?", subtitle: "Koi bhi image describe karo aur AI generate karega" },
-    video: { title: "Kaunsa video banana hai?", subtitle: "Scripts, storyboards, aur video planning" },
   };
   const categories = MODE_CATEGORIES[appMode || "chat"] || CHAT_CATEGORIES;
   const welcomeTitle = MODE_TITLES[appMode || "chat"]?.title || "Kya help chahiye?";

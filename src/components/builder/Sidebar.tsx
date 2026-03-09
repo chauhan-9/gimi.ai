@@ -1,4 +1,4 @@
-import { Plus, Trash2, MessageSquare, LogOut, Code, Image, Video, MoreVertical, Edit2, Copy } from "lucide-react";
+import { Plus, Trash2, MessageSquare, LogOut, Code, MoreVertical, Edit2, Copy } from "lucide-react";
 import { useState } from "react";
 import type { Project, AppMode } from "@/lib/storage";
 import hexaIcon from "@/assets/hexa-icon.png";
@@ -18,8 +18,6 @@ interface SidebarProps {
 const modeConfig: Record<AppMode, { label: string; icon: React.ReactNode; newLabel: string }> = {
   chat: { label: "Chats", icon: <MessageSquare size={14} />, newLabel: "New Chat" },
   builder: { label: "Projects", icon: <Code size={14} />, newLabel: "New Project" },
-  image: { label: "Images", icon: <Image size={14} />, newLabel: "New Image" },
-  video: { label: "Videos", icon: <Video size={14} />, newLabel: "New Video" },
 };
 
 export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRename, onDuplicate, onLogout, mode }: SidebarProps) {
@@ -43,7 +41,6 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
 
   return (
     <div className="flex flex-col h-full w-64 bg-card border-r border-border flex-shrink-0">
-      {/* Brand */}
       <div className="p-4 flex items-center gap-3">
         <img src={hexaIcon} alt="Hexa.AI" className="w-9 h-9 rounded-xl" />
         <div>
@@ -52,7 +49,6 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
         </div>
       </div>
 
-      {/* New button */}
       <div className="px-3 pb-3">
         <button
           onClick={onNew}
@@ -63,7 +59,6 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
         </button>
       </div>
 
-      {/* List */}
       <div className="flex-1 overflow-y-auto px-2 space-y-0.5 scrollbar-hide">
         {projects.map((p) => (
           <div
@@ -91,7 +86,6 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
               <span className="truncate flex-1 text-xs">{p.name}</span>
             )}
 
-            {/* Three-dot menu button */}
             {renaming !== p.id && (
               <button
                 onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === p.id ? null : p.id); }}
@@ -103,7 +97,6 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
               </button>
             )}
 
-            {/* Dropdown menu */}
             {menuOpen === p.id && (
               <>
                 <div className="fixed inset-0 z-50" onClick={() => setMenuOpen(null)} />
@@ -139,7 +132,6 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
         ))}
       </div>
 
-      {/* Logout */}
       <div className="p-3 border-t border-border">
         <button
           onClick={onLogout}
