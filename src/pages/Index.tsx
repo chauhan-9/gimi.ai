@@ -316,7 +316,16 @@ const Index = () => {
   if (!appMode) {
     return (
       <div className="flex h-[100dvh] overflow-hidden">
-        <HomeScreen onSelectMode={(mode) => { setAppMode(mode); setView("chat"); }} />
+        <HomeScreen onSelectMode={async (mode) => {
+          setAppMode(mode);
+          setView("chat");
+          // Always start a fresh chat when entering a mode
+          try {
+            const p = await createProjectInCloud(undefined, mode);
+            setProjects((prev) => [p, ...prev]);
+            setActiveId(p.id);
+          } catch {}
+        }} />
       </div>
     );
   }
