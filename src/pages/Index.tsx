@@ -348,18 +348,7 @@ const Index = () => {
   if (!appMode) {
     return (
       <div className="flex h-[100dvh] overflow-hidden">
-        <HomeScreen
-          onSelectMode={(mode) => {
-            setContinueLastSession(false);
-            setAppMode(mode);
-            setView("chat");
-          }}
-          onContinueLastChat={(mode) => {
-            setContinueLastSession(true);
-            setAppMode(mode);
-            setView("chat");
-          }}
-        />
+        <HomeScreen onSelectMode={(mode) => { setAppMode(mode); setView("chat"); }} />
       </div>
     );
   }
