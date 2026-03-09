@@ -67,10 +67,10 @@ const Index = () => {
     if (appMode) setSelectedModel(getStoredModel(appMode));
   }, [appMode]);
 
+  // Track the current "fresh" (empty) project ID so we can clean it up if unused
+  const freshProjectIdRef = useRef<string | null>(null);
+
   // Load projects when mode changes
-  // Logic:
-  // - Normal entry (onSelectMode): always create a fresh new chat, old chats go in history
-  // - Continue last session (onContinueLastChat): don't create new, open last active project
   useEffect(() => {
     if (!isInitialized || !appMode) return;
 
@@ -79,37 +79,47 @@ const Index = () => {
     setStreamingContent("");
     setShowProfile(false);
 
-    // Save last mode so Home can show "Continue"
     localStorage.setItem("hexa-last-mode", appMode);
 
     async function loadForMode() {
       const defaultName = appMode === "chat" ? "New Chat" : "New Project";
 
       try {
-        // 1) Load previous history
         const history = await loadProjectsFromCloud(appMode);
+        // Filter out any empty projects (no messages) from history to keep it clean
+        const nonEmptyHistory = history.filter(p => p.messages.length > 0);
 
-        if (continueLastSession && history.length > 0) {
-          // Continue mode: open the most recent project (top of list)
-          setProjects(history);
-          setActiveId(history[0].id);
+        if (continueLastSession && nonEmptyHistory.length > 0) {
+          // Continue mode: open the most recent project with messages
+          // Also add a fresh project for new conversations
+          const fresh = await createProjectInCloud(defaultName, appMode);
+          freshProjectIdRef.current = fresh.id;
+          setProjects([fresh, ...nonEmptyHistory]);
+          setActiveId(nonEmptyHistory[0].id);
           setView("chat");
         } else {
-          // Fresh mode: create a new empty project + history behind it
+          // Fresh mode: create a new empty project
           const fresh = await createProjectInCloud(defaultName, appMode);
-          setProjects([fresh, ...history]);
+          freshProjectIdRef.current = fresh.id;
+          setProjects([fresh, ...nonEmptyHistory]);
           setActiveId(fresh.id);
           setView("chat");
+        }
+
+        // Clean up old empty projects from DB (they have 0 messages and aren't the new fresh one)
+        const emptyOldProjects = history.filter(p => p.messages.length === 0);
+        for (const ep of emptyOldProjects) {
+          try { await deleteProjectFromCloud(ep.id); } catch {}
         }
       } catch (err) {
         console.error("Failed to load:", err);
         const fresh = createProject(defaultName, appMode);
+        freshProjectIdRef.current = fresh.id;
         setProjects([fresh]);
         setActiveId(fresh.id);
         setView("chat");
       }
 
-      // Reset the flag
       setContinueLastSession(false);
     }
 
