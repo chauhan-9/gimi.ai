@@ -68,17 +68,6 @@ export function HomeScreen({ onSelectMode }: HomeScreenProps) {
           ))}
         </div>
 
-        {/* Continue last chat button */}
-        {lastMode && onContinueLastChat && (
-          <button
-            onClick={() => onContinueLastChat(lastMode)}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary text-sm font-medium transition-all active:scale-[0.98]"
-          >
-            <span>Continue last {lastMode === "chat" ? "chat" : "project"}</span>
-            <ArrowRight size={16} />
-          </button>
-        )}
-
         <p className="text-center text-[10px] text-muted-foreground/60">
           Powered by Hexa.AI ✨
         </p>
