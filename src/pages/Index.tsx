@@ -7,6 +7,7 @@ import { ChatInput } from "@/components/builder/ChatInput";
 import { ChatPane } from "@/components/builder/ChatPane";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { HomeScreen } from "@/components/builder/HomeScreen";
+import { ProfilePage } from "@/components/builder/ProfilePage";
 import type { AppMode } from "@/lib/storage";
 import { streamChat, extractHtml, generateImage } from "@/lib/ai-stream";
 import { getStoredModel } from "@/components/builder/ModelSelector";
