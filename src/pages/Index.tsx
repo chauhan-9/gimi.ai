@@ -30,6 +30,7 @@ const Index = () => {
   const [activeId, setActiveId] = useState<string>("");
   const [showSidebar, setShowSidebar] = useState(false);
   const [appMode, setAppMode] = useState<AppMode | null>(null);
+  const [continueLastSession, setContinueLastSession] = useState(false);
   const [view, setView] = useState<View>("chat");
   const [showProfile, setShowProfile] = useState(false);
   const [loading, setLoading] = useState(false);
