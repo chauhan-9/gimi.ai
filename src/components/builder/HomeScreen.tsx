@@ -1,9 +1,11 @@
-import { MessageCircle, Code } from "lucide-react";
+import { MessageCircle, Code, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
 import hexaIcon from "@/assets/hexa-icon.png";
 import type { AppMode } from "@/lib/storage";
 
 interface HomeScreenProps {
   onSelectMode: (mode: AppMode) => void;
+  onContinueLastChat?: (mode: AppMode) => void;
 }
 
 const modes = [
@@ -31,7 +33,14 @@ function getGreeting(): string {
   return "Good night";
 }
 
-export function HomeScreen({ onSelectMode }: HomeScreenProps) {
+export function HomeScreen({ onSelectMode, onContinueLastChat }: HomeScreenProps) {
+  const [lastMode, setLastMode] = useState<AppMode | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("hexa-last-mode") as AppMode | null;
+    if (saved === "chat" || saved === "builder") setLastMode(saved);
+  }, []);
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-background px-4 py-8 overflow-y-auto">
       <div className="max-w-lg w-full space-y-8">
@@ -66,6 +75,17 @@ export function HomeScreen({ onSelectMode }: HomeScreenProps) {
             </button>
           ))}
         </div>
+
+        {/* Continue last chat button */}
+        {lastMode && onContinueLastChat && (
+          <button
+            onClick={() => onContinueLastChat(lastMode)}
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary text-sm font-medium transition-all active:scale-[0.98]"
+          >
+            <span>Continue last {lastMode === "chat" ? "chat" : "project"}</span>
+            <ArrowRight size={16} />
+          </button>
+        )}
 
         <p className="text-center text-[10px] text-muted-foreground/60">
           Powered by Hexa.AI ✨
