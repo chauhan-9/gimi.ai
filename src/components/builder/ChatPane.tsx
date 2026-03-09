@@ -315,6 +315,8 @@ export function ChatPane({ messages, loading, appMode, userName, typingAnimation
                   ) : (
                     <div className="chat-prose prose prose-[15px] max-w-none prose-p:my-3.5 prose-p:leading-[1.85] prose-headings:font-semibold prose-headings:font-display prose-h1:text-[1.25rem] prose-h2:text-[1.15rem] prose-h3:text-[1.05rem] prose-ul:my-4 prose-li:leading-[1.85] prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:my-5 prose-strong:text-foreground prose-strong:font-semibold prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-code:font-normal prose-pre:bg-muted prose-pre:rounded-xl prose-pre:my-5 prose-hr:my-8 prose-img:rounded-xl prose-img:max-w-full prose-img:shadow-lg prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
                       <ReactMarkdown
+                        remarkPlugins={[remarkMath]}
+                        rehypePlugins={[rehypeKatex]}
                         urlTransform={(url) => url}
                         components={{
                           img: ({ src, alt, ...props }) => (
