@@ -1,11 +1,9 @@
-import { MessageCircle, Code, ArrowRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { MessageCircle, Code } from "lucide-react";
 import hexaIcon from "@/assets/hexa-icon.png";
 import type { AppMode } from "@/lib/storage";
 
 interface HomeScreenProps {
   onSelectMode: (mode: AppMode) => void;
-  onContinueLastChat?: (mode: AppMode) => void;
 }
 
 const modes = [
