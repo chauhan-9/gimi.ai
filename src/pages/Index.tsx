@@ -19,7 +19,6 @@ import {
   deleteProjectFromCloud,
   createProjectInCloud,
   replaceMessagesInCloud,
-  loadActiveId,
   saveActiveId,
   createProject,
   type Project,
