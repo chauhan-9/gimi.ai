@@ -51,6 +51,10 @@ const Index = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/auth", { replace: true }); return; }
       setIsInitialized(true);
+      // Fetch user display name
+      const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", session.user.id).single();
+      if (profile?.display_name) setUserName(profile.display_name);
+      else setUserName(session.user.email?.split("@")[0] || "");
     }
     init();
     return () => subscription.unsubscribe();
