@@ -254,8 +254,8 @@ export function ChatPane({ messages, loading, appMode, userName, onSuggestionCli
                   <span className="whitespace-pre-wrap">{msg.content}</span>
                 </div>
               ) : (
-                <div className="text-[15px] break-words text-foreground leading-[1.8]">
-                  <div className="prose prose-base max-w-none prose-p:my-3 prose-headings:my-4 prose-headings:font-display prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-ul:my-3 prose-ol:my-3 prose-li:my-1 prose-li:leading-[1.8] prose-p:leading-[1.8] prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-strong:text-foreground prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-pre:bg-muted prose-pre:rounded-xl prose-hr:my-4 prose-img:rounded-xl prose-img:max-w-full prose-img:shadow-lg">
+                <div className="text-[15px] break-words text-foreground leading-relaxed">
+                  <div className="prose prose-base max-w-none prose-p:my-4 prose-p:leading-relaxed prose-headings:mt-6 prose-headings:mb-3 prose-headings:font-display prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-ul:my-4 prose-ol:my-4 prose-li:my-1.5 prose-li:leading-relaxed prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:my-4 prose-strong:text-foreground prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-pre:bg-muted prose-pre:rounded-xl prose-pre:my-4 prose-hr:my-6 prose-img:rounded-xl prose-img:max-w-full prose-img:shadow-lg">
                     <ReactMarkdown
                       urlTransform={(url) => url}
                       components={{
