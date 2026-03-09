@@ -151,7 +151,7 @@ function AnimatedHeadline({ text, delay = 0 }: { text: string; delay?: number })
   );
 }
 
-export function ChatPane({ messages, loading, appMode, userName, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
+export function ChatPane({ messages, loading, appMode, userName, typingAnimationForLastAssistant, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
