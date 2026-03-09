@@ -35,6 +35,7 @@ const Index = () => {
   const [streamingContent, setStreamingContent] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedModel, setSelectedModel] = useState(() => getStoredModel("chat"));
+  const [userName, setUserName] = useState<string>("");
   const abortRef = useRef<AbortController | null>(null);
   const navigate = useNavigate();
 
