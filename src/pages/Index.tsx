@@ -415,7 +415,18 @@ const Index = () => {
               onViewChange={setView}
               onDownload={handleDownload}
               onToggleSidebar={() => setShowSidebar(!showSidebar)}
-              onBack={() => { setAppMode(null); setProjects([]); setActiveId(""); setStreamingContent(""); setLoading(false); }}
+              onBack={async () => {
+                // Clean up the fresh empty project if user never chatted in it
+                const freshId = freshProjectIdRef.current;
+                if (freshId) {
+                  const freshProj = projects.find(p => p.id === freshId);
+                  if (freshProj && freshProj.messages.length === 0) {
+                    try { await deleteProjectFromCloud(freshId); } catch {}
+                  }
+                  freshProjectIdRef.current = null;
+                }
+                setAppMode(null); setProjects([]); setActiveId(""); setStreamingContent(""); setLoading(false);
+              }}
               appMode={appMode}
             />
 
