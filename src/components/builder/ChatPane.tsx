@@ -163,14 +163,10 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
   const MODE_CATEGORIES: Record<string, typeof CHAT_CATEGORIES> = {
     chat: CHAT_CATEGORIES,
     builder: BUILDER_CATEGORIES,
-    image: IMAGE_CATEGORIES,
-    video: VIDEO_CATEGORIES,
   };
   const MODE_TITLES: Record<string, { title: string; subtitle: string }> = {
-    chat: { title: "Kuch bhi pucho ya batao!", subtitle: "Koi bhi sawal, topic, ya idea — sab ka jawab milega" },
+    chat: { title: "Kuch bhi pucho ya banao!", subtitle: "Chat karo, image banao, video script likho — sab ek jagah" },
     builder: { title: "Kya banana hai aaj?", subtitle: "Website, app, ya koi bhi web project create karo" },
-    image: { title: "Kaisi image chahiye?", subtitle: "Koi bhi image describe karo aur AI generate karega" },
-    video: { title: "Kaunsa video banana hai?", subtitle: "Scripts, storyboards, aur video planning" },
   };
   const categories = MODE_CATEGORIES[appMode || "chat"] || CHAT_CATEGORIES;
   const welcomeTitle = MODE_TITLES[appMode || "chat"]?.title || "Kya help chahiye?";
