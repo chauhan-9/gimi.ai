@@ -16,6 +16,8 @@ interface ChatPaneProps {
   loading: boolean;
   appMode?: string;
   userName?: string;
+  /** When true, only the LAST assistant message will type out character-by-character (used for streaming). */
+  typingAnimationForLastAssistant?: boolean;
   onSuggestionClick?: (text: string) => void;
   onCopy?: (index: number) => void;
   onEdit?: (index: number, newContent: string) => void;
@@ -149,7 +151,7 @@ function AnimatedHeadline({ text, delay = 0 }: { text: string; delay?: number })
   );
 }
 
-export function ChatPane({ messages, loading, appMode, userName, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
+export function ChatPane({ messages, loading, appMode, userName, typingAnimationForLastAssistant, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
@@ -256,54 +258,98 @@ export function ChatPane({ messages, loading, appMode, userName, onSuggestionCli
                 </div>
               ) : (
                 <div className="text-[15px] break-words text-foreground leading-[1.85]">
-                  <TypingText text={summarizeHtml(msg.content)} speed={6}>
-                    {(displayedText, isComplete) => (
-                      <div className="chat-prose prose prose-[15px] max-w-none prose-p:my-3.5 prose-p:leading-[1.85] prose-headings:font-semibold prose-headings:font-display prose-h1:text-[1.25rem] prose-h2:text-[1.15rem] prose-h3:text-[1.05rem] prose-ul:my-4 prose-li:leading-[1.85] prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:my-5 prose-strong:text-foreground prose-strong:font-semibold prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-code:font-normal prose-pre:bg-muted prose-pre:rounded-xl prose-pre:my-5 prose-hr:my-8 prose-img:rounded-xl prose-img:max-w-full prose-img:shadow-lg prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
-                        <ReactMarkdown
-                          urlTransform={(url) => url}
-                          components={{
-                            img: ({ src, alt, ...props }) => (
-                              <div className="relative inline-block group/img">
-                                <img
-                                  src={src}
-                                  alt={alt || "Generated image"}
-                                  className="rounded-xl max-w-full shadow-lg my-3 border border-border cursor-pointer hover:shadow-xl transition-shadow"
-                                  loading="lazy"
-                                  onClick={() => setLightboxSrc(src || "")}
-                                  {...props}
-                                />
-                                <div className="absolute top-5 right-2 flex items-center gap-1 opacity-0 group-hover/img:opacity-100 transition-opacity">
-                                  <button
+                  {typingAnimationForLastAssistant && i === messages.length - 1 ? (
+                    <TypingText text={summarizeHtml(msg.content)} speed={6}>
+                      {(displayedText, isComplete) => (
+                        <div className="chat-prose prose prose-[15px] max-w-none prose-p:my-3.5 prose-p:leading-[1.85] prose-headings:font-semibold prose-headings:font-display prose-h1:text-[1.25rem] prose-h2:text-[1.15rem] prose-h3:text-[1.05rem] prose-ul:my-4 prose-li:leading-[1.85] prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:my-5 prose-strong:text-foreground prose-strong:font-semibold prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-code:font-normal prose-pre:bg-muted prose-pre:rounded-xl prose-pre:my-5 prose-hr:my-8 prose-img:rounded-xl prose-img:max-w-full prose-img:shadow-lg prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
+                          <ReactMarkdown
+                            urlTransform={(url) => url}
+                            components={{
+                              img: ({ src, alt, ...props }) => (
+                                <div className="relative inline-block group/img">
+                                  <img
+                                    src={src}
+                                    alt={alt || "Generated image"}
+                                    className="rounded-xl max-w-full shadow-lg my-3 border border-border cursor-pointer hover:shadow-xl transition-shadow"
+                                    loading="lazy"
                                     onClick={() => setLightboxSrc(src || "")}
-                                    className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
-                                    title="Zoom"
-                                  >
-                                    <ZoomIn size={14} />
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      const link = document.createElement("a");
-                                      link.href = src || "";
-                                      link.download = `hexa-image-${Date.now()}.png`;
-                                      link.click();
-                                      toast.success("Download started!");
-                                    }}
-                                    className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
-                                    title="Download"
-                                  >
-                                    <Download size={14} />
-                                  </button>
+                                    {...props}
+                                  />
+                                  <div className="absolute top-5 right-2 flex items-center gap-1 opacity-0 group-hover/img:opacity-100 transition-opacity">
+                                    <button
+                                      onClick={() => setLightboxSrc(src || "")}
+                                      className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
+                                      title="Zoom"
+                                    >
+                                      <ZoomIn size={14} />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        const link = document.createElement("a");
+                                        link.href = src || "";
+                                        link.download = `hexa-image-${Date.now()}.png`;
+                                        link.click();
+                                        toast.success("Download started!");
+                                      }}
+                                      className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
+                                      title="Download"
+                                    >
+                                      <Download size={14} />
+                                    </button>
+                                  </div>
                                 </div>
+                              ),
+                            }}
+                          >{displayedText}</ReactMarkdown>
+                          {!isComplete && (
+                            <span className="inline-block w-0.5 h-4 bg-primary ml-0.5 animate-pulse" />
+                          )}
+                        </div>
+                      )}
+                    </TypingText>
+                  ) : (
+                    <div className="chat-prose prose prose-[15px] max-w-none prose-p:my-3.5 prose-p:leading-[1.85] prose-headings:font-semibold prose-headings:font-display prose-h1:text-[1.25rem] prose-h2:text-[1.15rem] prose-h3:text-[1.05rem] prose-ul:my-4 prose-li:leading-[1.85] prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:my-5 prose-strong:text-foreground prose-strong:font-semibold prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-code:font-normal prose-pre:bg-muted prose-pre:rounded-xl prose-pre:my-5 prose-hr:my-8 prose-img:rounded-xl prose-img:max-w-full prose-img:shadow-lg prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
+                      <ReactMarkdown
+                        urlTransform={(url) => url}
+                        components={{
+                          img: ({ src, alt, ...props }) => (
+                            <div className="relative inline-block group/img">
+                              <img
+                                src={src}
+                                alt={alt || "Generated image"}
+                                className="rounded-xl max-w-full shadow-lg my-3 border border-border cursor-pointer hover:shadow-xl transition-shadow"
+                                loading="lazy"
+                                onClick={() => setLightboxSrc(src || "")}
+                                {...props}
+                              />
+                              <div className="absolute top-5 right-2 flex items-center gap-1 opacity-0 group-hover/img:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => setLightboxSrc(src || "")}
+                                  className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
+                                  title="Zoom"
+                                >
+                                  <ZoomIn size={14} />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    const link = document.createElement("a");
+                                    link.href = src || "";
+                                    link.download = `hexa-image-${Date.now()}.png`;
+                                    link.click();
+                                    toast.success("Download started!");
+                                  }}
+                                  className="p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground transition-colors"
+                                  title="Download"
+                                >
+                                  <Download size={14} />
+                                </button>
                               </div>
-                            ),
-                          }}
-                        >{displayedText}</ReactMarkdown>
-                        {!isComplete && (
-                          <span className="inline-block w-0.5 h-4 bg-primary ml-0.5 animate-pulse" />
-                        )}
-                      </div>
-                    )}
-                  </TypingText>
+                            </div>
+                          ),
+                        }}
+                      >{summarizeHtml(msg.content)}</ReactMarkdown>
+                    </div>
+                  )}
                 </div>
               )}
               <MessageActions msg={msg} index={i} onEdit={onEdit} onDelete={onDelete} onRegenerate={onRegenerate} />

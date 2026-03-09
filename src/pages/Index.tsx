@@ -389,16 +389,52 @@ const Index = () => {
             {appMode === "builder" ? (
               <>
                 {view === "chat" ? (
-                  <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} userName={userName} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+                  <ChatPane
+                    messages={allMessages}
+                    loading={loading && !streamingContent}
+                    typingAnimationForLastAssistant={Boolean(streamingContent)}
+                    appMode={appMode}
+                    userName={userName}
+                    onSuggestionClick={handleSend}
+                    onEdit={handleEditMessage}
+                    onDelete={handleDeleteMessage}
+                    onRegenerate={handleRegenerate}
+                  />
                 ) : (
                   <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
                 )}
-                {view === "chat" && <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders.builder} appMode={appMode} selectedModel={selectedModel} onModelChange={setSelectedModel} />}
+                {view === "chat" && (
+                  <ChatInput
+                    onSend={handleSend}
+                    loading={loading}
+                    placeholder={placeholders.builder}
+                    appMode={appMode}
+                    selectedModel={selectedModel}
+                    onModelChange={setSelectedModel}
+                  />
+                )}
               </>
             ) : (
               <>
-                <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} userName={userName} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
-                <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders[appMode]} appMode={appMode} selectedModel={selectedModel} onModelChange={setSelectedModel} />
+                <ChatPane
+                  messages={allMessages}
+                  loading={loading && !streamingContent}
+                  typingAnimationForLastAssistant={Boolean(streamingContent)}
+                  appMode={appMode}
+                  userName={userName}
+                  onSuggestionClick={handleSend}
+                  onEdit={handleEditMessage}
+                  onDelete={handleDeleteMessage}
+                  onRegenerate={handleRegenerate}
+                />
+                <ChatInput
+                  onSend={handleSend}
+                  loading={loading}
+                  placeholder={placeholders[appMode]}
+                  appMode={appMode}
+                  selectedModel={selectedModel}
+                  onModelChange={setSelectedModel}
+                />
               </>
             )}
           </>
