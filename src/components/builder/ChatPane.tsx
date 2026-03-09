@@ -200,7 +200,7 @@ export function ChatPane({ messages, loading, appMode, userName, typingAnimation
     const headline = appMode === "builder" ? headlineBuilder : headlineChat;
 
     return (
-      <div className="flex-1 flex flex-col justify-center bg-background px-5 py-8 overflow-y-auto">
+      <div className="flex-1 flex flex-col justify-center bg-background px-5 py-8 overflow-y-auto min-h-0">
         <div className="max-w-xl w-full mx-auto space-y-8">
           {/* Greeting */}
           <div className="space-y-3">

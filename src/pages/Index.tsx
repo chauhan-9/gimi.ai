@@ -382,7 +382,7 @@ const Index = () => {
         />
       </div>
 
-      <div className="flex flex-col flex-1 min-w-0">
+      <div className="flex flex-col flex-1 min-w-0 min-h-0 h-full">
         {showProfile ? (
           <ProfilePage
             onBack={() => setShowProfile(false)}
