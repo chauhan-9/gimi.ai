@@ -150,13 +150,19 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
         ))}
       </div>
 
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-t border-border space-y-1">
         <button
-          onClick={onLogout}
-          className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          onClick={onProfile}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-foreground hover:bg-muted transition-colors"
         >
-          <LogOut size={14} />
-          Sign Out
+          {userAvatar ? (
+            <img src={userAvatar} alt="" className="w-7 h-7 rounded-lg object-cover" />
+          ) : (
+            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
+              {userInitials}
+            </div>
+          )}
+          <span className="truncate flex-1 text-left text-xs font-medium">{userDisplayName}</span>
         </button>
       </div>
     </div>
