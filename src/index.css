@@ -145,10 +145,10 @@
     box-shadow: 0 4px 24px hsla(262, 80%, 55%, 0.12);
   }
 
-  /* Chat message prose enhancements */
+  /* Chat message prose enhancements — ChatGPT-style clean layout */
   .chat-prose ol > li {
-    margin-top: 1.25rem !important;
-    margin-bottom: 1.25rem !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
     padding-left: 0.25rem;
   }
 
@@ -161,14 +161,14 @@
   }
 
   .chat-prose ul > li {
-    margin-top: 0.5rem !important;
-    margin-bottom: 0.5rem !important;
+    margin-top: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
   }
 
   .chat-prose h3, .chat-prose h2 {
-    margin-top: 1.75rem !important;
-    margin-bottom: 0.75rem !important;
-    padding-bottom: 0.25rem;
+    margin-top: 2rem !important;
+    margin-bottom: 1rem !important;
+    padding-bottom: 0.35rem;
     border-bottom: 1px solid hsl(var(--border));
   }
 
@@ -177,7 +177,12 @@
   }
 
   .chat-prose > p + p {
+    margin-top: 1.25rem !important;
+  }
+
+  .chat-prose p {
     margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
   }
 
   .chat-prose strong {
@@ -203,5 +208,58 @@
     font-weight: 700;
     color: hsl(var(--primary));
     font-size: 1rem;
+  }
+
+  /* Horizontal rule — clean section separator like ChatGPT */
+  .chat-prose hr {
+    border: none !important;
+    border-top: 1px solid hsl(var(--border)) !important;
+    margin-top: 2rem !important;
+    margin-bottom: 2rem !important;
+  }
+
+  /* KaTeX math formulas — clean, spacious, like ChatGPT */
+  .chat-prose .katex-display {
+    margin: 1.5rem 0 !important;
+    padding: 1rem 1.25rem;
+    background: hsl(var(--muted));
+    border-radius: 0.75rem;
+    overflow-x: auto;
+  }
+
+  .chat-prose .katex-display > .katex {
+    font-size: 1.15em;
+  }
+
+  .chat-prose .katex {
+    font-size: 1.05em;
+    color: hsl(var(--foreground));
+  }
+
+  /* Inline math */
+  .chat-prose p .katex {
+    font-size: 1.05em;
+  }
+
+  /* Bullet list styling for math explanations */
+  .chat-prose ul {
+    padding-left: 1.5rem !important;
+  }
+
+  .chat-prose ul > li::marker {
+    color: hsl(var(--primary));
+  }
+
+  /* Blockquote clean style */
+  .chat-prose blockquote {
+    border-left: 3px solid hsl(var(--primary)) !important;
+    background: hsl(var(--muted) / 0.4) !important;
+    padding: 0.75rem 1rem !important;
+    border-radius: 0 0.5rem 0.5rem 0 !important;
+    margin: 1.5rem 0 !important;
+  }
+
+  .chat-prose blockquote p {
+    margin: 0.25rem 0 !important;
   }
 }
