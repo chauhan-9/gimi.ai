@@ -16,6 +16,8 @@ interface ChatPaneProps {
   loading: boolean;
   appMode?: string;
   userName?: string;
+  /** When true, only the LAST assistant message will type out character-by-character (used for streaming). */
+  typingAnimationForLastAssistant?: boolean;
   onSuggestionClick?: (text: string) => void;
   onCopy?: (index: number) => void;
   onEdit?: (index: number, newContent: string) => void;
