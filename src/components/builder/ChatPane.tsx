@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import hexaIcon from "@/assets/hexa-icon.png";
 import { toast } from "sonner";
 import { ImageLightbox } from "./ImageLightbox";
+import { TypingText } from "./TypingText";
 
 interface Message {
   role: "user" | "assistant";
