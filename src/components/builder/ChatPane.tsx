@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Copy, Check, Pencil, Trash2, RefreshCw, Code, Palette, Globe, Download, Sparkles, ZoomIn, ArrowDown, Image as ImageIcon, Pen, GraduationCap, Languages, Mail } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import hexaIcon from "@/assets/hexa-icon.png";
 import { toast } from "sonner";
 import { ImageLightbox } from "./ImageLightbox";
