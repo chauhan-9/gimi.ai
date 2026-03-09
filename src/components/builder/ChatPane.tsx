@@ -200,7 +200,7 @@ export function ChatPane({ messages, loading, appMode, userName, typingAnimation
     const headline = appMode === "builder" ? headlineBuilder : headlineChat;
 
     return (
-      <div className="flex-1 flex flex-col justify-center bg-background px-5 py-8 overflow-y-auto">
+      <div className="flex-1 flex flex-col justify-center bg-background px-5 py-8 overflow-y-auto min-h-0">
         <div className="max-w-xl w-full mx-auto space-y-8">
           {/* Greeting */}
           <div className="space-y-3">
@@ -242,7 +242,7 @@ export function ChatPane({ messages, loading, appMode, userName, typingAnimation
 
   return (
     <React.Fragment>
-    <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto bg-background">
+    <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto bg-background min-h-0">
       <div className="max-w-3xl mx-auto py-6 px-4 space-y-5">
         {messages.map((msg, i) => (
           <div key={i} className={`group flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
