@@ -32,6 +32,7 @@ const Index = () => {
   const [showSidebar, setShowSidebar] = useState(false);
   const [appMode, setAppMode] = useState<AppMode | null>(null);
   const [view, setView] = useState<View>("chat");
+  const [showProfile, setShowProfile] = useState(false);
   const [loading, setLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
