@@ -254,8 +254,8 @@ export function ChatPane({ messages, loading, appMode, userName, onSuggestionCli
                   <span className="whitespace-pre-wrap">{msg.content}</span>
                 </div>
               ) : (
-                <div className="text-[15px] break-words text-foreground leading-relaxed">
-                  <div className="prose prose-base max-w-none prose-p:my-4 prose-p:leading-relaxed prose-headings:mt-6 prose-headings:mb-3 prose-headings:font-display prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-ul:my-4 prose-ol:my-4 prose-li:my-1.5 prose-li:leading-relaxed prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:my-4 prose-strong:text-foreground prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-pre:bg-muted prose-pre:rounded-xl prose-pre:my-4 prose-hr:my-6 prose-img:rounded-xl prose-img:max-w-full prose-img:shadow-lg">
+                <div className="text-[15px] break-words text-foreground leading-[1.85]">
+                  <div className="prose prose-[15px] max-w-none prose-p:my-4 prose-p:leading-[1.85] prose-headings:mt-7 prose-headings:mb-3 prose-headings:font-semibold prose-headings:font-display prose-h1:text-[1.25rem] prose-h2:text-[1.15rem] prose-h3:text-[1.05rem] prose-ul:my-4 prose-ul:space-y-2 prose-ol:my-4 prose-ol:space-y-2 prose-li:my-0 prose-li:leading-[1.85] prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:my-5 prose-strong:text-foreground prose-strong:font-semibold prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-code:font-normal prose-pre:bg-muted prose-pre:rounded-xl prose-pre:my-5 prose-hr:my-8 prose-img:rounded-xl prose-img:max-w-full prose-img:shadow-lg prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
                     <ReactMarkdown
                       urlTransform={(url) => url}
                       components={{
