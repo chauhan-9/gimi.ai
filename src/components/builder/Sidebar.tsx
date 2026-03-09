@@ -1,6 +1,7 @@
-import { Plus, Trash2, MessageSquare, LogOut, Code, MoreVertical, Edit2, Copy } from "lucide-react";
-import { useState } from "react";
+import { Plus, Trash2, MessageSquare, LogOut, Code, MoreVertical, Edit2, Copy, User } from "lucide-react";
+import { useState, useEffect } from "react";
 import type { Project, AppMode } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
 import hexaIcon from "@/assets/hexa-icon.png";
 
 interface SidebarProps {
@@ -12,6 +13,7 @@ interface SidebarProps {
   onRename?: (id: string, newName: string) => void;
   onDuplicate?: (id: string) => void;
   onLogout: () => void;
+  onProfile?: () => void;
   mode: AppMode;
 }
 
