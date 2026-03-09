@@ -35,6 +35,7 @@ const Index = () => {
   const [streamingContent, setStreamingContent] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
   const [selectedModel, setSelectedModel] = useState(() => getStoredModel("chat"));
+  const [userName, setUserName] = useState<string>("");
   const abortRef = useRef<AbortController | null>(null);
   const navigate = useNavigate();
 
@@ -50,6 +51,10 @@ const Index = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/auth", { replace: true }); return; }
       setIsInitialized(true);
+      // Fetch user display name
+      const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", session.user.id).single();
+      if (profile?.display_name) setUserName(profile.display_name);
+      else setUserName(session.user.email?.split("@")[0] || "");
     }
     init();
     return () => subscription.unsubscribe();
@@ -357,7 +362,7 @@ const Index = () => {
         {appMode === "builder" ? (
           <>
             {view === "chat" ? (
-              <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+              <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} userName={userName} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
             ) : (
               <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
             )}
@@ -365,7 +370,7 @@ const Index = () => {
           </>
         ) : (
           <>
-            <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
+            <ChatPane messages={allMessages} loading={loading && !streamingContent} appMode={appMode} userName={userName} onSuggestionClick={handleSend} onEdit={handleEditMessage} onDelete={handleDeleteMessage} onRegenerate={handleRegenerate} />
             <ChatInput onSend={handleSend} loading={loading} placeholder={placeholders[appMode]} appMode={appMode} selectedModel={selectedModel} onModelChange={setSelectedModel} />
           </>
         )}

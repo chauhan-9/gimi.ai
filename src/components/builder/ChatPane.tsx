@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { User, Copy, Check, Pencil, Trash2, RefreshCw, Code, MessageCircle, Palette, Globe, Download, Sparkles, ZoomIn, HelpCircle, Lightbulb, BookOpen, Image as ImageIcon, ArrowDown } from "lucide-react";
+import { Copy, Check, Pencil, Trash2, RefreshCw, Code, Palette, Globe, Download, Sparkles, ZoomIn, ArrowDown, Image as ImageIcon, Pen, GraduationCap, Languages, Mail } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import hexaIcon from "@/assets/hexa-icon.png";
 import { toast } from "sonner";
 import { ImageLightbox } from "./ImageLightbox";
-
 
 interface Message {
   role: "user" | "assistant";
@@ -15,6 +14,7 @@ interface ChatPaneProps {
   messages: Message[];
   loading: boolean;
   appMode?: string;
+  userName?: string;
   onSuggestionClick?: (text: string) => void;
   onCopy?: (index: number) => void;
   onEdit?: (index: number, newContent: string) => void;
@@ -22,58 +22,22 @@ interface ChatPaneProps {
   onRegenerate?: (index: number) => void;
 }
 
-const CHAT_CATEGORIES = [
-  {
-    icon: <MessageCircle size={18} />,
-    label: "Kuch bhi pucho",
-    description: "Koi bhi sawal ka jawab pao",
-    prompt: "Mujhe kuch interesting facts batao jo maine pehle nahi sune honge",
-  },
-  {
-    icon: <ImageIcon size={18} />,
-    label: "Image Banao",
-    description: "AI se koi bhi image create karo",
-    prompt: "A beautiful sunset over mountains with purple and orange sky, realistic photography",
-  },
-  {
-    icon: <Lightbulb size={18} />,
-    label: "Ideas & Help",
-    description: "Naye ideas, video scripts, translations",
-    prompt: "Mujhe ek YouTube video script likh do on 'Top 10 AI Tools in 2026'",
-  },
-  {
-    icon: <BookOpen size={18} />,
-    label: "Kuch Seekho",
-    description: "Koi bhi topic samjho easily",
-    prompt: "Mujhe Python programming basics sikhao step by step",
-  },
+const CHAT_SUGGESTIONS = [
+  { emoji: "🖼️", label: "Create image", prompt: "A beautiful sunset over mountains with purple and orange sky, realistic photography" },
+  { emoji: "✍️", label: "Write anything", prompt: "Mujhe ek professional email likh do for job application in Hindi" },
+  { emoji: "💡", label: "Get ideas", prompt: "Mujhe kuch creative business ideas suggest karo for 2026" },
+  { emoji: "📚", label: "Help me learn", prompt: "Mujhe Python programming basics sikhao step by step" },
+  { emoji: "🎬", label: "Video script", prompt: "Write a YouTube video script on 'Top 10 AI Tools in 2026' with intro, scenes, and outro" },
+  { emoji: "🌐", label: "Translate text", prompt: "Translate this to Hindi: The future of AI is incredibly exciting and full of possibilities" },
 ];
 
-const BUILDER_CATEGORIES = [
-  {
-    icon: <Code size={18} />,
-    label: "Build a Website",
-    description: "Create any website or app",
-    prompt: "Create a beautiful landing page for a tech startup",
-  },
-  {
-    icon: <Palette size={18} />,
-    label: "Design Something",
-    description: "Get creative design ideas",
-    prompt: "Design a modern portfolio website with dark theme",
-  },
-  {
-    icon: <Globe size={18} />,
-    label: "Web App Banao",
-    description: "Full functional web app create karo",
-    prompt: "Create a todo app with dark theme and local storage",
-  },
-  {
-    icon: <Sparkles size={18} />,
-    label: "Landing Page",
-    description: "Beautiful landing page design",
-    prompt: "Create a stunning SaaS product landing page with hero section, features, and pricing",
-  },
+const BUILDER_SUGGESTIONS = [
+  { emoji: "🌐", label: "Landing page", prompt: "Create a stunning SaaS product landing page with hero section, features, and pricing" },
+  { emoji: "🎨", label: "Portfolio site", prompt: "Design a modern portfolio website with dark theme" },
+  { emoji: "📱", label: "Web app banao", prompt: "Create a todo app with dark theme and local storage" },
+  { emoji: "🛒", label: "E-commerce page", prompt: "Create a beautiful product showcase page for an online store" },
+  { emoji: "📊", label: "Dashboard UI", prompt: "Create an admin dashboard with charts, stats cards, and a sidebar navigation" },
+  { emoji: "📝", label: "Blog template", prompt: "Create a clean, minimal blog website with article cards and categories" },
 ];
 
 function getGreeting(): string {
@@ -154,25 +118,53 @@ function MessageActions({ msg, index, onEdit, onDelete, onRegenerate }: {
   );
 }
 
-export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
+// Animated text component that reveals text word by word
+function AnimatedHeadline({ text, delay = 0 }: { text: string; delay?: number }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  const words = text.split(" ");
+
+  return (
+    <span className="inline">
+      {words.map((word, i) => (
+        <span
+          key={i}
+          className="inline-block transition-all duration-500"
+          style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? "translateY(0)" : "translateY(12px)",
+            transitionDelay: `${i * 80}ms`,
+          }}
+        >
+          {word}{i < words.length - 1 ? "\u00A0" : ""}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+export function ChatPane({ messages, loading, appMode, userName, onSuggestionClick, onEdit, onDelete, onRegenerate }: ChatPaneProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const prevMsgCountRef = useRef(0);
-  const MODE_CATEGORIES: Record<string, typeof CHAT_CATEGORIES> = {
-    chat: CHAT_CATEGORIES,
-    builder: BUILDER_CATEGORIES,
-  };
-  const MODE_TITLES: Record<string, { title: string; subtitle: string }> = {
-    chat: { title: "Kuch bhi pucho ya banao!", subtitle: "Chat karo, image banao, video script likho — sab ek jagah" },
-    builder: { title: "Kya banana hai aaj?", subtitle: "Website, app, ya koi bhi web project create karo" },
-  };
-  const categories = MODE_CATEGORIES[appMode || "chat"] || CHAT_CATEGORIES;
-  const welcomeTitle = MODE_TITLES[appMode || "chat"]?.title || "Kya help chahiye?";
-  const welcomeSubtitle = MODE_TITLES[appMode || "chat"]?.subtitle || "";
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
-  
+  const [chipsVisible, setChipsVisible] = useState(false);
+
+  const suggestions = appMode === "builder" ? BUILDER_SUGGESTIONS : CHAT_SUGGESTIONS;
+  const greeting = getGreeting();
+  const displayName = userName || "";
+
+  useEffect(() => {
+    const timer = setTimeout(() => setChipsVisible(true), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleScroll = () => {
     const el = scrollContainerRef.current;
@@ -186,46 +178,54 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Only auto-scroll when user sends a new message (message count increases with a user message)
   useEffect(() => {
     const userMessages = messages.filter(m => m.role === "user");
     const prevCount = prevMsgCountRef.current;
     const newCount = userMessages.length;
     if (newCount > prevCount) {
-      // User just sent a message, scroll to bottom
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     }
     prevMsgCountRef.current = newCount;
   }, [messages]);
 
   if (messages.length === 0 && !loading) {
+    const headlineChat = "I'm ready to help you create, learn, explore and more.";
+    const headlineBuilder = "Let's build something amazing together.";
+    const headline = appMode === "builder" ? headlineBuilder : headlineChat;
+
     return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-background px-4 py-8 overflow-y-auto">
-        <div className="max-w-md w-full space-y-8">
-          <div className="flex justify-center">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden">
-              <img src={hexaIcon} alt="Hexa.AI" className="w-full h-full object-cover" />
-            </div>
+      <div className="flex-1 flex flex-col justify-center bg-background px-5 py-8 overflow-y-auto">
+        <div className="max-w-xl w-full mx-auto space-y-8">
+          {/* Greeting */}
+          <div className="space-y-3">
+            <p
+              className="text-muted-foreground text-base transition-all duration-500"
+              style={{ opacity: 1 }}
+            >
+              {greeting}{displayName ? ` ${displayName}` : ""} 👋
+            </p>
+            <h1 className="text-[1.75rem] md:text-[2.1rem] font-bold text-foreground leading-snug tracking-tight font-display">
+              <AnimatedHeadline text={headline} delay={200} />
+            </h1>
           </div>
-          <div className="text-center space-y-2">
-            <p className="text-muted-foreground text-sm">{getGreeting()}! 👋</p>
-            <h2 className="text-2xl font-bold font-display text-foreground">{welcomeTitle}</h2>
-            <p className="text-xs text-muted-foreground">{welcomeSubtitle}</p>
-          </div>
-          <div className="grid grid-cols-2 gap-2.5">
-            {categories.map((cat, i) => (
+
+          {/* Suggestion Chips */}
+          <div className="flex flex-wrap gap-2.5">
+            {suggestions.map((s, i) => (
               <button
                 key={i}
-                onClick={() => onSuggestionClick?.(cat.prompt)}
-                className="flex flex-col items-center gap-2 px-3 py-4 rounded-xl border border-border bg-card hover:bg-muted hover:border-primary/30 transition-all text-center group"
+                onClick={() => onSuggestionClick?.(s.prompt)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-full border border-border bg-card hover:bg-muted hover:border-primary/30 transition-all duration-200 active:scale-95"
+                style={{
+                  opacity: chipsVisible ? 1 : 0,
+                  transform: chipsVisible ? "translateY(0)" : "translateY(10px)",
+                  transitionDelay: `${i * 80}ms`,
+                  transitionProperty: "opacity, transform, background-color, border-color",
+                  transitionDuration: "400ms, 400ms, 200ms, 200ms",
+                }}
               >
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                  {cat.icon}
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-foreground">{cat.label}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{cat.description}</p>
-                </div>
+                <span className="text-base">{s.emoji}</span>
+                <span className="text-sm text-foreground font-medium">{s.label}</span>
               </button>
             ))}
           </div>
@@ -248,7 +248,7 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
                 <span className="text-xs font-medium text-muted-foreground">Hexa</span>
               </div>
             )}
-            <div className={`max-w-[85%] ${msg.role === "user" ? "" : ""}`}>
+            <div className={`max-w-[85%]`}>
               {msg.role === "user" ? (
                 <div className="bg-muted/60 rounded-2xl rounded-tr-sm px-4 py-2.5 text-[15px] break-words text-foreground leading-relaxed">
                   <span className="whitespace-pre-wrap">{msg.content}</span>
@@ -312,24 +312,23 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce [animation-delay:0ms]" />
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-bounce [animation-delay:150ms]" />
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce [animation-delay:300ms]" />
-    </div>
-
-      {/* Scroll to bottom button */}
-      {showScrollBtn && (
-        <div className="relative">
-          <button
-            onClick={scrollToBottom}
-            className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 w-9 h-9 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity animate-in fade-in-0 zoom-in-95"
-          >
-            <ArrowDown size={18} />
-          </button>
-        </div>
-      )}
+              </div>
             </div>
           </div>
         )}
         <div ref={bottomRef} />
       </div>
+
+      {showScrollBtn && (
+        <div className="sticky bottom-3 flex justify-center z-10">
+          <button
+            onClick={scrollToBottom}
+            className="w-9 h-9 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity animate-in fade-in-0 zoom-in-95"
+          >
+            <ArrowDown size={18} />
+          </button>
+        </div>
+      )}
     </div>
 
       {lightboxSrc && (
@@ -343,7 +342,6 @@ export function ChatPane({ messages, loading, appMode, onSuggestionClick, onEdit
 }
 
 function summarizeHtml(content: string): string {
-  // Don't summarize if content contains image markdown
   if (content.includes("![")) return content;
   if (content.length < 300) return content;
   const title = content.match(/<title>(.*?)<\/title>/i)?.[1];
