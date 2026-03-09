@@ -40,35 +40,14 @@ const BUILDER_MODELS: ModelOption[] = [
   { id: "openai/gpt-5.2", label: "GPT-5.2", description: "Top-tier reasoning", icon: <Brain size={14} />, speed: "powerful" },
 ];
 
-const IMAGE_MODELS: ModelOption[] = [
-  { id: "google/gemini-2.5-flash-image", label: "Gemini Flash Image", description: "Fast image generation", icon: <Image size={14} />, speed: "fast", free: true },
-  { id: "google/gemini-3-pro-image-preview", label: "Gemini 3 Pro Image", description: "Highest quality images", icon: <Image size={14} />, speed: "powerful" },
-  { id: "google/gemini-2.5-flash-image-3d", label: "3D Image Creator", description: "Generate 3D-style images", icon: <Cpu size={14} />, speed: "balanced" },
-];
-
-const VIDEO_MODELS: ModelOption[] = [
-  // Free models
-  { id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Basic video scripts", icon: <Zap size={14} />, speed: "fast", free: true },
-  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Quick video ideas", icon: <Zap size={14} />, speed: "fast", free: true },
-  // Premium models
-  { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", description: "Fast video scripts", icon: <Zap size={14} />, speed: "fast" },
-  { id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Detailed storyboards", icon: <Brain size={14} />, speed: "powerful" },
-  { id: "openai/gpt-5", label: "GPT-5", description: "Creative scripts", icon: <Brain size={14} />, speed: "powerful" },
-  { id: "openai/gpt-5.2", label: "GPT-5.2", description: "Best video planning", icon: <Brain size={14} />, speed: "powerful" },
-];
-
 const MODE_MODELS: Record<AppMode, ModelOption[]> = {
   chat: CHAT_MODELS,
   builder: BUILDER_MODELS,
-  image: IMAGE_MODELS,
-  video: VIDEO_MODELS,
 };
 
 const DEFAULT_MODELS: Record<AppMode, string> = {
   chat: "google/gemini-3-flash-preview",
   builder: "google/gemini-3-flash-preview",
-  image: "google/gemini-2.5-flash-image",
-  video: "google/gemini-3-flash-preview",
 };
 
 const STORAGE_KEY = "hexa-selected-models";

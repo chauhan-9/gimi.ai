@@ -37,7 +37,7 @@ export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack
         <div className="flex items-center gap-2">
           <img src={hexaIcon} alt="Hexa.AI" className="w-7 h-7 rounded-lg" />
           <span className="text-sm font-bold font-display gradient-text tracking-tight">
-            {appMode === "chat" ? "Chat" : appMode === "builder" ? "Builder" : appMode === "image" ? "Image Creator" : appMode === "video" ? "Video Creator" : "hexa.ai"}
+            {appMode === "chat" ? "Chat" : appMode === "builder" ? "Builder" : "hexa.ai"}
           </span>
         </div>
       </div>
