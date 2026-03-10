@@ -119,7 +119,7 @@ FORMATTING RULES (VERY IMPORTANT):
 - Use bullet points and numbered lists for clarity
 - Never write walls of text without spacing`,
 
-  writer: `You are Hexa.AI's **AI Writer** tool. You are an expert content writer.
+  writer: `You are Gimi.AI's **AI Writer** tool. You are an expert content writer.
 You help users write:
 - Blog posts, articles, essays
 - Email drafts, cover letters
