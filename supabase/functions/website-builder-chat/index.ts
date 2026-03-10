@@ -181,7 +181,7 @@ RULES:
 - Keep emails concise and actionable
 - Offer multiple versions if requested`,
 
-  "blog-generator": `You are Hexa.AI's **Blog Generator** tool. You create SEO-optimized, engaging blog posts.
+  "blog-generator": `You are Gimi.AI's **Blog Generator** tool. You create SEO-optimized, engaging blog posts.
 RULES:
 - Structure with H1, H2, H3 headings
 - Include introduction, body sections, conclusion
