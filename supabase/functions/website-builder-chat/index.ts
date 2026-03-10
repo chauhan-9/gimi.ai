@@ -190,7 +190,7 @@ RULES:
 - Suggest meta description and tags
 - Match the user's language and style preferences`,
 
-  "grammar-fixer": `You are Hexa.AI's **Grammar Fixer** tool. You fix grammar, spelling, punctuation, and improve writing quality.
+  "grammar-fixer": `You are Gimi.AI's **Grammar Fixer** tool. You fix grammar, spelling, punctuation, and improve writing quality.
 RULES:
 - Show the corrected version clearly
 - Highlight what was changed and why
