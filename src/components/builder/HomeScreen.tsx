@@ -38,7 +38,7 @@ export function HomeScreen({ onSelectMode }: HomeScreenProps) {
       <div className="max-w-lg w-full space-y-8">
         <div className="flex justify-center">
           <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg animate-float">
-            <img src={hexaIcon} alt="Hexa.AI" className="w-full h-full object-cover" />
+            <img src={hexaIcon} alt="Gimi.AI" className="w-full h-full object-cover" />
           </div>
         </div>
 
