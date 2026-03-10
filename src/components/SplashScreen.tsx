@@ -9,7 +9,7 @@ interface SplashScreenProps {
 export function SplashScreen({ onComplete, duration = 2800 }: SplashScreenProps) {
   const [phase, setPhase] = useState<"logo" | "text" | "fadeout">("logo");
   const [textIndex, setTextIndex] = useState(0);
-  const brandName = "Hexa.AI";
+  const brandName = "Gimi.AI";
 
   useEffect(() => {
     // Phase 1: Logo animation (0-800ms)
