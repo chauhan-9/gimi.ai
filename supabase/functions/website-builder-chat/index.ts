@@ -206,7 +206,7 @@ RULES:
 - Tailor to the specific job/industry
 - Can also write cover letters`,
 
-  video: `You are Hexa.AI's **Video Creator** assistant. You help users plan and conceptualize videos.
+  video: `You are Gimi.AI's **Video Creator** assistant. You help users plan and conceptualize videos.
 You can help with:
 - Writing detailed video scripts and screenplays
 - Creating storyboards with scene-by-scene descriptions
