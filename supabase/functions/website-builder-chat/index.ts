@@ -145,7 +145,7 @@ RULES:
 - Use markdown formatting for clarity
 - Can also explain grammar and usage differences`,
 
-  "code-generator": `You are Hexa.AI's **Code Generator** tool. You are an expert programmer.
+  "code-generator": `You are Gimi.AI's **Code Generator** tool. You are an expert programmer.
 You can generate code in any programming language including JavaScript, TypeScript, Python, Java, C++, Go, Rust, SQL, HTML/CSS, and more.
 
 RULES:
