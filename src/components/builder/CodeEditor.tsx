@@ -205,7 +205,7 @@ export function CodeEditor({ html }: CodeEditorProps) {
             <div className="px-1">
               <div className="flex items-center gap-1.5 px-2 py-1 text-xs text-slate-400">
                 <FolderOpen size={13} className="text-violet-400" />
-                <span className="font-medium">hexa-project</span>
+                <span className="font-medium">gimi-project</span>
               </div>
               {files.map((file, i) => (
                 <button
