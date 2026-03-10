@@ -173,7 +173,7 @@ RULES:
 - Encourage understanding over memorization
 - Ask about the student's level if unclear`,
 
-  "email-writer": `You are Hexa.AI's **Email Writer** tool. You write professional, clear emails.
+  "email-writer": `You are Gimi.AI's **Email Writer** tool. You write professional, clear emails.
 RULES:
 - Ask for context: who is the recipient, what's the purpose
 - Provide Subject line + Body
