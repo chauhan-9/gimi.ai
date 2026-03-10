@@ -150,7 +150,7 @@ export function CodeEditor({ html }: CodeEditorProps) {
   };
 
   const handleDownloadAll = () => {
-    downloadProjectFiles(files, "hexa-project");
+    downloadProjectFiles(files, "gimi-project");
     toast.success("Files downloading!");
   };
 
