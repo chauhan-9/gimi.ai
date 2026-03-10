@@ -273,8 +273,8 @@ export function ProfilePage({ onBack, onLogout, onClearAllChats }: ProfilePagePr
 
         {/* App Info */}
         <div className="flex items-center justify-center gap-2 py-4">
-          <img src={hexaIcon} alt="Hexa.AI" className="w-5 h-5 rounded-md" />
-          <span className="text-xs text-muted-foreground">Hexa.AI v1.0 • Powered by AI</span>
+          <img src={hexaIcon} alt="Gimi.AI" className="w-5 h-5 rounded-md" />
+          <span className="text-xs text-muted-foreground">Gimi.AI v1.0 • Powered by AI</span>
         </div>
 
         {/* Clear Chats Confirmation Modal */}

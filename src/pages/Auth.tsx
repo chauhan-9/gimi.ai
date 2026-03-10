@@ -63,7 +63,7 @@ const Auth = () => {
               <img src={hexaIcon} alt="Gimi.AI" className="w-full h-full object-cover" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold font-display gradient-text">Hexa.AI</h1>
+          <h1 className="text-2xl font-bold font-display gradient-text">Gimi.AI</h1>
           <p className="text-sm text-muted-foreground">
             {isLogin ? "Sign in to your account" : "Create a new account"}
           </p>
