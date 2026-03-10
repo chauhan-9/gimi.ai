@@ -292,7 +292,7 @@ export function ChatPane({ messages, loading, appMode, userName, typingAnimation
                                       onClick={() => {
                                         const link = document.createElement("a");
                                         link.href = src || "";
-                                        link.download = `hexa-image-${Date.now()}.png`;
+                                        link.download = `gimi-image-${Date.now()}.png`;
                                         link.click();
                                         toast.success("Download started!");
                                       }}
