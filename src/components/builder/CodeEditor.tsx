@@ -150,7 +150,7 @@ export function CodeEditor({ html }: CodeEditorProps) {
   };
 
   const handleDownloadAll = () => {
-    downloadProjectFiles(files, "hexa-project");
+    downloadProjectFiles(files, "gimi-project");
     toast.success("Files downloading!");
   };
 
@@ -205,7 +205,7 @@ export function CodeEditor({ html }: CodeEditorProps) {
             <div className="px-1">
               <div className="flex items-center gap-1.5 px-2 py-1 text-xs text-slate-400">
                 <FolderOpen size={13} className="text-violet-400" />
-                <span className="font-medium">hexa-project</span>
+                <span className="font-medium">gimi-project</span>
               </div>
               {files.map((file, i) => (
                 <button
@@ -242,7 +242,7 @@ export function CodeEditor({ html }: CodeEditorProps) {
         </div>
         <div className="flex items-center gap-3 text-white/80">
           <span>UTF-8</span>
-          <span>Hexa.AI</span>
+          <span>Gimi.AI</span>
         </div>
       </div>
     </div>

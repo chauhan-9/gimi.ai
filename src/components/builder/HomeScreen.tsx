@@ -38,14 +38,14 @@ export function HomeScreen({ onSelectMode }: HomeScreenProps) {
       <div className="max-w-lg w-full space-y-8">
         <div className="flex justify-center">
           <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg animate-float">
-            <img src={hexaIcon} alt="Hexa.AI" className="w-full h-full object-cover" />
+            <img src={hexaIcon} alt="Gimi.AI" className="w-full h-full object-cover" />
           </div>
         </div>
 
         <div className="text-center space-y-2">
           <p className="text-muted-foreground text-sm">{getGreeting()}! 👋</p>
           <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground">
-            Welcome to <span className="gradient-text">Hexa.AI</span>
+            Welcome to <span className="gradient-text">Gimi.AI</span>
           </h1>
           <p className="text-xs text-muted-foreground">Aap kya karna chahte hain?</p>
         </div>

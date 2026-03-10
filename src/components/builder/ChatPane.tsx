@@ -249,9 +249,9 @@ export function ChatPane({ messages, loading, appMode, userName, typingAnimation
             {msg.role === "assistant" && (
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-6 h-6 rounded-lg overflow-hidden">
-                  <img src={hexaIcon} alt="Hexa" className="w-full h-full object-cover" />
+                  <img src={hexaIcon} alt="Gimi" className="w-full h-full object-cover" />
                 </div>
-                <span className="text-xs font-medium text-muted-foreground">Hexa</span>
+                <span className="text-xs font-medium text-muted-foreground">Gimi</span>
               </div>
             )}
             <div className={`max-w-[85%]`}>
@@ -292,7 +292,7 @@ export function ChatPane({ messages, loading, appMode, userName, typingAnimation
                                       onClick={() => {
                                         const link = document.createElement("a");
                                         link.href = src || "";
-                                        link.download = `hexa-image-${Date.now()}.png`;
+                                        link.download = `gimi-image-${Date.now()}.png`;
                                         link.click();
                                         toast.success("Download started!");
                                       }}
@@ -341,7 +341,7 @@ export function ChatPane({ messages, loading, appMode, userName, typingAnimation
                                   onClick={() => {
                                     const link = document.createElement("a");
                                     link.href = src || "";
-                                    link.download = `hexa-image-${Date.now()}.png`;
+                                    link.download = `gimi-image-${Date.now()}.png`;
                                     link.click();
                                     toast.success("Download started!");
                                   }}
@@ -366,7 +366,7 @@ export function ChatPane({ messages, loading, appMode, userName, typingAnimation
         {loading && (
           <div className="flex gap-3 justify-start">
             <div className="flex-shrink-0 w-7 h-7 rounded-lg overflow-hidden">
-              <img src={hexaIcon} alt="Hexa" className="w-full h-full object-cover" />
+              <img src={hexaIcon} alt="Gimi" className="w-full h-full object-cover" />
             </div>
             <div className="bg-card border border-border rounded-2xl rounded-bl-md px-4 py-3 text-sm">
               <div className="flex items-center gap-1.5">

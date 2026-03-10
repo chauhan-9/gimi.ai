@@ -142,7 +142,7 @@ export function ChatInput({ onSend, loading, placeholder, appMode, selectedModel
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
             onInput={handleInput}
-            placeholder={placeholder || "Ask Hexa anything..."}
+            placeholder={placeholder || "Ask Gimi anything..."}
             rows={1}
             className="w-full resize-none px-4 pt-3 pb-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none bg-transparent"
             disabled={loading}
