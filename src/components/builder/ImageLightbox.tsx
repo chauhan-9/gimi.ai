@@ -32,7 +32,7 @@ export function ImageLightbox({ src, alt, onClose }: ImageLightboxProps) {
   const handleDownload = () => {
     const link = document.createElement("a");
     link.href = src;
-    link.download = `hexa-image-${Date.now()}.png`;
+    link.download = `gimi-image-${Date.now()}.png`;
     link.click();
     toast.success("Download started!");
   };

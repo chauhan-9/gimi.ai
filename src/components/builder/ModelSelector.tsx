@@ -50,7 +50,7 @@ const DEFAULT_MODELS: Record<AppMode, string> = {
   builder: "google/gemini-3-flash-preview",
 };
 
-const STORAGE_KEY = "hexa-selected-models";
+const STORAGE_KEY = "gimi-selected-models";
 
 export function getStoredModel(mode: AppMode): string {
   try {

@@ -45,7 +45,7 @@ export function HomeScreen({ onSelectMode }: HomeScreenProps) {
         <div className="text-center space-y-2">
           <p className="text-muted-foreground text-sm">{getGreeting()}! 👋</p>
           <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground">
-            Welcome to <span className="gradient-text">Hexa.AI</span>
+            Welcome to <span className="gradient-text">Gimi.AI</span>
           </h1>
           <p className="text-xs text-muted-foreground">Aap kya karna chahte hain?</p>
         </div>

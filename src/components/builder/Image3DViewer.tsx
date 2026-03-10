@@ -84,7 +84,7 @@ export function Image3DViewer({ src, onClose }: Image3DViewerProps) {
   const handleDownload = () => {
     const link = document.createElement("a");
     link.href = src;
-    link.download = `hexa-3d-image-${Date.now()}.png`;
+    link.download = `gimi-3d-image-${Date.now()}.png`;
     link.click();
     toast.success("Download started!");
   };

@@ -242,7 +242,7 @@ export function CodeEditor({ html }: CodeEditorProps) {
         </div>
         <div className="flex items-center gap-3 text-white/80">
           <span>UTF-8</span>
-          <span>Hexa.AI</span>
+          <span>Gimi.AI</span>
         </div>
       </div>
     </div>

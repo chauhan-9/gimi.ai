@@ -34,7 +34,7 @@ export function ToolsDashboard({ onSelectTool }: ToolsDashboardProps) {
         <div className="text-center space-y-3 mb-8">
           <div className="flex justify-center">
             <div className="w-14 h-14 rounded-2xl overflow-hidden">
-              <img src={hexaIcon} alt="Hexa.AI" className="w-full h-full object-cover" />
+              <img src={hexaIcon} alt="Gimi.AI" className="w-full h-full object-cover" />
             </div>
           </div>
           <h2 className="text-2xl font-bold font-display text-foreground">AI Tools</h2>

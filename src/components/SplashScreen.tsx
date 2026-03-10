@@ -71,7 +71,7 @@ export function SplashScreen({ onComplete, duration = 2800 }: SplashScreenProps)
         {/* Main logo */}
         <img
           src={splashLogo}
-          alt="Hexa.AI"
+          alt="Gimi.AI"
           className="w-32 h-32 md:w-40 md:h-40 object-contain relative z-10 drop-shadow-2xl animate-[float_3s_ease-in-out_infinite]"
         />
       </div>

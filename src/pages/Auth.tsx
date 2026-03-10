@@ -60,7 +60,7 @@ const Auth = () => {
         <div className="text-center space-y-3">
           <div className="flex justify-center">
             <div className="w-16 h-16 rounded-2xl overflow-hidden glow-primary">
-              <img src={hexaIcon} alt="Hexa.AI" className="w-full h-full object-cover" />
+              <img src={hexaIcon} alt="Gimi.AI" className="w-full h-full object-cover" />
             </div>
           </div>
           <h1 className="text-2xl font-bold font-display gradient-text">Hexa.AI</h1>

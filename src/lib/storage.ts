@@ -128,7 +128,7 @@ export async function createProjectInCloud(name?: string, mode: AppMode = "build
 
 // ---- Local fallback ----
 
-const ACTIVE_KEY_PREFIX = "hexa-active-";
+const ACTIVE_KEY_PREFIX = "gimi-active-";
 
 export function loadActiveId(mode?: AppMode): string | null {
   if (mode) return localStorage.getItem(ACTIVE_KEY_PREFIX + mode);

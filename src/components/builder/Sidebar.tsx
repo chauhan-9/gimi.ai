@@ -60,9 +60,9 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
   return (
     <div className="flex flex-col h-full w-64 bg-card border-r border-border flex-shrink-0">
       <div className="p-4 flex items-center gap-3">
-        <img src={hexaIcon} alt="Hexa.AI" className="w-9 h-9 rounded-xl" />
+        <img src={hexaIcon} alt="Gimi.AI" className="w-9 h-9 rounded-xl" />
         <div>
-          <h1 className="text-sm font-bold font-display gradient-text">Hexa.AI</h1>
+          <h1 className="text-sm font-bold font-display gradient-text">Gimi.AI</h1>
           <p className="text-[10px] text-muted-foreground">{config.label}</p>
         </div>
       </div>
