@@ -80,7 +80,7 @@ export function ProfilePage({ onBack, onLogout, onClearAllChats }: ProfilePagePr
 
   const handleThemeChange = (newTheme: ThemeOption) => {
     setTheme(newTheme);
-    localStorage.setItem("hexa-theme", newTheme);
+    localStorage.setItem("gimi-theme", newTheme);
 
     if (newTheme === "dark") {
       document.documentElement.classList.add("dark");
