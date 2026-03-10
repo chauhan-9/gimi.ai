@@ -49,7 +49,7 @@ export function ProfilePage({ onBack, onLogout, onClearAllChats }: ProfilePagePr
     }
 
     // Load theme from localStorage
-    const savedTheme = localStorage.getItem("hexa-theme") as ThemeOption | null;
+    const savedTheme = localStorage.getItem("gimi-theme") as ThemeOption | null;
     if (savedTheme) setTheme(savedTheme);
 
     loadProfile();
