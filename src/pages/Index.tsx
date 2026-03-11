@@ -527,6 +527,16 @@ const Index = () => {
           </>
         )}
       </div>
+
+      {showPublish && active && (
+        <PublishDialog
+          open={showPublish}
+          onClose={() => setShowPublish(false)}
+          projectId={active.id}
+          projectName={active.name}
+          html={active.html}
+        />
+      )}
     </div>
   );
 };
