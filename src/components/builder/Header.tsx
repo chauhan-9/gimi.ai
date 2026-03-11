@@ -14,7 +14,7 @@ export interface HeaderProps {
   onPublish?: () => void;
 }
 
-export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack, appMode }: HeaderProps) {
+export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack, appMode, onPublish }: HeaderProps) {
   const tabs: { key: View; label: string }[] =
     appMode === "builder"
       ? [
