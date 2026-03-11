@@ -470,6 +470,7 @@ const Index = () => {
                 setAppMode(null); setProjects([]); setActiveId(""); setStreamingContent(""); setLoading(false);
               }}
               appMode={appMode}
+              onPublish={() => setShowPublish(true)}
             />
 
             {appMode === "builder" ? (
