@@ -63,13 +63,21 @@ export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack
         )}
 
         {appMode === "builder" && (
-          <button
-            onClick={onDownload}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Download size={16} />
-            <span className="hidden sm:inline">Download</span>
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onPublish}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity font-medium"
+            >
+              <Globe size={14} />
+              <span className="hidden sm:inline">Publish</span>
+            </button>
+            <button
+              onClick={onDownload}
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors p-1.5"
+            >
+              <Download size={16} />
+            </button>
+          </div>
         )}
       </div>
     </div>
