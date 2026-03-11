@@ -41,6 +41,7 @@ const Index = () => {
   const [selectedModel, setSelectedModel] = useState(() => getStoredModel("chat"));
   const [userName, setUserName] = useState<string>("");
   const abortRef = useRef<AbortController | null>(null);
+  const [showPublish, setShowPublish] = useState(false);
   const navigate = useNavigate();
 
   const active = projects.find((p) => p.id === activeId) || projects[0];
