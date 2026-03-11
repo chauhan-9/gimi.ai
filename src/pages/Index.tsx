@@ -209,7 +209,7 @@ const Index = () => {
       return handleImageSend(text);
     }
 
-    const userMsg: Message = { role: "user", content: text, attachments: messageAttachments.length > 0 ? messageAttachments : undefined };
+    const userMsg: ProjectMessage = { role: "user", content: text, attachments: messageAttachments.length > 0 ? messageAttachments : undefined };
     const newMessages = [...active.messages, userMsg];
     const newName = active.messages.length === 0 ? text.slice(0, 40) : active.name;
     updateProject(active.id, { messages: newMessages, name: newName });
