@@ -2,12 +2,24 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AppMode = "chat" | "builder";
 
+export interface MessageAttachment {
+  url: string;
+  type: "image" | "video";
+  name?: string;
+}
+
+export interface ProjectMessage {
+  role: "user" | "assistant";
+  content: string;
+  attachments?: MessageAttachment[];
+}
+
 export interface Project {
   id: string;
   name: string;
   html: string;
   mode: AppMode;
-  messages: { role: "user" | "assistant"; content: string }[];
+  messages: ProjectMessage[];
   createdAt: number;
 }
 
