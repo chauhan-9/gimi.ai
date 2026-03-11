@@ -1,4 +1,4 @@
-import { ArrowLeft, Download, Menu } from "lucide-react";
+import { ArrowLeft, Download, Menu, Globe } from "lucide-react";
 import hexaIcon from "@/assets/hexa-icon.png";
 import type { AppMode } from "@/lib/storage";
 
@@ -11,6 +11,7 @@ export interface HeaderProps {
   onToggleSidebar: () => void;
   onBack?: () => void;
   appMode?: AppMode | null;
+  onPublish?: () => void;
 }
 
 export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack, appMode }: HeaderProps) {
