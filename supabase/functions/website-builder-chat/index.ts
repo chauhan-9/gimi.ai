@@ -273,6 +273,11 @@ serve(async (req) => {
     const systemPrompt = SYSTEM_PROMPTS[tool || "general"] || SYSTEM_PROMPTS.general;
     const selectedModel = model || "google/gemini-3-flash-preview";
 
+    // Check if any message has multimodal content (images)
+    const hasImages = messages.some((m: any) => Array.isArray(m.content));
+    // Use a vision-capable model if images are present
+    const finalModel = hasImages ? (selectedModel || "google/gemini-2.5-flash") : selectedModel;
+
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
       {
@@ -282,7 +287,7 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: selectedModel,
+          model: finalModel,
           messages: [
             { role: "system", content: systemPrompt },
             ...messages,

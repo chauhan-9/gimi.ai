@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/builder/Sidebar";
 import { Header, type View } from "@/components/builder/Header";
 import { ChatInput } from "@/components/builder/ChatInput";
 import { ChatPane } from "@/components/builder/ChatPane";
+import type { ProjectMessage, MessageAttachment } from "@/lib/storage";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { HomeScreen } from "@/components/builder/HomeScreen";
 import { ProfilePage } from "@/components/builder/ProfilePage";
@@ -171,15 +172,44 @@ const Index = () => {
     return keywords.some(k => lower.includes(k));
   };
 
-  const handleSend = async (text: string) => {
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleSend = async (text: string, attachments?: File[]) => {
     if (!active) return;
 
-    // In chat mode, detect image requests and route to image generation
-    if (appMode === "chat" && isImageRequest(text)) {
+    // Convert files to base64 for display and AI
+    let messageAttachments: MessageAttachment[] = [];
+    let base64Images: string[] = [];
+
+    if (attachments && attachments.length > 0) {
+      for (const file of attachments) {
+        const base64 = await fileToBase64(file);
+        const isVideo = file.type.startsWith("video/");
+        messageAttachments.push({
+          url: base64,
+          type: isVideo ? "video" : "image",
+          name: file.name,
+        });
+        // Only send images to AI (not videos for now)
+        if (!isVideo) {
+          base64Images.push(base64);
+        }
+      }
+    }
+
+    // In chat mode, detect image generation requests (only when no attachments)
+    if (appMode === "chat" && !attachments?.length && isImageRequest(text)) {
       return handleImageSend(text);
     }
 
-    const userMsg = { role: "user" as const, content: text };
+    const userMsg: ProjectMessage = { role: "user", content: text, attachments: messageAttachments.length > 0 ? messageAttachments : undefined };
     const newMessages = [...active.messages, userMsg];
     const newName = active.messages.length === 0 ? text.slice(0, 40) : active.name;
     updateProject(active.id, { messages: newMessages, name: newName });
@@ -194,8 +224,29 @@ const Index = () => {
     let fullContent = "";
     try {
       const toolParam = appMode === "chat" ? "chat" : undefined;
+
+      // Build messages for AI - include image data for multimodal
+      const aiMessages = newMessages.map(m => {
+        if (m.attachments && m.attachments.length > 0) {
+          const imageAttachments = m.attachments.filter(a => a.type === "image");
+          if (imageAttachments.length > 0) {
+            return {
+              role: m.role,
+              content: [
+                { type: "text" as const, text: m.content || "What is in this image?" },
+                ...imageAttachments.map(a => ({
+                  type: "image_url" as const,
+                  image_url: { url: a.url }
+                }))
+              ]
+            };
+          }
+        }
+        return { role: m.role, content: m.content };
+      });
+
       await streamChat({
-        messages: newMessages,
+        messages: aiMessages as any,
         tool: toolParam,
         model: selectedModel,
         onDelta: (chunk) => { fullContent += chunk; setStreamingContent(fullContent); },
