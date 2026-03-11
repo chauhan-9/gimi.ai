@@ -14,28 +14,28 @@ export interface ModelOption {
 
 const CHAT_MODELS: ModelOption[] = [
   // Free models
-  { id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Fast & lightweight", icon: <Zap size={14} />, speed: "fast", free: true },
-  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Quick responses", icon: <Zap size={14} />, speed: "fast", free: true },
-  { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Good all-rounder", icon: <Sparkles size={14} />, speed: "balanced", free: true },
+  { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Fast & reliable all-rounder", icon: <Sparkles size={14} />, speed: "balanced", free: true },
+  { id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Lightweight & quick", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", description: "Next-gen fast model", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Efficient & speedy", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "openai/gpt-5-mini", label: "GPT-5 Mini", description: "Smart & balanced", icon: <Sparkles size={14} />, speed: "balanced", free: true },
   // Premium models
-  { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", description: "Fast & capable", icon: <Zap size={14} />, speed: "fast" },
   { id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Most powerful reasoning", icon: <Brain size={14} />, speed: "powerful" },
   { id: "google/gemini-3.1-pro-preview", label: "Gemini 3.1 Pro", description: "Latest reasoning model", icon: <Brain size={14} />, speed: "powerful" },
-  { id: "openai/gpt-5-mini", label: "GPT-5 Mini", description: "Good balance", icon: <Sparkles size={14} />, speed: "balanced" },
   { id: "openai/gpt-5", label: "GPT-5", description: "Powerful all-rounder", icon: <Brain size={14} />, speed: "powerful" },
   { id: "openai/gpt-5.2", label: "GPT-5.2", description: "Enhanced reasoning", icon: <Brain size={14} />, speed: "powerful" },
 ];
 
 const BUILDER_MODELS: ModelOption[] = [
   // Free models
-  { id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Basic code generation", icon: <Zap size={14} />, speed: "fast", free: true },
-  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Quick code help", icon: <Zap size={14} />, speed: "fast", free: true },
-  { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Good code quality", icon: <Sparkles size={14} />, speed: "balanced", free: true },
+  { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Reliable code generation", icon: <Sparkles size={14} />, speed: "balanced", free: true },
+  { id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Quick code help", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", description: "Next-gen code gen", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "openai/gpt-5-nano", label: "GPT-5 Nano", description: "Fast code snippets", icon: <Zap size={14} />, speed: "fast", free: true },
+  { id: "openai/gpt-5-mini", label: "GPT-5 Mini", description: "Good code quality", icon: <Sparkles size={14} />, speed: "balanced", free: true },
   // Premium models
-  { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", description: "Fast code generation", icon: <Zap size={14} />, speed: "fast" },
   { id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Best for complex apps", icon: <Brain size={14} />, speed: "powerful" },
   { id: "google/gemini-3.1-pro-preview", label: "Gemini 3.1 Pro", description: "Latest & strongest", icon: <Brain size={14} />, speed: "powerful" },
-  { id: "openai/gpt-5-mini", label: "GPT-5 Mini", description: "Fast & good", icon: <Sparkles size={14} />, speed: "balanced" },
   { id: "openai/gpt-5", label: "GPT-5", description: "Excellent code quality", icon: <Brain size={14} />, speed: "powerful" },
   { id: "openai/gpt-5.2", label: "GPT-5.2", description: "Top-tier reasoning", icon: <Brain size={14} />, speed: "powerful" },
 ];
