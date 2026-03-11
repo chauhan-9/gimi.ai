@@ -100,6 +100,44 @@ export type Database = {
         }
         Relationships: []
       }
+      published_sites: {
+        Row: {
+          custom_url: string | null
+          id: string
+          project_id: string
+          published_at: string | null
+          slug: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          custom_url?: string | null
+          id?: string
+          project_id: string
+          published_at?: string | null
+          slug: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          custom_url?: string | null
+          id?: string
+          project_id?: string
+          published_at?: string | null
+          slug?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "published_sites_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
