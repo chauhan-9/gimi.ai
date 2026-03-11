@@ -264,7 +264,29 @@ export function ChatPane({ messages, loading, appMode, userName, typingAnimation
             <div className={`max-w-[85%]`}>
               {msg.role === "user" ? (
                 <div className="bg-muted/60 rounded-2xl rounded-tr-sm px-4 py-2.5 text-[15px] break-words text-foreground leading-relaxed">
-                  <span className="whitespace-pre-wrap">{msg.content}</span>
+                  {msg.attachments && msg.attachments.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {msg.attachments.map((att, ai) => (
+                        <div key={ai} className="rounded-lg overflow-hidden border border-border">
+                          {att.type === "image" ? (
+                            <img
+                              src={att.url}
+                              alt={att.name || "Attached image"}
+                              className="max-w-[200px] max-h-[200px] object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => setLightboxSrc(att.url)}
+                            />
+                          ) : (
+                            <video
+                              src={att.url}
+                              controls
+                              className="max-w-[240px] max-h-[180px] rounded-lg"
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {msg.content && <span className="whitespace-pre-wrap">{msg.content}</span>}
                 </div>
               ) : (
                 <div className="text-[15px] break-words text-foreground leading-[1.85]">
