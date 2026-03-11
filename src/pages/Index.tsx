@@ -8,6 +8,7 @@ import { ChatPane } from "@/components/builder/ChatPane";
 import type { ProjectMessage, MessageAttachment } from "@/lib/storage";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { HomeScreen } from "@/components/builder/HomeScreen";
+import { PublishDialog } from "@/components/builder/PublishDialog";
 import { ProfilePage } from "@/components/builder/ProfilePage";
 import type { AppMode } from "@/lib/storage";
 import { streamChat, extractHtml, generateImage } from "@/lib/ai-stream";
@@ -40,6 +41,7 @@ const Index = () => {
   const [selectedModel, setSelectedModel] = useState(() => getStoredModel("chat"));
   const [userName, setUserName] = useState<string>("");
   const abortRef = useRef<AbortController | null>(null);
+  const [showPublish, setShowPublish] = useState(false);
   const navigate = useNavigate();
 
   const active = projects.find((p) => p.id === activeId) || projects[0];
@@ -468,6 +470,7 @@ const Index = () => {
                 setAppMode(null); setProjects([]); setActiveId(""); setStreamingContent(""); setLoading(false);
               }}
               appMode={appMode}
+              onPublish={() => setShowPublish(true)}
             />
 
             {appMode === "builder" ? (
@@ -524,6 +527,16 @@ const Index = () => {
           </>
         )}
       </div>
+
+      {showPublish && active && (
+        <PublishDialog
+          open={showPublish}
+          onClose={() => setShowPublish(false)}
+          projectId={active.id}
+          projectName={active.name}
+          html={active.html}
+        />
+      )}
     </div>
   );
 };
