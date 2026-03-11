@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/builder/Sidebar";
 import { Header, type View } from "@/components/builder/Header";
 import { ChatInput } from "@/components/builder/ChatInput";
 import { ChatPane } from "@/components/builder/ChatPane";
-import type { Message, MessageAttachment } from "@/components/builder/ChatPane";
+import type { ProjectMessage, MessageAttachment } from "@/lib/storage";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { HomeScreen } from "@/components/builder/HomeScreen";
 import { ProfilePage } from "@/components/builder/ProfilePage";

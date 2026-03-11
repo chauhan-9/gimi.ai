@@ -9,17 +9,8 @@ import { toast } from "sonner";
 import { ImageLightbox } from "./ImageLightbox";
 import { TypingText } from "./TypingText";
 
-export interface MessageAttachment {
-  url: string;
-  type: "image" | "video";
-  name?: string;
-}
-
-export interface Message {
-  role: "user" | "assistant";
-  content: string;
-  attachments?: MessageAttachment[];
-}
+import type { ProjectMessage as Message, MessageAttachment } from "@/lib/storage";
+export type { ProjectMessage as Message, MessageAttachment } from "@/lib/storage";
 
 interface ChatPaneProps {
   messages: Message[];
