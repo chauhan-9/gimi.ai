@@ -462,7 +462,6 @@ const Index = () => {
               onDownload={handleDownload}
               onToggleSidebar={() => setShowSidebar(!showSidebar)}
               onBack={async () => {
-                // Clean up the fresh empty project if user never chatted in it
                 const freshId = freshProjectIdRef.current;
                 if (freshId) {
                   const freshProj = projects.find(p => p.id === freshId);
@@ -475,6 +474,8 @@ const Index = () => {
               }}
               appMode={appMode}
               onPublish={() => setShowPublish(true)}
+              onTemplates={() => setShowTemplates(true)}
+              onAITools={() => setShowAITools(true)}
             />
 
             {appMode === "builder" ? (
