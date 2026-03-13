@@ -214,6 +214,41 @@ export function CodeEditor({ html }: CodeEditorProps) {
         </div>
       </div>
 
+      {/* Search Panel */}
+      {showSearch && (
+        <div className="shrink-0 border-b" style={{ background: "hsl(225, 15%, 11%)", borderColor: "hsl(225, 10%, 18%)" }}>
+          <div className="flex items-center gap-2 px-3 py-2">
+            <Search size={13} className="text-slate-500 shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search in files..."
+              className="flex-1 bg-transparent text-xs text-slate-300 placeholder:text-slate-600 outline-none"
+              autoFocus
+            />
+            <span className="text-[10px] text-slate-600">{searchResults.length} results</span>
+            <button onClick={() => { setShowSearch(false); setSearchQuery(""); }} className="text-slate-500 hover:text-slate-300">
+              <X size={13} />
+            </button>
+          </div>
+          {searchResults.length > 0 && (
+            <div className="max-h-32 overflow-y-auto px-1 pb-2">
+              {searchResults.map((r, i) => (
+                <button
+                  key={i}
+                  onClick={() => { setActiveFile(r.fileIndex); setShowSearch(false); setSearchQuery(""); }}
+                  className="w-full flex items-center gap-2 px-3 py-1 text-[11px] text-slate-400 hover:bg-white/[0.04] rounded"
+                >
+                  <span className="text-slate-600 shrink-0">{r.fileName}:{r.line}</span>
+                  <span className="truncate text-slate-300">{r.text}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="flex flex-1 overflow-hidden">
         {/* File Tree - dark sidebar */}
         {showTree && (
