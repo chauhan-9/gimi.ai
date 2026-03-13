@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { FileCode, FileText, Paintbrush, Zap, Copy, Check, Download, FolderOpen, Files } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
+import { FileCode, FileText, Paintbrush, Zap, Copy, Check, Download, FolderOpen, Files, Search, X } from "lucide-react";
 import { parseHtmlToFiles, downloadProjectFiles, type VirtualFile } from "@/lib/code-parser";
 import { toast } from "sonner";
 
