@@ -122,6 +122,22 @@ export function CodeEditor({ html }: CodeEditorProps) {
   const [activeFile, setActiveFile] = useState(0);
   const [copied, setCopied] = useState(false);
   const [showTree, setShowTree] = useState(true);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim() || files.length === 0) return [];
+    const q = searchQuery.toLowerCase();
+    const results: { fileIndex: number; fileName: string; line: number; text: string }[] = [];
+    files.forEach((file, fi) => {
+      file.content.split("\n").forEach((line, li) => {
+        if (line.toLowerCase().includes(q)) {
+          results.push({ fileIndex: fi, fileName: file.name, line: li + 1, text: line.trim() });
+        }
+      });
+    });
+    return results.slice(0, 50);
+  }, [searchQuery, files]);
 
   if (files.length === 0) {
     return (
