@@ -542,6 +542,30 @@ const Index = () => {
           html={active.html}
         />
       )}
+
+      {showTemplates && (
+        <TemplateLibrary
+          open={showTemplates}
+          onClose={() => setShowTemplates(false)}
+          onSelect={(prompt) => {
+            handleSend(prompt);
+            setView("chat");
+          }}
+        />
+      )}
+
+      {showAITools && (
+        <AIToolsPanel
+          open={showAITools}
+          onClose={() => setShowAITools(false)}
+          html={active?.html || ""}
+          onSendPrompt={(prompt) => {
+            handleSend(prompt);
+            setView("chat");
+          }}
+          loading={loading}
+        />
+      )}
     </div>
   );
 };
