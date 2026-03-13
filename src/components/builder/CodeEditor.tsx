@@ -199,6 +199,9 @@ export function CodeEditor({ html }: CodeEditorProps) {
           ))}
         </div>
         <div className="flex items-center gap-0.5 pr-2 shrink-0">
+          <button onClick={() => setShowSearch(!showSearch)} className="p-1.5 rounded text-slate-500 hover:text-slate-300 transition-colors" title="Search">
+            <Search size={14} />
+          </button>
           <button onClick={handleCopy} className="p-1.5 rounded text-slate-500 hover:text-slate-300 transition-colors" title="Copy file">
             {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
           </button>
