@@ -10,6 +10,8 @@ import { PreviewPane } from "@/components/builder/PreviewPane";
 import { HomeScreen } from "@/components/builder/HomeScreen";
 import { PublishDialog } from "@/components/builder/PublishDialog";
 import { ProfilePage } from "@/components/builder/ProfilePage";
+import { TemplateLibrary } from "@/components/builder/TemplateLibrary";
+import { AIToolsPanel } from "@/components/builder/AIToolsPanel";
 import type { AppMode } from "@/lib/storage";
 import { streamChat, extractHtml, generateImage } from "@/lib/ai-stream";
 import { getStoredModel } from "@/components/builder/ModelSelector";
@@ -42,6 +44,8 @@ const Index = () => {
   const [userName, setUserName] = useState<string>("");
   const abortRef = useRef<AbortController | null>(null);
   const [showPublish, setShowPublish] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showAITools, setShowAITools] = useState(false);
   const navigate = useNavigate();
 
   const active = projects.find((p) => p.id === activeId) || projects[0];
@@ -458,7 +462,6 @@ const Index = () => {
               onDownload={handleDownload}
               onToggleSidebar={() => setShowSidebar(!showSidebar)}
               onBack={async () => {
-                // Clean up the fresh empty project if user never chatted in it
                 const freshId = freshProjectIdRef.current;
                 if (freshId) {
                   const freshProj = projects.find(p => p.id === freshId);
@@ -471,6 +474,8 @@ const Index = () => {
               }}
               appMode={appMode}
               onPublish={() => setShowPublish(true)}
+              onTemplates={() => setShowTemplates(true)}
+              onAITools={() => setShowAITools(true)}
             />
 
             {appMode === "builder" ? (
@@ -535,6 +540,30 @@ const Index = () => {
           projectId={active.id}
           projectName={active.name}
           html={active.html}
+        />
+      )}
+
+      {showTemplates && (
+        <TemplateLibrary
+          open={showTemplates}
+          onClose={() => setShowTemplates(false)}
+          onSelect={(prompt) => {
+            handleSend(prompt);
+            setView("chat");
+          }}
+        />
+      )}
+
+      {showAITools && (
+        <AIToolsPanel
+          open={showAITools}
+          onClose={() => setShowAITools(false)}
+          html={active?.html || ""}
+          onSendPrompt={(prompt) => {
+            handleSend(prompt);
+            setView("chat");
+          }}
+          loading={loading}
         />
       )}
     </div>

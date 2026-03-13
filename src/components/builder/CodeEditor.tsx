@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { FileCode, FileText, Paintbrush, Zap, Copy, Check, Download, FolderOpen, Files } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
+import { FileCode, FileText, Paintbrush, Zap, Copy, Check, Download, FolderOpen, Files, Search, X } from "lucide-react";
 import { parseHtmlToFiles, downloadProjectFiles, type VirtualFile } from "@/lib/code-parser";
 import { toast } from "sonner";
 
@@ -122,6 +122,22 @@ export function CodeEditor({ html }: CodeEditorProps) {
   const [activeFile, setActiveFile] = useState(0);
   const [copied, setCopied] = useState(false);
   const [showTree, setShowTree] = useState(true);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim() || files.length === 0) return [];
+    const q = searchQuery.toLowerCase();
+    const results: { fileIndex: number; fileName: string; line: number; text: string }[] = [];
+    files.forEach((file, fi) => {
+      file.content.split("\n").forEach((line, li) => {
+        if (line.toLowerCase().includes(q)) {
+          results.push({ fileIndex: fi, fileName: file.name, line: li + 1, text: line.trim() });
+        }
+      });
+    });
+    return results.slice(0, 50);
+  }, [searchQuery, files]);
 
   if (files.length === 0) {
     return (
@@ -183,6 +199,9 @@ export function CodeEditor({ html }: CodeEditorProps) {
           ))}
         </div>
         <div className="flex items-center gap-0.5 pr-2 shrink-0">
+          <button onClick={() => setShowSearch(!showSearch)} className="p-1.5 rounded text-slate-500 hover:text-slate-300 transition-colors" title="Search">
+            <Search size={14} />
+          </button>
           <button onClick={handleCopy} className="p-1.5 rounded text-slate-500 hover:text-slate-300 transition-colors" title="Copy file">
             {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
           </button>
@@ -194,6 +213,41 @@ export function CodeEditor({ html }: CodeEditorProps) {
           </button>
         </div>
       </div>
+
+      {/* Search Panel */}
+      {showSearch && (
+        <div className="shrink-0 border-b" style={{ background: "hsl(225, 15%, 11%)", borderColor: "hsl(225, 10%, 18%)" }}>
+          <div className="flex items-center gap-2 px-3 py-2">
+            <Search size={13} className="text-slate-500 shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search in files..."
+              className="flex-1 bg-transparent text-xs text-slate-300 placeholder:text-slate-600 outline-none"
+              autoFocus
+            />
+            <span className="text-[10px] text-slate-600">{searchResults.length} results</span>
+            <button onClick={() => { setShowSearch(false); setSearchQuery(""); }} className="text-slate-500 hover:text-slate-300">
+              <X size={13} />
+            </button>
+          </div>
+          {searchResults.length > 0 && (
+            <div className="max-h-32 overflow-y-auto px-1 pb-2">
+              {searchResults.map((r, i) => (
+                <button
+                  key={i}
+                  onClick={() => { setActiveFile(r.fileIndex); setShowSearch(false); setSearchQuery(""); }}
+                  className="w-full flex items-center gap-2 px-3 py-1 text-[11px] text-slate-400 hover:bg-white/[0.04] rounded"
+                >
+                  <span className="text-slate-600 shrink-0">{r.fileName}:{r.line}</span>
+                  <span className="truncate text-slate-300">{r.text}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-1 overflow-hidden">
         {/* File Tree - dark sidebar */}
