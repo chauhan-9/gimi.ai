@@ -1,4 +1,4 @@
-import { ArrowLeft, Download, Menu, Globe } from "lucide-react";
+import { ArrowLeft, Download, Menu, Globe, Sparkles, Zap } from "lucide-react";
 import hexaIcon from "@/assets/hexa-icon.png";
 import type { AppMode } from "@/lib/storage";
 
@@ -12,9 +12,11 @@ export interface HeaderProps {
   onBack?: () => void;
   appMode?: AppMode | null;
   onPublish?: () => void;
+  onTemplates?: () => void;
+  onAITools?: () => void;
 }
 
-export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack, appMode, onPublish }: HeaderProps) {
+export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack, appMode, onPublish, onTemplates, onAITools }: HeaderProps) {
   const tabs: { key: View; label: string }[] =
     appMode === "builder"
       ? [
@@ -63,7 +65,23 @@ export function Header({ view, onViewChange, onDownload, onToggleSidebar, onBack
         )}
 
         {appMode === "builder" && (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onTemplates}
+              className="flex items-center gap-1 px-2 py-1.5 text-xs rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              title="Templates"
+            >
+              <Sparkles size={14} />
+              <span className="hidden sm:inline">Templates</span>
+            </button>
+            <button
+              onClick={onAITools}
+              className="flex items-center gap-1 px-2 py-1.5 text-xs rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              title="AI Tools"
+            >
+              <Zap size={14} />
+              <span className="hidden sm:inline">AI Tools</span>
+            </button>
             <button
               onClick={onPublish}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity font-medium"

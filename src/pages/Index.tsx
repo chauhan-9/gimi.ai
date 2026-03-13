@@ -10,6 +10,8 @@ import { PreviewPane } from "@/components/builder/PreviewPane";
 import { HomeScreen } from "@/components/builder/HomeScreen";
 import { PublishDialog } from "@/components/builder/PublishDialog";
 import { ProfilePage } from "@/components/builder/ProfilePage";
+import { TemplateLibrary } from "@/components/builder/TemplateLibrary";
+import { AIToolsPanel } from "@/components/builder/AIToolsPanel";
 import type { AppMode } from "@/lib/storage";
 import { streamChat, extractHtml, generateImage } from "@/lib/ai-stream";
 import { getStoredModel } from "@/components/builder/ModelSelector";
