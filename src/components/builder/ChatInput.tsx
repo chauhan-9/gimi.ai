@@ -112,30 +112,30 @@ export function ChatInput({ onSend, loading, placeholder, appMode, selectedModel
   const canSend = text.trim() || attachments.length > 0;
 
   return (
-    <div className="flex-shrink-0 bg-card border-t border-border">
+    <div className="flex-shrink-0 px-3 pb-3 pt-1">
       <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFilesChosen} />
 
-      {attachments.length > 0 && (
-        <div className="px-3 pt-3 flex gap-2 overflow-x-auto scrollbar-hide">
-          {attachments.map((att, i) => (
-            <div key={i} className="relative flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border border-border bg-muted">
-              {att.type === "image" ? (
-                <img src={att.preview} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <FileVideo size={18} className="text-muted-foreground" />
-                </div>
-              )}
-              <button onClick={() => removeAttachment(i)} className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center">
-                <X size={8} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="max-w-3xl mx-auto">
+        {attachments.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-2 px-1">
+            {attachments.map((att, i) => (
+              <div key={i} className="relative flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border border-border/50 bg-muted/50 shadow-sm">
+                {att.type === "image" ? (
+                  <img src={att.preview} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <FileVideo size={18} className="text-muted-foreground" />
+                  </div>
+                )}
+                <button onClick={() => removeAttachment(i)} className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-sm">
+                  <X size={8} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
-      <div className="p-3">
-        <div className="rounded-xl border border-border bg-background overflow-hidden">
+        <div className="glass-input rounded-2xl overflow-hidden shadow-sm">
           <textarea
             ref={ref}
             value={text}
@@ -144,28 +144,28 @@ export function ChatInput({ onSend, loading, placeholder, appMode, selectedModel
             onInput={handleInput}
             placeholder={placeholder || "Ask Gimi anything..."}
             rows={1}
-            className="w-full resize-none px-4 pt-3 pb-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none bg-transparent"
+            className="w-full resize-none px-4 pt-3.5 pb-1.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none bg-transparent leading-relaxed"
             disabled={loading}
           />
-          <div className="flex items-center justify-between px-3 pb-2.5">
+          <div className="flex items-center justify-between px-2.5 pb-2.5">
             <div className="flex items-center gap-0.5">
               {appMode && selectedModel && onModelChange && (
                 <ModelSelector mode={appMode} selectedModel={selectedModel} onModelChange={onModelChange} />
               )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50" disabled={loading}>
+                  <button className="p-2 rounded-lg text-muted-foreground/60 hover:text-foreground hover:bg-muted/50 transition-all duration-200 disabled:opacity-50" disabled={loading}>
                     <Plus size={16} />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-44">
-                  <DropdownMenuItem onClick={() => handleFileSelect("image/*")}>
+                <DropdownMenuContent align="start" className="w-44 glass-strong rounded-xl border-border/40">
+                  <DropdownMenuItem onClick={() => handleFileSelect("image/*")} className="rounded-lg">
                     <Image size={14} className="mr-2" /> Photo
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleFileSelect("video/*")}>
+                  <DropdownMenuItem onClick={() => handleFileSelect("video/*")} className="rounded-lg">
                     <FileVideo size={14} className="mr-2" /> Video
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleFileSelect("image/*;capture=camera")}>
+                  <DropdownMenuItem onClick={() => handleFileSelect("image/*;capture=camera")} className="rounded-lg">
                     <Camera size={14} className="mr-2" /> Camera
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -175,8 +175,8 @@ export function ChatInput({ onSend, loading, placeholder, appMode, selectedModel
             <div className="flex items-center gap-0.5">
               <button
                 onClick={toggleRecording}
-                className={`p-2 rounded-lg transition-colors ${
-                  isRecording ? "bg-destructive/10 text-destructive animate-pulse" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                className={`p-2 rounded-lg transition-all duration-200 ${
+                  isRecording ? "bg-destructive/10 text-destructive animate-pulse" : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/50"
                 } disabled:opacity-50`}
                 disabled={loading}
               >
@@ -186,7 +186,7 @@ export function ChatInput({ onSend, loading, placeholder, appMode, selectedModel
               <button
                 onClick={handleSend}
                 disabled={loading || !canSend}
-                className="p-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-30 transition-opacity"
+                className="p-2 rounded-xl gradient-bg text-primary-foreground hover:opacity-90 disabled:opacity-20 transition-all duration-200 shadow-sm"
               >
                 {loading ? (
                   <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
@@ -197,6 +197,10 @@ export function ChatInput({ onSend, loading, placeholder, appMode, selectedModel
             </div>
           </div>
         </div>
+
+        <p className="text-center text-[10px] text-muted-foreground/40 mt-1.5">
+          Gimi can make mistakes. Check important info.
+        </p>
       </div>
     </div>
   );

@@ -4,60 +4,58 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Splash screen float animation */
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 240 10% 10%;
+    --background: 0 0% 100%;
+    --foreground: 220 15% 12%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 10%;
+    --card: 220 20% 97%;
+    --card-foreground: 220 15% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 10%;
+    --popover-foreground: 220 15% 12%;
 
-    --primary: 262 80% 55%;
+    --primary: 252 85% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 250 20% 96%;
-    --secondary-foreground: 240 10% 20%;
+    --secondary: 240 15% 95%;
+    --secondary-foreground: 220 15% 20%;
 
-    --muted: 250 15% 94%;
-    --muted-foreground: 240 5% 46%;
+    --muted: 240 12% 94%;
+    --muted-foreground: 220 10% 50%;
 
-    --accent: 290 60% 52%;
+    --accent: 280 65% 58%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 250 10% 90%;
-    --input: 250 10% 92%;
-    --ring: 262 80% 55%;
+    --border: 240 8% 90%;
+    --input: 240 8% 92%;
+    --ring: 252 85% 60%;
 
     --radius: 0.75rem;
 
-    --sidebar-bg: 0 0% 100%;
-    --sidebar-fg: 240 10% 30%;
-    --sidebar-active: 262 80% 55%;
-    --sidebar-hover: 250 20% 96%;
-    --sidebar-border: 250 10% 92%;
+    --sidebar-bg: 240 15% 97%;
+    --sidebar-fg: 220 10% 30%;
+    --sidebar-active: 252 85% 60%;
+    --sidebar-hover: 240 12% 94%;
+    --sidebar-border: 240 8% 90%;
 
     --builder-header: 0 0% 100%;
-    --builder-canvas: 250 20% 97%;
+    --builder-canvas: 240 15% 97%;
     --builder-footer: 0 0% 100%;
 
     --code-bg: 225 15% 13%;
     --code-fg: 210 10% 80%;
+
+    --glow-primary: 252 85% 60%;
+    --glow-accent: 280 65% 58%;
   }
 }
 
@@ -73,6 +71,8 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -88,40 +88,87 @@
 }
 
 @layer utilities {
+  /* Glassmorphism utilities */
   .glass {
-    background: hsla(0, 0%, 100%, 0.75);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsla(250, 10%, 90%, 0.6);
+    background: hsla(0, 0%, 100%, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsla(240, 8%, 90%, 0.5);
   }
 
   .glass-strong {
-    background: hsla(0, 0%, 100%, 0.9);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid hsla(250, 10%, 90%, 0.5);
+    background: hsla(0, 0%, 100%, 0.88);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid hsla(240, 8%, 90%, 0.4);
   }
 
   .glass-card {
-    background: hsla(0, 0%, 100%, 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid hsla(250, 10%, 90%, 0.5);
+    background: hsla(0, 0%, 100%, 0.65);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid hsla(240, 8%, 90%, 0.4);
   }
 
+  .glass-sidebar {
+    background: hsla(240, 15%, 97%, 0.85);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+  }
+
+  .glass-input {
+    background: hsla(0, 0%, 100%, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsla(240, 8%, 88%, 0.6);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-input:focus-within {
+    border-color: hsla(252, 85%, 60%, 0.4);
+    box-shadow: 0 0 0 3px hsla(252, 85%, 60%, 0.08), 0 4px 20px -4px hsla(252, 85%, 60%, 0.12);
+  }
+
+  /* Glow effects */
   .glow-primary {
-    box-shadow: 0 2px 16px hsla(262, 80%, 55%, 0.1);
+    box-shadow: 0 4px 24px -4px hsla(252, 85%, 60%, 0.15);
   }
 
   .glow-accent {
-    box-shadow: 0 2px 16px hsla(290, 60%, 52%, 0.1);
+    box-shadow: 0 4px 24px -4px hsla(280, 65%, 58%, 0.15);
+  }
+
+  .glow-sm {
+    box-shadow: 0 2px 12px -2px hsla(252, 85%, 60%, 0.1);
   }
 
   .gradient-text {
-    background: linear-gradient(135deg, hsl(262, 80%, 55%), hsl(290, 60%, 52%));
+    background: linear-gradient(135deg, hsl(252, 85%, 60%), hsl(280, 65%, 58%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, hsl(252, 85%, 60%), hsl(280, 65%, 58%));
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsla(252, 85%, 60%, 0.3), hsla(280, 65%, 58%, 0.3));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 
   .scrollbar-hide::-webkit-scrollbar {
@@ -130,6 +177,21 @@
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Smooth scrollbar for chat */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsla(240, 8%, 70%, 0.3);
+    border-radius: 99px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsla(240, 8%, 60%, 0.5);
   }
 
   @keyframes float {
@@ -142,10 +204,50 @@
   }
 
   .animate-glow {
-    box-shadow: 0 4px 24px hsla(262, 80%, 55%, 0.12);
+    box-shadow: 0 4px 24px hsla(252, 85%, 60%, 0.12);
   }
 
-  /* Chat message prose enhancements — ChatGPT-style clean layout */
+  /* Scale-in animation for modals */
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Slide up animation */
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Fade in */
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  /* Pulse glow for active items */
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 hsla(252, 85%, 60%, 0.2); }
+    50% { box-shadow: 0 0 0 6px hsla(252, 85%, 60%, 0); }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Chat message prose enhancements */
   .chat-prose ol > li {
     margin-top: 1.5rem !important;
     margin-bottom: 1.5rem !important;
@@ -210,7 +312,6 @@
     font-size: 1rem;
   }
 
-  /* Horizontal rule — clean section separator like ChatGPT */
   .chat-prose hr {
     border: none !important;
     border-top: 1px solid hsl(var(--border)) !important;
@@ -218,7 +319,6 @@
     margin-bottom: 2rem !important;
   }
 
-  /* KaTeX math formulas — clean, spacious, like ChatGPT */
   .chat-prose .katex-display {
     margin: 1.5rem 0 !important;
     padding: 1rem 1.25rem;
@@ -236,12 +336,10 @@
     color: hsl(var(--foreground));
   }
 
-  /* Inline math */
   .chat-prose p .katex {
     font-size: 1.05em;
   }
 
-  /* Bullet list styling for math explanations */
   .chat-prose ul {
     padding-left: 1.5rem !important;
   }
@@ -250,7 +348,6 @@
     color: hsl(var(--primary));
   }
 
-  /* Blockquote clean style */
   .chat-prose blockquote {
     border-left: 3px solid hsl(var(--primary)) !important;
     background: hsl(var(--muted) / 0.4) !important;
