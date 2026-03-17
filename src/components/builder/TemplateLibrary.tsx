@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Layout, Briefcase, BookOpen, Rocket, User, ShoppingBag, Sparkles } from "lucide-react";
+import { X, Layout, Briefcase, BookOpen, Rocket, User, ShoppingBag, Sparkles, ArrowRight } from "lucide-react";
 
 export interface Template {
   id: string;
@@ -134,29 +134,34 @@ export function TemplateLibrary({ open, onClose, onSelect }: TemplateLibraryProp
   const filtered = selectedCategory === "All" ? templates : templates.filter(t => t.category === selectedCategory);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4">
-      <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col animate-scale-in overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 backdrop-blur-md p-4 animate-fade-in">
+      <div className="bg-background/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col animate-scale-in overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border shrink-0">
-          <div className="flex items-center gap-2">
-            <Sparkles size={20} className="text-primary" />
-            <h2 className="text-lg font-bold font-display text-foreground">Templates</h2>
+        <div className="flex items-center justify-between p-4 border-b border-border/40 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center shadow-sm">
+              <Sparkles size={16} className="text-primary-foreground" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold font-display text-foreground">Templates</h2>
+              <p className="text-[10px] text-muted-foreground">Start with a pre-built template</p>
+            </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-            <X size={18} />
+          <button onClick={onClose} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200">
+            <X size={16} />
           </button>
         </div>
 
         {/* Categories */}
-        <div className="flex gap-2 px-4 pt-3 pb-2 overflow-x-auto scrollbar-hide shrink-0">
+        <div className="flex gap-1.5 px-4 pt-3 pb-2 overflow-x-auto scrollbar-hide shrink-0">
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 text-xs rounded-full font-medium whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 text-xs rounded-full font-medium whitespace-nowrap transition-all duration-200 ${
                 selectedCategory === cat
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:text-foreground"
+                  ? "gradient-bg text-primary-foreground shadow-sm"
+                  : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               {cat}
@@ -165,26 +170,28 @@ export function TemplateLibrary({ open, onClose, onSelect }: TemplateLibraryProp
         </div>
 
         {/* Template Grid */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {filtered.map(template => (
               <button
                 key={template.id}
                 onClick={() => { onSelect(template.prompt); onClose(); }}
-                className="group flex flex-col gap-3 p-4 rounded-xl border border-border bg-background hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200 text-left active:scale-[0.98]"
+                className="group flex flex-col gap-3 p-4 rounded-xl border border-border/40 bg-card/50 hover:bg-card hover:border-primary/25 hover:shadow-md transition-all duration-200 text-left active:scale-[0.98]"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-primary/8 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-200 shadow-sm">
                     {template.icon}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{template.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{template.description}</p>
+                    <p className="text-[11px] text-muted-foreground/70 truncate">{template.description}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{template.category}</span>
-                  <span className="text-[10px] text-muted-foreground/60 ml-auto">Click to generate →</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground font-medium">{template.category}</span>
+                  <span className="text-[10px] text-muted-foreground/40 ml-auto flex items-center gap-1 group-hover:text-primary transition-colors">
+                    Generate <ArrowRight size={10} />
+                  </span>
                 </div>
               </button>
             ))}

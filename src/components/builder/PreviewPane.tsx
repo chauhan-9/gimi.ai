@@ -26,11 +26,13 @@ export function PreviewPane({ html, view }: PreviewPaneProps) {
 
   if (!html) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[hsl(var(--builder-canvas))]">
-        <div className="text-center text-muted-foreground">
-          <div className="text-4xl mb-3">🚀</div>
-          <p className="text-lg font-medium">Ready to build</p>
-          <p className="text-sm">Describe your website below to get started</p>
+      <div className="flex-1 flex items-center justify-center bg-muted/30">
+        <div className="text-center text-muted-foreground animate-fade-in">
+          <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">🚀</span>
+          </div>
+          <p className="text-base font-semibold font-display">Ready to build</p>
+          <p className="text-sm text-muted-foreground/60 mt-1">Describe your website to get started</p>
         </div>
       </div>
     );
@@ -39,17 +41,17 @@ export function PreviewPane({ html, view }: PreviewPaneProps) {
   const config = deviceConfig[device];
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-[hsl(var(--builder-canvas))]">
+    <div className="flex-1 flex flex-col overflow-hidden bg-muted/30">
       {/* Device toolbar */}
-      <div className="flex items-center justify-center gap-1 py-2 bg-card/50 border-b border-border shrink-0">
+      <div className="flex items-center justify-center gap-0.5 py-2 glass-strong border-b border-border/40 shrink-0">
         {(Object.keys(deviceConfig) as DeviceSize[]).map((d) => (
           <button
             key={d}
             onClick={() => setDevice(d)}
-            className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg transition-colors ${
+            className={`flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg transition-all duration-200 ${
               device === d
-                ? "bg-primary/10 text-primary font-medium"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                ? "bg-primary/10 text-primary font-medium border border-primary/15"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
             }`}
             title={deviceConfig[d].label}
           >
@@ -57,10 +59,10 @@ export function PreviewPane({ html, view }: PreviewPaneProps) {
             <span className="hidden sm:inline">{deviceConfig[d].label}</span>
           </button>
         ))}
-        <div className="w-px h-4 bg-border mx-1" />
+        <div className="w-px h-4 bg-border/50 mx-1.5" />
         <button
           onClick={() => setRefreshKey((k) => k + 1)}
-          className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200"
           title="Refresh"
         >
           <RefreshCw size={14} />
@@ -70,7 +72,7 @@ export function PreviewPane({ html, view }: PreviewPaneProps) {
       {/* Preview frame */}
       <div className="flex-1 overflow-auto flex justify-center p-4">
         <div
-          className={`bg-background rounded-lg shadow-lg border border-border overflow-hidden transition-all duration-300 h-full ${
+          className={`bg-background rounded-xl shadow-lg border border-border/50 overflow-hidden transition-all duration-300 h-full ${
             device === "full" ? "w-full" : ""
           }`}
           style={device !== "full" ? { width: config.width, maxWidth: "100%" } : undefined}
