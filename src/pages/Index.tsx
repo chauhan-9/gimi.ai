@@ -9,6 +9,7 @@ import type { ProjectMessage, MessageAttachment } from "@/lib/storage";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { HomeScreen } from "@/components/builder/HomeScreen";
 import { PublishDialog } from "@/components/builder/PublishDialog";
+import { BottomSheet } from "@/components/builder/BottomSheet";
 import { ProfilePage } from "@/components/builder/ProfilePage";
 import { TemplateLibrary } from "@/components/builder/TemplateLibrary";
 import { AIToolsPanel } from "@/components/builder/AIToolsPanel";
