@@ -46,8 +46,8 @@ const MODE_MODELS: Record<AppMode, ModelOption[]> = {
 };
 
 const DEFAULT_MODELS: Record<AppMode, string> = {
-  chat: "google/gemini-3-flash-preview",
-  builder: "google/gemini-3-flash-preview",
+  chat: "google/gemini-2.5-flash",
+  builder: "google/gemini-2.5-flash",
 };
 
 const STORAGE_KEY = "gimi-selected-models";
