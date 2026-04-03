@@ -47,6 +47,7 @@ const Index = () => {
   const [showPublish, setShowPublish] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showAITools, setShowAITools] = useState(false);
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
   const navigate = useNavigate();
 
   const active = projects.find((p) => p.id === activeId) || projects[0];
