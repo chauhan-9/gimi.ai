@@ -9,6 +9,7 @@ import type { ProjectMessage, MessageAttachment } from "@/lib/storage";
 import { PreviewPane } from "@/components/builder/PreviewPane";
 import { HomeScreen } from "@/components/builder/HomeScreen";
 import { PublishDialog } from "@/components/builder/PublishDialog";
+import { BottomSheet } from "@/components/builder/BottomSheet";
 import { ProfilePage } from "@/components/builder/ProfilePage";
 import { TemplateLibrary } from "@/components/builder/TemplateLibrary";
 import { AIToolsPanel } from "@/components/builder/AIToolsPanel";
@@ -46,6 +47,7 @@ const Index = () => {
   const [showPublish, setShowPublish] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showAITools, setShowAITools] = useState(false);
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
   const navigate = useNavigate();
 
   const active = projects.find((p) => p.id === activeId) || projects[0];
@@ -435,6 +437,17 @@ const Index = () => {
           }}
           onLogout={handleLogout}
           onProfile={() => { setShowProfile(true); setShowSidebar(false); }}
+          onHome={async () => {
+            const freshId = freshProjectIdRef.current;
+            if (freshId) {
+              const freshProj = projects.find(p => p.id === freshId);
+              if (freshProj && freshProj.messages.length === 0) {
+                try { await deleteProjectFromCloud(freshId); } catch {}
+              }
+              freshProjectIdRef.current = null;
+            }
+            setAppMode(null); setProjects([]); setActiveId(""); setStreamingContent(""); setLoading(false);
+          }}
           mode={appMode}
         />
       </div>
@@ -476,35 +489,70 @@ const Index = () => {
               onPublish={() => setShowPublish(true)}
               onTemplates={() => setShowTemplates(true)}
               onAITools={() => setShowAITools(true)}
+              onBottomSheet={() => setShowBottomSheet(true)}
+              projectName={active?.name}
             />
 
             {appMode === "builder" ? (
               <>
-                {view === "chat" ? (
-                  <ChatPane
-                    messages={allMessages}
-                    loading={loading && !streamingContent}
-                    typingAnimationForLastAssistant={Boolean(streamingContent)}
-                    appMode={appMode}
-                    userName={userName}
-                    onSuggestionClick={handleSend}
-                    onEdit={handleEditMessage}
-                    onDelete={handleDeleteMessage}
-                    onRegenerate={handleRegenerate}
-                  />
-                ) : (
-                  <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
-                )}
-                {view === "chat" && (
-                  <ChatInput
-                    onSend={handleSend}
-                    loading={loading}
-                    placeholder={placeholders.builder}
-                    appMode={appMode}
-                    selectedModel={selectedModel}
-                    onModelChange={setSelectedModel}
-                  />
-                )}
+                {/* Desktop: split-pane layout */}
+                <div className="hidden lg:flex flex-1 min-h-0">
+                  {/* Chat side */}
+                  <div className="flex flex-col w-[420px] min-w-[340px] border-r border-border/40 shrink-0">
+                    <ChatPane
+                      messages={allMessages}
+                      loading={loading && !streamingContent}
+                      typingAnimationForLastAssistant={Boolean(streamingContent)}
+                      appMode={appMode}
+                      userName={userName}
+                      onSuggestionClick={handleSend}
+                      onEdit={handleEditMessage}
+                      onDelete={handleDeleteMessage}
+                      onRegenerate={handleRegenerate}
+                    />
+                    <ChatInput
+                      onSend={handleSend}
+                      loading={loading}
+                      placeholder={placeholders.builder}
+                      appMode={appMode}
+                      selectedModel={selectedModel}
+                      onModelChange={setSelectedModel}
+                    />
+                  </div>
+                  {/* Preview side */}
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <PreviewPane html={active?.html || ""} view={view === "code" ? "code" : "preview"} />
+                  </div>
+                </div>
+
+                {/* Mobile: tab-based layout */}
+                <div className="lg:hidden flex flex-col flex-1 min-h-0">
+                  {view === "chat" ? (
+                    <ChatPane
+                      messages={allMessages}
+                      loading={loading && !streamingContent}
+                      typingAnimationForLastAssistant={Boolean(streamingContent)}
+                      appMode={appMode}
+                      userName={userName}
+                      onSuggestionClick={handleSend}
+                      onEdit={handleEditMessage}
+                      onDelete={handleDeleteMessage}
+                      onRegenerate={handleRegenerate}
+                    />
+                  ) : (
+                    <PreviewPane html={active?.html || ""} view={view as "preview" | "code"} />
+                  )}
+                  {view === "chat" && (
+                    <ChatInput
+                      onSend={handleSend}
+                      loading={loading}
+                      placeholder={placeholders.builder}
+                      appMode={appMode}
+                      selectedModel={selectedModel}
+                      onModelChange={setSelectedModel}
+                    />
+                  )}
+                </div>
               </>
             ) : (
               <>
@@ -532,6 +580,13 @@ const Index = () => {
           </>
         )}
       </div>
+
+      <BottomSheet
+        open={showBottomSheet}
+        onClose={() => setShowBottomSheet(false)}
+        onPublish={() => { setShowBottomSheet(false); setShowPublish(true); }}
+        projectName={active?.name}
+      />
 
       {showPublish && active && (
         <PublishDialog
