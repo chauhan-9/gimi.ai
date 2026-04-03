@@ -1,5 +1,5 @@
-import { Plus, Trash2, MessageSquare, Code, MoreVertical, Edit2, Copy } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Plus, Trash2, MessageSquare, Code, MoreVertical, Edit2, Copy, Search, Star, Users, FolderOpen, Home, X } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
 import type { Project, AppMode } from "@/lib/storage";
 import { supabase } from "@/integrations/supabase/client";
 import hexaIcon from "@/assets/hexa-icon.png";
@@ -14,6 +14,7 @@ interface SidebarProps {
   onDuplicate?: (id: string) => void;
   onLogout: () => void;
   onProfile?: () => void;
+  onHome?: () => void;
   mode: AppMode;
 }
 
@@ -22,7 +23,9 @@ const modeConfig: Record<AppMode, { label: string; icon: React.ReactNode; newLab
   builder: { label: "Projects", icon: <Code size={13} />, newLabel: "New Project" },
 };
 
-export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRename, onDuplicate, onLogout, onProfile, mode }: SidebarProps) {
+type FilterType = "all" | "starred" | "recent";
+
+export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRename, onDuplicate, onLogout, onProfile, onHome, mode }: SidebarProps) {
   const config = modeConfig[mode];
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
@@ -30,6 +33,14 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
   const [userInitials, setUserInitials] = useState("?");
   const [userDisplayName, setUserDisplayName] = useState("");
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filter, setFilter] = useState<FilterType>("all");
+  const [starredIds, setStarredIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem("gimi-starred-projects");
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
 
   useEffect(() => {
     async function loadUser() {
@@ -44,6 +55,26 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
     loadUser();
   }, []);
 
+  const toggleStar = (id: string) => {
+    setStarredIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      localStorage.setItem("gimi-starred-projects", JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  const filteredProjects = useMemo(() => {
+    let list = projects;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(p => p.name.toLowerCase().includes(q));
+    }
+    if (filter === "starred") list = list.filter(p => starredIds.has(p.id));
+    if (filter === "recent") list = list.slice(0, 10);
+    return list;
+  }, [projects, searchQuery, filter, starredIds]);
+
   const handleRenameStart = (p: Project) => {
     setRenaming(p.id);
     setRenameValue(p.name);
@@ -56,32 +87,90 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
   };
 
   return (
-    <div className="flex flex-col h-full w-[260px] glass-sidebar border-r border-border/40 flex-shrink-0">
-      {/* Header */}
-      <div className="p-4 flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-xl overflow-hidden shadow-sm ring-1 ring-border/30">
-          <img src={hexaIcon} alt="Gimi.AI" className="w-full h-full object-cover" />
-        </div>
-        <div>
-          <h1 className="text-sm font-bold font-display gradient-text leading-tight">Gimi.AI</h1>
-          <p className="text-[10px] text-muted-foreground/70">{config.label}</p>
+    <div className="flex flex-col h-full w-[280px] glass-sidebar border-r border-border/40 flex-shrink-0">
+      {/* Search */}
+      <div className="p-3 border-b border-border/30">
+        <div className="relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search projects"
+            className="w-full pl-9 pr-8 py-2 text-sm bg-muted/50 rounded-xl border border-border/40 focus:outline-none focus:border-primary/40 text-foreground placeholder:text-muted-foreground/50 transition-colors"
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground">
+              <X size={14} />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* New button */}
-      <div className="px-3 pb-3">
+      {/* Home */}
+      <div className="px-2 pt-2">
         <button
-          onClick={onNew}
-          className="flex items-center justify-center gap-2 w-full rounded-xl gradient-bg text-primary-foreground py-2.5 text-sm font-semibold hover:opacity-90 transition-all duration-200 shadow-sm glow-sm active:scale-[0.98]"
+          onClick={onHome}
+          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all"
         >
-          <Plus size={15} />
-          {config.newLabel}
+          <Home size={15} />
+          <span className="font-medium">Home</span>
         </button>
       </div>
 
+      {/* Recent project */}
+      {projects.length > 0 && projects[0].messages.length > 0 && (
+        <div className="px-3 pt-3 pb-1">
+          <p className="text-[10px] font-semibold text-primary uppercase tracking-wider px-1 mb-1.5">Recent</p>
+          <button
+            onClick={() => { onNew(); }}
+            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm border border-border/40 hover:bg-muted/60 transition-all"
+          >
+            <Plus size={15} className="text-muted-foreground" />
+            <span className="font-medium text-foreground">Create new project</span>
+          </button>
+          <div
+            className={`flex items-center gap-2.5 mt-1 px-3 py-2.5 rounded-xl text-sm cursor-pointer transition-all ${
+              projects[0].id === activeId ? "bg-primary/8 border border-primary/15" : "hover:bg-muted/60 border border-transparent"
+            }`}
+            onClick={() => onSelect(projects[0].id)}
+          >
+            <div className="w-8 h-8 rounded-lg overflow-hidden bg-muted/50 flex items-center justify-center shrink-0">
+              <img src={hexaIcon} alt="" className="w-full h-full object-cover opacity-60" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold text-foreground truncate">{projects[0].name}</p>
+              <p className="text-[10px] text-muted-foreground">just now</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter tabs */}
+      <div className="px-3 pt-3 pb-1">
+        <p className="text-[10px] font-semibold text-primary uppercase tracking-wider px-1 mb-2">{config.label}</p>
+        <div className="flex flex-col gap-0.5">
+          {[
+            { key: "all" as FilterType, icon: <FolderOpen size={14} />, label: "All projects" },
+            { key: "starred" as FilterType, icon: <Star size={14} />, label: "Starred" },
+            { key: "recent" as FilterType, icon: <Users size={14} />, label: "Created by me" },
+          ].map(f => (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className={`flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-xs transition-all ${
+                filter === f.key ? "bg-muted/80 text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+              }`}
+            >
+              {f.icon}
+              <span>{f.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Project list */}
-      <div className="flex-1 overflow-y-auto px-2 space-y-0.5 scrollbar-thin">
-        {projects.map((p) => (
+      <div className="flex-1 overflow-y-auto px-2 pt-2 space-y-0.5 scrollbar-thin">
+        {filteredProjects.map((p) => (
           <div
             key={p.id}
             className={`group relative flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm cursor-pointer transition-all duration-200 ${
@@ -107,6 +196,18 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
               <span className="truncate flex-1 text-xs font-medium">{p.name}</span>
             )}
 
+            {/* Star button */}
+            {renaming !== p.id && (
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleStar(p.id); }}
+                className={`transition-all p-0.5 rounded-md ${
+                  starredIds.has(p.id) ? "text-amber-500 opacity-100" : "opacity-0 group-hover:opacity-40 hover:!opacity-100 text-muted-foreground"
+                }`}
+              >
+                <Star size={12} fill={starredIds.has(p.id) ? "currentColor" : "none"} />
+              </button>
+            )}
+
             {renaming !== p.id && (
               <button
                 onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === p.id ? null : p.id); }}
@@ -128,6 +229,12 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
                   >
                     <Edit2 size={12} /> Rename
                   </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleStar(p.id); setMenuOpen(null); }}
+                    className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-popover-foreground hover:bg-muted/60 transition-colors"
+                  >
+                    <Star size={12} /> {starredIds.has(p.id) ? "Unstar" : "Star"}
+                  </button>
                   {onDuplicate && (
                     <button
                       onClick={(e) => { e.stopPropagation(); onDuplicate(p.id); setMenuOpen(null); }}
@@ -148,6 +255,9 @@ export function Sidebar({ projects, activeId, onSelect, onNew, onDelete, onRenam
             )}
           </div>
         ))}
+        {filteredProjects.length === 0 && (
+          <p className="text-center text-xs text-muted-foreground/50 py-6">No projects found</p>
+        )}
       </div>
 
       {/* User section */}
